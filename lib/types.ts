@@ -15,6 +15,13 @@ export interface Organization {
   role: "OWNER" | "MEMBER" | "VIEWER";
   ownerId: string;
   createdAt: string;
+  plan?: {
+    id: string;
+    name: string;
+    slug: string;
+    status: string;
+    isOverridden: boolean;
+  } | null;
 }
 
 export interface AuthPayload {
