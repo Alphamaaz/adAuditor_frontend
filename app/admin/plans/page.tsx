@@ -1,20 +1,29 @@
-"use client";
-
+import { useState } from "react";
 import { useAdminPlans } from "@/hooks/use-admin";
+import PlanModal from "@/components/admin/PlanModal";
 import { 
   Plus, 
   Settings2, 
   CheckCircle2, 
-  XCircle, 
-  DollarSign, 
+  Loader2,
   Clock,
-  Layers,
-  ArrowRight,
-  Loader2
+  Layers
 } from "lucide-react";
 
 export default function AdminPlansPage() {
   const { data: plans, isLoading } = useAdminPlans();
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<any>(null);
+
+  const handleCreate = () => {
+    setSelectedPlan(null);
+    setIsModalOpen(true);
+  };
+
+  const handleEdit = (plan: any) => {
+    setSelectedPlan(plan);
+    setIsModalOpen(true);
+  };
 
   return (
     <div className="space-y-6">
@@ -25,7 +34,10 @@ export default function AdminPlansPage() {
             Manage product pricing, audit limits, and feature availability.
           </p>
         </div>
-        <button className="flex items-center gap-2 rounded-lg bg-[#1f4d3a] px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#183c2d]">
+        <button 
+          onClick={handleCreate}
+          className="flex items-center gap-2 rounded-lg bg-[#1f4d3a] px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-[#183c2d]"
+        >
           <Plus size={18} />
           Create New Plan
         </button>
@@ -89,7 +101,10 @@ export default function AdminPlansPage() {
             </div>
 
             <div className="p-4 bg-[#faf9f7] border-t border-[#e5ddd0]">
-              <button className="flex w-full items-center justify-center gap-2 rounded-lg border border-[#d1cac0] bg-white px-4 py-2 text-sm font-semibold text-[#374151] hover:bg-gray-50 transition-colors">
+              <button 
+                onClick={() => handleEdit(plan)}
+                className="flex w-full items-center justify-center gap-2 rounded-lg border border-[#d1cac0] bg-white px-4 py-2 text-sm font-semibold text-[#374151] hover:bg-gray-50 transition-colors"
+              >
                 <Settings2 size={16} />
                 Edit Plan Details
               </button>
@@ -97,6 +112,13 @@ export default function AdminPlansPage() {
           </div>
         ))}
       </div>
+
+      <PlanModal 
+        isOpen={isModalOpen} 
+        plan={selectedPlan} 
+        onClose={() => setIsModalOpen(false)} 
+      />
     </div>
   );
 }
+
