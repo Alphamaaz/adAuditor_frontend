@@ -1,101 +1,48 @@
-import { LegalPage, LegalSection } from "@/components/public-site";
+import Link from "next/link";
 
-export default function TermsPage() {
+export default function TermsOfService() {
   return (
-    <LegalPage title="Terms of Service" updatedAt="May 8, 2026">
-      <LegalSection title="1. Agreement">
-        <p>
-          These Terms of Service govern access to and use of AdAuditor Pro. By
-          creating an account or using the service, users agree to these terms
-          and any additional policies referenced by the product.
-        </p>
-        <p>
-          This page is a product-ready terms draft and should be reviewed by the
-          business owner and legal counsel before public launch.
-        </p>
-      </LegalSection>
+    <div className="min-h-screen bg-[#faf9f7] px-6 py-20">
+      <div className="mx-auto max-w-3xl rounded-xl border border-[#e5ddd0] bg-white p-8 shadow-sm lg:p-12">
+        <h1 className="text-3xl font-bold text-[#171717]">Terms of Service</h1>
+        <p className="mt-2 text-sm text-[#6b7280]">Last Updated: May 10, 2026</p>
+        
+        <div className="prose prose-slate mt-8 max-w-none space-y-6 text-[#374151]">
+          <section>
+            <h2 className="text-xl font-semibold text-[#171717]">1. Acceptance of Terms</h2>
+            <p>
+              By accessing or using AdAuditor Pro, you agree to be bound by these Terms of Service and all applicable laws and regulations. If you do not agree with any of these terms, you are prohibited from using or accessing this site.
+            </p>
+          </section>
 
-      <LegalSection title="2. Service Description">
-        <p>
-          AdAuditor Pro provides tools for collecting advertising account
-          context, uploading or connecting advertising data, running audit
-          checks, generating findings, and preparing AI-assisted audit reports.
-        </p>
-      </LegalSection>
+          <section>
+            <h2 className="text-xl font-semibold text-[#171717]">2. Use License</h2>
+            <p>
+              Permission is granted to temporarily use AdAuditor Pro for personal or commercial advertising audit purposes. This is the grant of a license, not a transfer of title, and under this license you may not attempt to decompile or reverse engineer any software contained on the website.
+            </p>
+          </section>
 
-      <LegalSection title="3. Account Responsibilities">
-        <p>
-          Users are responsible for providing accurate account information,
-          protecting login credentials, maintaining authorized access to any ad
-          accounts they upload or connect, and ensuring that their use of the
-          service complies with applicable laws and platform rules.
-        </p>
-      </LegalSection>
+          <section>
+            <h2 className="text-xl font-semibold text-[#171717]">3. Disclaimer</h2>
+            <p>
+              The materials on AdAuditor Pro are provided on an &apos;as is&apos; basis. AdAuditor Pro makes no warranties, expressed or implied, and hereby disclaims and negates all other warranties including, without limitation, implied warranties or conditions of merchantability, fitness for a particular purpose, or non-infringement of intellectual property or other violation of rights.
+            </p>
+          </section>
 
-      <LegalSection title="4. Advertising Platform Access">
-        <p>
-          Users may only upload or connect advertising data that they own or are
-          authorized to access. OAuth connections, when available, may be subject
-          to Meta, Google, TikTok, and other platform requirements.
-        </p>
-      </LegalSection>
+          <section>
+            <h2 className="text-xl font-semibold text-[#171717]">4. Accuracy of Materials</h2>
+            <p>
+              The audit reports provided by AdAuditor Pro are based on data retrieved from third-party APIs (like Meta). While we strive for accuracy, we do not warrant that any of the materials on its website are accurate, complete or current.
+            </p>
+          </section>
+        </div>
 
-      <LegalSection title="5. AI-Generated Output">
-        <p>
-          AI-assisted summaries and recommendations are provided for business
-          decision support. Users should review outputs before relying on them,
-          presenting them to clients, or making advertising changes.
-        </p>
-      </LegalSection>
-
-      <LegalSection title="6. Subscriptions and Billing">
-        <p>
-          Paid plans, usage limits, renewals, cancellations, and refunds will be
-          governed by the pricing terms displayed at checkout or assigned by the
-          product administrator. Stripe or another payment provider may process
-          payments when billing is enabled.
-        </p>
-      </LegalSection>
-
-      <LegalSection title="7. Acceptable Use">
-        <p>
-          Users may not misuse the service, attempt unauthorized access, upload
-          malicious files, interfere with product infrastructure, violate
-          platform policies, or use the service to process data they are not
-          permitted to use.
-        </p>
-      </LegalSection>
-
-      <LegalSection title="8. Intellectual Property">
-        <p>
-          The service, product design, code, branding, and generated system
-          templates belong to the product owner or its licensors. Users retain
-          ownership of their uploaded business and advertising data.
-        </p>
-      </LegalSection>
-
-      <LegalSection title="9. Disclaimers">
-        <p>
-          The service is provided as an audit and decision-support tool. We do
-          not guarantee advertising performance, revenue increases, platform
-          approval, or specific business outcomes.
-        </p>
-      </LegalSection>
-
-      <LegalSection title="10. Changes to Terms">
-        <p>
-          We may update these terms as the product evolves. Continued use of the
-          service after changes are posted means the user accepts the updated
-          terms.
-        </p>
-      </LegalSection>
-
-      <LegalSection title="11. Contact">
-        <p>
-          For questions about these terms, contact the AdAuditor Pro team using
-          the official support channel provided by the business owner.
-        </p>
-      </LegalSection>
-    </LegalPage>
+        <div className="mt-12 border-t border-[#e5ddd0] pt-8">
+          <Link href="/" className="text-sm font-medium text-[#1f4d3a] hover:underline">
+            ← Back to Home
+          </Link>
+        </div>
+      </div>
+    </div>
   );
 }

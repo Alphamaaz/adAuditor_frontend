@@ -75,17 +75,23 @@ export function PublicFooter() {
         </div>
         <div>
           <p className="text-sm font-semibold text-[#171717]">Company</p>
-          <div className="mt-3 flex flex-col gap-2 text-sm text-[#6b7280]">
-            <Link href="/about" className="hover:text-[#171717]">
-              About
-            </Link>
-            <Link href="/pricing" className="hover:text-[#171717]">
-              Pricing
-            </Link>
-            <Link href="/signup" className="hover:text-[#171717]">
-              Get started
-            </Link>
-          </div>
+          <ul className="mt-4 space-y-2 text-sm text-[#6b7280]">
+            <li>
+              <Link href="/privacy" className="hover:text-[#1f4d3a]">
+                Privacy Policy
+              </Link>
+            </li>
+            <li>
+              <Link href="/terms" className="hover:text-[#1f4d3a]">
+                Terms of Service
+              </Link>
+            </li>
+            <li>
+              <Link href="/data-deletion" className="hover:text-[#1f4d3a]">
+                Data Deletion
+              </Link>
+            </li>
+          </ul>
         </div>
         <div>
           <p className="text-sm font-semibold text-[#171717]">Legal</p>
