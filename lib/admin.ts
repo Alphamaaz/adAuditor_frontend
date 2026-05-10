@@ -112,6 +112,22 @@ export const adminApi = {
     return res.data.data;
   },
 
+  createPlan: async (data: any): Promise<SubscriptionPlan> => {
+    const res = await api.post<{ status: string; data: SubscriptionPlan }>(
+      "/api/admin/plans",
+      data
+    );
+    return res.data.data;
+  },
+
+  updatePlan: async (id: string, data: any): Promise<SubscriptionPlan> => {
+    const res = await api.patch<{ status: string; data: SubscriptionPlan }>(
+      `/api/admin/plans/${id}`,
+      data
+    );
+    return res.data.data;
+  },
+
   updateOrganizationPlan: async (
     organizationId: string,
     planId: string | null,

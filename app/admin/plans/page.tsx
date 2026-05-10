@@ -1,3 +1,5 @@
+"use client";
+
 import { useState } from "react";
 import { useAdminPlans } from "@/hooks/use-admin";
 import PlanModal from "@/components/admin/PlanModal";

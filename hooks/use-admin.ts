@@ -97,3 +97,25 @@ export function useUpdateOrgPlan() {
   });
 }
 
+export function useCreatePlan() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (data: any) => adminApi.createPlan(data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "plans"] });
+    },
+  });
+}
+
+export function useUpdatePlan() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, data }: { id: string; data: any }) =>
+      adminApi.updatePlan(id, data),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "plans"] });
+    },
+  });
+}

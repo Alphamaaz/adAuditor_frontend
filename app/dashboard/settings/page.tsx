@@ -159,9 +159,10 @@ export default function SettingsPage() {
         <div className="grid gap-6">
           <section className="rounded-lg border border-[#e5ddd0] bg-white p-6">
             <h2 className="text-lg font-semibold text-[#171717]">Profile</h2>
-            <div className="mt-4 grid gap-4 text-sm md:grid-cols-3">
+            <div className="mt-4 grid gap-4 text-sm md:grid-cols-4">
               <InfoItem label="Email" value={user.email} />
-              <InfoItem label="Role" value={user.internalRole} />
+              <InfoItem label="Plan" value={organization?.plan?.name || "No Plan"} />
+              <InfoItem label="Plan Status" value={organization?.plan?.status || "Unknown"} />
               <InfoItem label="Last login" value={formatDate(user.lastLoginAt)} />
             </div>
 
