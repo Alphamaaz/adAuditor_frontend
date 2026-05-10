@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
-import { X, Loader2 } from "lucide-react";
-import { useCreatePlan, useUpdatePlan } from "@/hooks/use-admin";
+import { useState, useEffect } from "react";
+import { X, Loader2, Trash2 } from "lucide-react";
+import { useCreatePlan, useUpdatePlan, useDeletePlan } from "@/hooks/use-admin";
 
 interface PlanModalProps {
   plan?: any;
@@ -12,14 +12,13 @@ interface PlanModalProps {
 
 export default function PlanModal({ plan, isOpen, onClose }: PlanModalProps) {
   const [formData, setFormData] = useState({
-    name: plan?.name || "",
-    slug: plan?.slug || "",
-    description: plan?.description || "",
-    priceCents: plan?.priceCents || 0,
-    monthlyAuditLimit: plan?.monthlyAuditLimit || 10,
-    historyDays: plan?.historyDays || 30,
-    isActive: plan?.isActive ?? true,
-    features: plan?.features || {
+    name: "",
+    description: "",
+    priceCents: 0,
+    monthlyAuditLimit: 10,
+    historyDays: 30,
+    isActive: true,
+    features: {
       standardAudits: true,
       aiInsights: false,
       prioritySupport: false,
@@ -27,18 +26,62 @@ export default function PlanModal({ plan, isOpen, onClose }: PlanModalProps) {
     }
   });
 
+  // Prefill data when the plan or modal open state changes
+  useEffect(() => {
+    if (isOpen) {
+      setFormData({
+        name: plan?.name || "",
+        description: plan?.description || "",
+        priceCents: plan?.priceCents || 0,
+        monthlyAuditLimit: plan?.monthlyAuditLimit || 10,
+        historyDays: plan?.historyDays || 30,
+        isActive: plan?.isActive ?? true,
+        features: plan?.features || {
+          standardAudits: true,
+          aiInsights: false,
+          prioritySupport: false,
+          unlimitedHistory: false
+        }
+      });
+    }
+  }, [plan, isOpen]);
+
+  const [isDeleting, setIsDeleting] = useState(false);
+
   const createPlan = useCreatePlan();
   const updatePlan = useUpdatePlan();
-  const isPending = createPlan.isPending || updatePlan.isPending;
+  const deletePlan = useDeletePlan();
+  const isPending = createPlan.isPending || updatePlan.isPending || deletePlan.isPending;
 
   if (!isOpen) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (plan) {
-      updatePlan.mutate({ id: plan.id, data: formData }, { onSuccess: onClose });
+      updatePlan.mutate(
+        { id: plan.id, data: formData }, 
+        { 
+          onSuccess: () => {
+            onClose();
+          } 
+        }
+      );
     } else {
-      createPlan.mutate(formData, { onSuccess: onClose });
+      createPlan.mutate(
+        formData, 
+        { 
+          onSuccess: () => {
+            onClose();
+          } 
+        }
+      );
+    }
+  };
+
+  const handleDelete = async () => {
+    if (!plan) return;
+    if (window.confirm("Are you sure you want to delete this plan? This action cannot be undone.")) {
+      deletePlan.mutate(plan.id, { onSuccess: onClose });
     }
   };
 
@@ -49,14 +92,27 @@ export default function PlanModal({ plan, isOpen, onClose }: PlanModalProps) {
           <h2 className="text-xl font-bold text-[#171717]">
             {plan ? "Edit Subscription Plan" : "Create New Plan"}
           </h2>
-          <button onClick={onClose} className="rounded-full p-2 hover:bg-gray-100">
-            <X size={20} />
-          </button>
+          <div className="flex items-center gap-2">
+            {plan && (
+              <button
+                type="button"
+                onClick={handleDelete}
+                disabled={isPending}
+                className="rounded-full p-2 text-red-500 hover:bg-red-50 transition-colors"
+                title="Delete Plan"
+              >
+                <Trash2 size={20} />
+              </button>
+            )}
+            <button onClick={onClose} className="rounded-full p-2 hover:bg-gray-100">
+              <X size={20} />
+            </button>
+          </div>
         </div>
 
         <form onSubmit={handleSubmit} className="max-h-[80vh] overflow-y-auto p-6">
           <div className="grid gap-6 md:grid-cols-2">
-            <div className="space-y-2">
+            <div className="col-span-2 space-y-2">
               <label className="text-sm font-semibold text-[#374151]">Plan Name</label>
               <input
                 type="text"
@@ -67,17 +123,7 @@ export default function PlanModal({ plan, isOpen, onClose }: PlanModalProps) {
                 placeholder="e.g. Pro Monthly"
               />
             </div>
-            <div className="space-y-2">
-              <label className="text-sm font-semibold text-[#374151]">Slug (URL safe)</label>
-              <input
-                type="text"
-                required
-                value={formData.slug}
-                onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                className="w-full rounded-lg border border-[#d1cac0] px-4 py-2 outline-none focus:ring-2 focus:ring-[#1f4d3a]/20"
-                placeholder="e.g. pro-monthly"
-              />
-            </div>
+            
             <div className="col-span-2 space-y-2">
               <label className="text-sm font-semibold text-[#374151]">Description</label>
               <textarea

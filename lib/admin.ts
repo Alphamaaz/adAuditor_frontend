@@ -139,5 +139,9 @@ export const adminApi = {
     );
     return res.data.data;
   },
+
+  deletePlan: async (id: string): Promise<void> => {
+    await api.delete(`/api/admin/plans/${id}`);
+  },
 };
 

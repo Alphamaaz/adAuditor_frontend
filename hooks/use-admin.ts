@@ -119,3 +119,14 @@ export function useUpdatePlan() {
     },
   });
 }
+
+export function useDeletePlan() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => adminApi.deletePlan(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["admin", "plans"] });
+    },
+  });
+}
