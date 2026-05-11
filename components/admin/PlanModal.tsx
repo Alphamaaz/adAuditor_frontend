@@ -11,7 +11,15 @@ interface PlanModalProps {
 }
 
 export default function PlanModal({ plan, isOpen, onClose }: PlanModalProps) {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    name: string;
+    description: string;
+    priceCents: number;
+    monthlyAuditLimit: number | null;
+    historyDays: number | null;
+    isActive: boolean;
+    features: Record<string, any>;
+  }>({
     name: "",
     description: "",
     priceCents: 0,
@@ -23,7 +31,7 @@ export default function PlanModal({ plan, isOpen, onClose }: PlanModalProps) {
       aiInsights: false,
       prioritySupport: false,
       unlimitedHistory: false
-    }
+    } as Record<string, any>
   });
 
   // Prefill data when the plan or modal open state changes
@@ -36,12 +44,12 @@ export default function PlanModal({ plan, isOpen, onClose }: PlanModalProps) {
         monthlyAuditLimit: plan?.monthlyAuditLimit || 10,
         historyDays: plan?.historyDays || 30,
         isActive: plan?.isActive ?? true,
-        features: plan?.features || {
+        features: plan?.features || ({
           standardAudits: true,
           aiInsights: false,
           prioritySupport: false,
           unlimitedHistory: false
-        }
+        } as Record<string, any>)
       });
     }
   }, [plan, isOpen]);
@@ -206,10 +214,10 @@ export default function PlanModal({ plan, isOpen, onClose }: PlanModalProps) {
                 <div key={feature} className="group relative flex items-center gap-3 rounded-lg border p-3 hover:bg-gray-50">
                   <input
                     type="checkbox"
-                    checked={formData.features[feature]}
+                    checked={(formData.features as Record<string, any>)[feature]}
                     onChange={(e) => setFormData({
                       ...formData,
-                      features: { ...formData.features, [feature]: e.target.checked }
+                      features: { ...(formData.features as Record<string, any>), [feature]: e.target.checked }
                     })}
                     className="h-4 w-4 rounded border-gray-300 text-[#1f4d3a] focus:ring-[#1f4d3a]"
                   />
