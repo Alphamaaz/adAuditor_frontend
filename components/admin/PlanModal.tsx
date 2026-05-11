@@ -157,9 +157,25 @@ export default function PlanModal({ plan, isOpen, onClose }: PlanModalProps) {
               <label className="text-sm font-semibold text-[#374151]">Monthly Audit Limit</label>
               <input
                 type="number"
-                required
-                value={formData.monthlyAuditLimit}
-                onChange={(e) => setFormData({ ...formData, monthlyAuditLimit: parseInt(e.target.value) })}
+                value={formData.monthlyAuditLimit ?? ""}
+                onChange={(e) => setFormData({ 
+                  ...formData, 
+                  monthlyAuditLimit: e.target.value === "" ? null : parseInt(e.target.value) 
+                })}
+                placeholder="Unlimited if empty"
+                className="w-full rounded-lg border border-[#d1cac0] px-4 py-2 outline-none focus:ring-2 focus:ring-[#1f4d3a]/20"
+              />
+            </div>
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-[#374151]">History Retention (Days)</label>
+              <input
+                type="number"
+                value={formData.historyDays ?? ""}
+                onChange={(e) => setFormData({ 
+                  ...formData, 
+                  historyDays: e.target.value === "" ? null : parseInt(e.target.value) 
+                })}
+                placeholder="Forever if empty"
                 className="w-full rounded-lg border border-[#d1cac0] px-4 py-2 outline-none focus:ring-2 focus:ring-[#1f4d3a]/20"
               />
             </div>
