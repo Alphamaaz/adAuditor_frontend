@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, Loader2, Trash2 } from "lucide-react";
+import { X, Loader2, Trash2, Plus } from "lucide-react";
 import { useCreatePlan, useUpdatePlan, useDeletePlan } from "@/hooks/use-admin";
 
 interface PlanModalProps {
@@ -158,10 +158,52 @@ export default function PlanModal({ plan, isOpen, onClose }: PlanModalProps) {
           </div>
 
           <div className="mt-8 space-y-4">
-            <h3 className="text-sm font-bold uppercase tracking-wider text-[#9ca3af]">Features</h3>
+            <div className="flex items-center justify-between">
+              <h3 className="text-sm font-bold uppercase tracking-wider text-[#9ca3af]">Features</h3>
+              <div className="flex items-center gap-2">
+                <input
+                  type="text"
+                  placeholder="New feature key..."
+                  className="rounded-md border border-[#d1cac0] px-2 py-1 text-xs outline-none focus:border-[#1f4d3a]"
+                  id="new-feature-input"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      const val = (e.target as HTMLInputElement).value.trim();
+                      if (val) {
+                        const key = val.charAt(0).toLowerCase() + val.slice(1).replace(/\s+/g, '');
+                        setFormData({
+                          ...formData,
+                          features: { ...formData.features, [key]: true }
+                        });
+                        (e.target as HTMLInputElement).value = '';
+                      }
+                    }
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    const input = document.getElementById('new-feature-input') as HTMLInputElement;
+                    const val = input.value.trim();
+                    if (val) {
+                      const key = val.charAt(0).toLowerCase() + val.slice(1).replace(/\s+/g, '');
+                      setFormData({
+                        ...formData,
+                        features: { ...formData.features, [key]: true }
+                      });
+                      input.value = '';
+                    }
+                  }}
+                  className="rounded bg-[#1f4d3a] p-1 text-white hover:bg-[#183c2d]"
+                >
+                  <Plus size={14} />
+                </button>
+              </div>
+            </div>
             <div className="grid grid-cols-2 gap-4">
               {Object.keys(formData.features).map((feature) => (
-                <label key={feature} className="flex items-center gap-3 rounded-lg border p-3 hover:bg-gray-50 cursor-pointer">
+                <div key={feature} className="group relative flex items-center gap-3 rounded-lg border p-3 hover:bg-gray-50">
                   <input
                     type="checkbox"
                     checked={formData.features[feature]}
@@ -174,7 +216,18 @@ export default function PlanModal({ plan, isOpen, onClose }: PlanModalProps) {
                   <span className="text-sm font-medium text-[#374151]">
                     {feature.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase())}
                   </span>
-                </label>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const next = { ...formData.features };
+                      delete next[feature];
+                      setFormData({ ...formData, features: next });
+                    }}
+                    className="absolute -right-2 -top-2 hidden rounded-full bg-red-500 p-1 text-white shadow-sm group-hover:block hover:bg-red-600"
+                  >
+                    <X size={10} />
+                  </button>
+                </div>
               ))}
             </div>
           </div>
