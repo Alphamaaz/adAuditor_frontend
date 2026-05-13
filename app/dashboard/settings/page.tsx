@@ -11,6 +11,8 @@ import {
   useRevokeOtherSessions,
   useUpdateProfile,
 } from "@/hooks/use-auth";
+import { useConnections, useDisconnectPlatform } from "@/hooks/use-connections";
+import { connectionsApi } from "@/lib/connections";
 import { getErrorMessage } from "@/lib/api";
 
 const formatDate = (value: string | null) => {
@@ -29,6 +31,8 @@ export default function SettingsPage() {
   const changePassword = useChangePassword();
   const revokeOtherSessions = useRevokeOtherSessions();
   const logout = useLogout();
+  const { data: connections = [] } = useConnections();
+  const disconnect = useDisconnectPlatform();
 
   const [profileMessage, setProfileMessage] = useState("");
   const [profileError, setProfileError] = useState("");
@@ -232,6 +236,30 @@ export default function SettingsPage() {
 
           <section className="rounded-lg border border-[#e5ddd0] bg-white p-6">
             <h2 className="text-lg font-semibold text-[#171717]">
+              Platform connections
+            </h2>
+            <p className="mt-2 text-sm leading-6 text-[#6b7280]">
+              Connect your ad platforms via OAuth to enable automated data fetching for audits.
+            </p>
+            
+            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+              <PlatformConnectionCard 
+                platform="META"
+                label="Meta Ads"
+                connection={connections.find(c => c.platform === "META")}
+                onDisconnect={(id) => disconnect.mutate(id)}
+              />
+              <PlatformConnectionCard 
+                platform="TIKTOK"
+                label="TikTok Ads"
+                connection={connections.find(c => c.platform === "TIKTOK")}
+                onDisconnect={(id) => disconnect.mutate(id)}
+              />
+            </div>
+          </section>
+
+          <section className="rounded-lg border border-[#e5ddd0] bg-white p-6">
+            <h2 className="text-lg font-semibold text-[#171717]">
               Change password
             </h2>
             <form onSubmit={onPasswordSubmit} className="mt-6 grid gap-4">
@@ -324,6 +352,52 @@ export default function SettingsPage() {
           </section>
         </div>
       </main>
+    </div>
+  );
+}
+
+function PlatformConnectionCard({ 
+  platform, 
+  label, 
+  connection, 
+  onDisconnect 
+}: { 
+  platform: string; 
+  label: string; 
+  connection?: any;
+  onDisconnect: (id: string) => void;
+}) {
+  const isConnected = connection?.status === "ACTIVE";
+
+  return (
+    <div className="flex items-center justify-between rounded-xl border border-[#eee7dc] bg-[#faf9f7] p-5">
+      <div className="flex items-center gap-4">
+        <div className={`flex h-10 w-10 items-center justify-center rounded-full ${isConnected ? 'bg-[#1f4d3a] text-white' : 'bg-gray-200 text-gray-400'}`}>
+          <span className="text-xs font-bold">{platform.charAt(0)}</span>
+        </div>
+        <div>
+          <p className="text-sm font-bold text-[#171717]">{label}</p>
+          <p className={`text-xs ${isConnected ? 'text-[#1f4d3a]' : 'text-[#6b7280]'}`}>
+            {isConnected ? "Connected" : "Not connected"}
+          </p>
+        </div>
+      </div>
+      
+      {isConnected ? (
+        <button
+          onClick={() => onDisconnect(connection.id)}
+          className="text-xs font-semibold text-red-600 hover:underline"
+        >
+          Disconnect
+        </button>
+      ) : (
+        <a
+          href={connectionsApi.getConnectUrl(platform as any)}
+          className="rounded-md bg-[#1f4d3a] px-3 py-1.5 text-xs font-bold text-white hover:bg-[#183c2d]"
+        >
+          Connect
+        </a>
+      )}
     </div>
   );
 }
