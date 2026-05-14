@@ -23,3 +23,35 @@ export function useDisconnectPlatform() {
     },
   });
 }
+
+export function useGoogleAdAccounts(enabled: boolean) {
+  return useQuery({
+    queryKey: ["google-ad-accounts"],
+    queryFn: connectionsApi.listGoogleAdAccounts,
+    enabled,
+    retry: false,
+  });
+}
+
+export function useFetchGoogleData() {
+  return useMutation({
+    mutationFn: ({ auditId, customerId }: { auditId: string; customerId: string }) =>
+      connectionsApi.fetchGoogleData(auditId, customerId),
+  });
+}
+
+export function useMetaAdAccounts(enabled: boolean) {
+  return useQuery({
+    queryKey: ["meta-ad-accounts"],
+    queryFn: connectionsApi.listMetaAdAccounts,
+    enabled,
+    retry: false,
+  });
+}
+
+export function useFetchMetaData() {
+  return useMutation({
+    mutationFn: ({ auditId, externalAdAccountId }: { auditId: string; externalAdAccountId: string }) =>
+      connectionsApi.fetchMetaData(auditId, externalAdAccountId),
+  });
+}
