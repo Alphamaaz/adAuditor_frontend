@@ -62,9 +62,7 @@ export default function NewAuditPage() {
 
   const togglePlatform = (platform: Platform) => {
     setSelectedPlatforms((current) =>
-      current.includes(platform)
-        ? current.filter((item) => item !== platform)
-        : [...current, platform]
+      current.includes(platform) ? [] : [platform]
     );
   };
 
@@ -129,8 +127,7 @@ export default function NewAuditPage() {
               className="mt-2 w-full rounded-md border border-[#d1cac0] bg-[#faf9f7] px-3 py-2.5 text-sm text-[#171717] outline-none focus:border-[#1f4d3a] focus:ring-2 focus:ring-[#1f4d3a]/20"
             />
             <p className="mt-2 text-xs text-[#9ca3af]">
-              For multi-platform audits, separate platform records are created
-              using this name.
+              This name will be used to identify the platform record.
             </p>
           </section>
 
@@ -140,7 +137,7 @@ export default function NewAuditPage() {
                 Platforms
               </h2>
               <p className="mt-1 text-sm text-[#6b7280]">
-                Select one or more platforms for this audit.
+                Select a platform for this audit.
               </p>
             </div>
             <div className="grid gap-3 md:grid-cols-3">
