@@ -242,7 +242,7 @@ export default function SettingsPage() {
               Connect your ad platforms via OAuth to enable automated data fetching for audits.
             </p>
             
-            <div className="mt-6 grid gap-4 sm:grid-cols-2">
+            <div className="mt-6 grid gap-4 sm:grid-cols-2 md:grid-cols-3">
               <PlatformConnectionCard 
                 platform="META"
                 label="Meta Ads"
@@ -253,6 +253,12 @@ export default function SettingsPage() {
                 platform="TIKTOK"
                 label="TikTok Ads"
                 connection={connections.find(c => c.platform === "TIKTOK")}
+                onDisconnect={(id) => disconnect.mutate(id)}
+              />
+              <PlatformConnectionCard 
+                platform="GOOGLE"
+                label="Google Ads"
+                connection={connections.find(c => c.platform === "GOOGLE")}
                 onDisconnect={(id) => disconnect.mutate(id)}
               />
             </div>
