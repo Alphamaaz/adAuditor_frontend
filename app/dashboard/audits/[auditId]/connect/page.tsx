@@ -383,18 +383,18 @@ export default function AuditConnectPage() {
                 <Stat label="Conversions" value={(fetchResult.conversions ?? 0).toLocaleString()} />
               </div>
 
-              <div className="mt-6 flex gap-3">
+              <div className="mt-6">
                 <Link
-                  href={`/dashboard/audits/${params.auditId}/intake`}
-                  className="flex-1 rounded-xl bg-[#171717] px-6 py-3 text-center text-sm font-semibold text-white transition-all hover:bg-[#2d2d2d]"
+                  href={`/dashboard/audits/${params.auditId}/auditing`}
+                  className="block w-full rounded-xl bg-[#171717] px-6 py-3 text-center text-sm font-semibold text-white transition-all hover:bg-[#2d2d2d]"
                 >
-                  Continue to intake form →
+                  ✦ Start Audit →
                 </Link>
                 <Link
                   href="/dashboard"
-                  className="rounded-xl border border-[#e5ddd0] px-4 py-3 text-sm font-medium text-[#374151] hover:bg-[#f7f4ef]"
+                  className="mt-3 block text-center text-sm text-[#6b7280] hover:text-[#374151]"
                 >
-                  Dashboard
+                  Save and return to dashboard
                 </Link>
               </div>
             </>
