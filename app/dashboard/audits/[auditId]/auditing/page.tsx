@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
@@ -172,7 +172,7 @@ export default function AuditingPage() {
         <nav className="border-b border-[#e5ddd0] bg-white">
           <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
             <Link href="/dashboard" className="text-lg font-semibold text-[#171717]">
-              AdAuditor Pro
+              Ad Adviser
             </Link>
             <span className="text-sm text-[#6b7280]">Audit in progress…</span>
           </div>

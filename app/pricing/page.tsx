@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { PublicShell, SectionHeader } from "@/components/public-site";
@@ -34,7 +34,7 @@ export default function PricingPage() {
           <SectionHeader
             eyebrow="Pricing"
             title="Plans for ad audit teams at different stages"
-            description="AdAuditor Pro is built with dynamic pricing support, so audit limits, platform access, and plan features can be managed as the product evolves."
+            description="Ad Adviser is built with dynamic pricing support, so audit limits, platform access, and plan features can be managed as the product evolves."
           />
           <div className="mt-12 grid gap-5 lg:grid-cols-3">
             {plans.map((plan) => (

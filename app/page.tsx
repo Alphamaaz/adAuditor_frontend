@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { PublicShell, SectionHeader } from "@/components/public-site";
 import { fallbackPlans } from "@/lib/plans";
 
@@ -125,7 +125,7 @@ export default function Home() {
               Turn ad account data into a prioritized growth roadmap.
             </h1>
             <p className="mt-6 max-w-xl text-lg leading-8 text-[#4b5563]">
-              AdAuditor Pro helps agencies and marketers audit Meta, Google,
+              Ad Adviser helps agencies and marketers audit Meta, Google,
               and TikTok ad accounts with structured questionnaires, manual
               uploads, OAuth-ready data flows, deterministic checks, and AI
               report writing.

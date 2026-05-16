@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
@@ -515,7 +515,7 @@ export default function OnboardingPage() {
       <nav className="border-b border-[#e5ddd0] bg-white">
         <div className="mx-auto flex max-w-3xl items-center justify-between px-6 py-4">
           <Link href="/" className="text-lg font-semibold text-[#171717]">
-            AdAuditor Pro
+            Ad Adviser
           </Link>
           <span className="text-sm text-[#6b7280]">
             Step {step} of {STEPS.length}

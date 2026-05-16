@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useAdminStats } from "@/hooks/use-admin";
 import {
@@ -57,7 +57,7 @@ export default function AdminOverview() {
       <div>
         <h1 className="text-2xl font-bold text-[#171717]">Dashboard Overview</h1>
         <p className="mt-1 text-[#6b7280]">
-          Real-time snapshot of the AdAuditor Pro platform performance and usage.
+          Real-time snapshot of the Ad Adviser platform performance and usage.
         </p>
       </div>
 

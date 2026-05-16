@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Providers } from "./providers";
 import { ImpersonationBanner } from "@/components/impersonation-banner";
@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AdAuditor Pro",
+  title: "Ad Adviser",
   description: "AI-powered ad account audits for Meta, Google Ads, and TikTok Ads.",
 };
 

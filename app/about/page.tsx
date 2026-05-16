@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 import { PublicShell, SectionHeader } from "@/components/public-site";
 
 const values = [
@@ -40,7 +40,7 @@ export default function AboutPage() {
           </div>
           <div className="rounded-lg border border-[#e5ddd0] bg-white p-6">
             <p className="text-base leading-8 text-[#4b5563]">
-              AdAuditor Pro is a SaaS tool for agencies, consultants, and
+              Ad Adviser is a SaaS tool for agencies, consultants, and
               growth teams that need to inspect ad accounts across Meta,
               Google, and TikTok. The system combines structured onboarding,
               platform-specific questionnaires, file uploads, future OAuth

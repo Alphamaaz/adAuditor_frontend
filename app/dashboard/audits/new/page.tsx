@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { FormEvent, useMemo, useState } from "react";
 import Link from "next/link";
@@ -91,7 +91,7 @@ export default function NewAuditPage() {
       <nav className="border-b border-[#e5ddd0] bg-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
           <Link href="/dashboard" className="text-lg font-semibold text-[#171717]">
-            AdAuditor Pro
+            Ad Adviser
           </Link>
           <Link
             href="/dashboard"

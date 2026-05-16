@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
@@ -115,7 +115,7 @@ export default function DashboardPage() {
       <nav className="border-b border-[#e5ddd0] bg-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
           <Link href="/dashboard" className="text-lg font-semibold text-[#171717]">
-            AdAuditor Pro
+            Ad Adviser
           </Link>
           <div className="flex items-center gap-4">
             <span className="text-sm text-[#6b7280]">

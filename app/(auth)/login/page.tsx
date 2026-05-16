@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
@@ -29,7 +29,7 @@ function LoginForm() {
       <div className="rounded-xl border border-[#e5ddd0] bg-white p-8 shadow-sm">
         <h1 className="text-2xl font-semibold text-[#171717]">Welcome back</h1>
         <p className="mt-1.5 text-sm text-[#6b7280]">
-          Log in to your AdAuditor Pro account.
+          Log in to your Ad Adviser account.
         </p>
 
         {justReset && (

@@ -16,7 +16,7 @@ export function PublicHeader() {
     <header className="border-b border-[#e5ddd0] bg-[#fbfaf7]/95">
       <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-6 py-4">
         <Link href="/" className="text-lg font-semibold text-[#171717]">
-          AdAuditor Pro
+          Ad Adviser
         </Link>
         <nav className="hidden items-center gap-6 md:flex">
           {navItems.map((item) => (
@@ -66,11 +66,17 @@ export function PublicFooter() {
     <footer className="border-t border-[#e5ddd0] bg-white">
       <div className="mx-auto grid max-w-7xl gap-8 px-6 py-10 md:grid-cols-[1.2fr_0.8fr_0.8fr]">
         <div>
-          <p className="text-lg font-semibold text-[#171717]">AdAuditor Pro</p>
+          <p className="text-lg font-semibold text-[#171717]">Ad Adviser</p>
           <p className="mt-3 max-w-md text-sm leading-6 text-[#6b7280]">
             AI-assisted ad account audits for teams that need clear findings,
             prioritized fixes, and client-ready reporting across Meta, Google,
             and TikTok.
+          </p>
+          <p className="mt-3 text-sm text-[#6b7280]">
+            Contact:{" "}
+            <a href="mailto:info@adadviser.uk" className="hover:text-[#1f4d3a]">
+              info@adadviser.uk
+            </a>
           </p>
         </div>
         <div>
@@ -106,7 +112,7 @@ export function PublicFooter() {
         </div>
       </div>
       <div className="border-t border-[#ece7df] px-6 py-4 text-center text-xs text-[#6b7280]">
-        © {new Date().getFullYear()} AdAuditor Pro. All rights reserved.
+        © {new Date().getFullYear()} Ad Adviser. All rights reserved.
       </div>
     </footer>
   );

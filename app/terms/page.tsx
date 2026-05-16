@@ -1,4 +1,4 @@
-import Link from "next/link";
+﻿import Link from "next/link";
 
 export default function TermsOfService() {
   return (
@@ -11,28 +11,28 @@ export default function TermsOfService() {
           <section>
             <h2 className="text-xl font-semibold text-[#171717]">1. Acceptance of Terms</h2>
             <p>
-              By accessing or using AdAuditor Pro, you agree to be bound by these Terms of Service and all applicable laws and regulations. If you do not agree with any of these terms, you are prohibited from using or accessing this site.
+              By accessing or using Ad Adviser, you agree to be bound by these Terms of Service and all applicable laws and regulations. If you do not agree with any of these terms, you are prohibited from using or accessing this site.
             </p>
           </section>
 
           <section>
             <h2 className="text-xl font-semibold text-[#171717]">2. Use License</h2>
             <p>
-              Permission is granted to temporarily use AdAuditor Pro for personal or commercial advertising audit purposes. This is the grant of a license, not a transfer of title, and under this license you may not attempt to decompile or reverse engineer any software contained on the website.
+              Permission is granted to temporarily use Ad Adviser for personal or commercial advertising audit purposes. This is the grant of a license, not a transfer of title, and under this license you may not attempt to decompile or reverse engineer any software contained on the website.
             </p>
           </section>
 
           <section>
             <h2 className="text-xl font-semibold text-[#171717]">3. Disclaimer</h2>
             <p>
-              The materials on AdAuditor Pro are provided on an &apos;as is&apos; basis. AdAuditor Pro makes no warranties, expressed or implied, and hereby disclaims and negates all other warranties including, without limitation, implied warranties or conditions of merchantability, fitness for a particular purpose, or non-infringement of intellectual property or other violation of rights.
+              The materials on Ad Adviser are provided on an &apos;as is&apos; basis. Ad Adviser makes no warranties, expressed or implied, and hereby disclaims and negates all other warranties including, without limitation, implied warranties or conditions of merchantability, fitness for a particular purpose, or non-infringement of intellectual property or other violation of rights.
             </p>
           </section>
 
           <section>
             <h2 className="text-xl font-semibold text-[#171717]">4. Accuracy of Materials</h2>
             <p>
-              The audit reports provided by AdAuditor Pro are based on data retrieved from third-party APIs (like Meta). While we strive for accuracy, we do not warrant that any of the materials on its website are accurate, complete or current.
+              The audit reports provided by Ad Adviser are based on data retrieved from third-party APIs (like Meta). While we strive for accuracy, we do not warrant that any of the materials on its website are accurate, complete or current.
             </p>
           </section>
         </div>
