@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useCurrentUser } from "@/hooks/use-auth";
 
 const navItems = [
@@ -15,8 +16,16 @@ export function PublicHeader() {
   return (
     <header className="border-b border-[#e5ddd0] bg-[#fbfaf7]/95">
       <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-6 py-4">
-        <Link href="/" className="text-lg font-semibold text-[#171717]">
-          Ad Adviser
+        <Link href="/" className="flex items-center">
+          <Image
+            src="/adadviser_logo.svg"
+            alt="Ad Adviser"
+            height={64}
+            width={240}
+            className="h-16 object-contain"
+            style={{ width: "auto" }}
+            priority
+          />
         </Link>
         <nav className="hidden items-center gap-6 md:flex">
           {navItems.map((item) => (
@@ -66,7 +75,14 @@ export function PublicFooter() {
     <footer className="border-t border-[#e5ddd0] bg-white">
       <div className="mx-auto grid max-w-7xl gap-8 px-6 py-10 md:grid-cols-[1.2fr_0.8fr_0.8fr]">
         <div>
-          <p className="text-lg font-semibold text-[#171717]">Ad Adviser</p>
+          <Image
+              src="/adadviser_logo.svg"
+              alt="Ad Adviser"
+              height={80}
+              width={300}
+              className="h-20 object-contain"
+              style={{ width: "auto" }}
+            />
           <p className="mt-3 max-w-md text-sm leading-6 text-[#6b7280]">
             AI-assisted ad account audits for teams that need clear findings,
             prioritized fixes, and client-ready reporting across Meta, Google,

@@ -1,0 +1,28 @@
+<svg width="340" height="120" viewBox="0 0 340 120" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="iconGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#6d5cff"/>
+      <stop offset="100%" stop-color="#5b4bff"/>
+    </linearGradient>
+  </defs>
+
+  <!-- White background -->
+  <rect width="340" height="120" fill="#ffffff"/>
+
+  <!-- Icon: rounded square -->
+  <rect x="30" y="32" width="56" height="56" rx="16" fill="url(#iconGrad)"/>
+
+  <!-- Letter A inside icon -->
+  <text x="58" y="73" font-family="Arial, Helvetica, sans-serif" font-size="34" font-weight="800" fill="#ffffff" text-anchor="middle">A</text>
+
+  <!-- Green accent dot -->
+  <circle cx="80" cy="38" r="6" fill="#1fd18e"/>
+
+  <!-- Wordmark: Ad Advisor -->
+  <text x="104" y="68" font-family="Arial, Helvetica, sans-serif" font-size="30" font-weight="800">
+    <tspan fill="#15131f">Ad </tspan><tspan fill="#5b4bff">Adviser</tspan>
+  </text>
+
+  <!-- Tagline -->
+  <text x="105" y="86" font-family="Arial, Helvetica, sans-serif" font-size="10.5" font-weight="700" letter-spacing="2.5" fill="#8a8a99">AI MARKETING INTELLIGENCE</text>
+</svg>
