@@ -17,6 +17,7 @@ export default function AuthLayout({
             width={240}
             className="h-16 object-contain"
             style={{ width: "auto" }}
+            unoptimized
             priority
           />
         </Link>

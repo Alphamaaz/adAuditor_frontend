@@ -25,6 +25,7 @@ export function PublicHeader() {
             className="h-16 object-contain"
             style={{ width: "auto" }}
             priority
+            unoptimized
           />
         </Link>
         <nav className="hidden items-center gap-6 md:flex">
@@ -82,6 +83,7 @@ export function PublicFooter() {
               width={300}
               className="h-20 object-contain"
               style={{ width: "auto" }}
+              unoptimized
             />
           <p className="mt-3 max-w-md text-sm leading-6 text-[#6b7280]">
             AI-assisted ad account audits for teams that need clear findings,
