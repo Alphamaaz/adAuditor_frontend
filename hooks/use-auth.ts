@@ -156,3 +156,22 @@ export function useRevokeOtherSessions() {
     },
   });
 }
+
+// ── google auth ───────────────────────────────────────────────────────────────
+
+export function useGoogleAuth() {
+  const router = useRouter();
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (accessToken: string) => authApi.googleAuth({ accessToken }),
+    onSuccess: (data) => {
+      queryClient.setQueryData(AUTH_QUERY_KEY, data);
+      if (data.user.internalRole === "SUPER_ADMIN") {
+        router.push("/admin");
+      } else {
+        router.push(data.hasBusinessProfile ? "/dashboard" : "/onboarding");
+      }
+    },
+  });
+}

@@ -109,4 +109,12 @@ export const authApi = {
     }>(`${BASE}/sessions/revoke-others`);
     return res.data;
   },
+
+  googleAuth: async (data: { accessToken: string }): Promise<AuthPayload> => {
+    const res = await api.post<{ status: string; data: AuthPayload }>(
+      `${BASE}/google`,
+      data
+    );
+    return res.data.data;
+  },
 };
