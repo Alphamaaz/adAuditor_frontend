@@ -31,6 +31,13 @@ export interface MetaAdAccount {
   businessName: string | null;
 }
 
+export interface TikTokAdAccount {
+  advertiserId: string;
+  name: string;
+  currency: string | null;
+  timezone: string | null;
+}
+
 export interface FetchDataResult {
   auditId: string;
   platform: string;
@@ -76,6 +83,23 @@ export const connectionsApi = {
     const res = await api.post<{ status: string; data: FetchDataResult }>(
       "/api/platform-connections/google/fetch-data",
       { auditId, customerId }
+    );
+    return res.data.data;
+  },
+
+  // ── TikTok ───────────────────────────────────────────────────────────────
+
+  listTikTokAdAccounts: async (): Promise<TikTokAdAccount[]> => {
+    const res = await api.get<{ status: string; data: TikTokAdAccount[] }>(
+      "/api/platform-connections/tiktok/ad-accounts"
+    );
+    return res.data.data;
+  },
+
+  fetchTikTokData: async (auditId: string, advertiserId: string): Promise<FetchDataResult> => {
+    const res = await api.post<{ status: string; data: FetchDataResult }>(
+      "/api/platform-connections/tiktok/fetch-data",
+      { auditId, advertiserId }
     );
     return res.data.data;
   },

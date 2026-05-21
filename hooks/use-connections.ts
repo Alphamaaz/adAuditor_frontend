@@ -40,6 +40,22 @@ export function useFetchGoogleData() {
   });
 }
 
+export function useTikTokAdAccounts(enabled: boolean) {
+  return useQuery({
+    queryKey: ["tiktok-ad-accounts"],
+    queryFn: connectionsApi.listTikTokAdAccounts,
+    enabled,
+    retry: false,
+  });
+}
+
+export function useFetchTikTokData() {
+  return useMutation({
+    mutationFn: ({ auditId, advertiserId }: { auditId: string; advertiserId: string }) =>
+      connectionsApi.fetchTikTokData(auditId, advertiserId),
+  });
+}
+
 export function useMetaAdAccounts(enabled: boolean) {
   return useQuery({
     queryKey: ["meta-ad-accounts"],

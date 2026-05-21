@@ -9,6 +9,8 @@ import {
   useFetchGoogleData,
   useMetaAdAccounts,
   useFetchMetaData,
+  useTikTokAdAccounts,
+  useFetchTikTokData,
 } from "@/hooks/use-connections";
 import { getErrorMessage } from "@/lib/api";
 
@@ -16,6 +18,7 @@ type Step =
   | "connect"           // show OAuth buttons
   | "google_select"     // pick Google Ads customer
   | "meta_select"       // pick Meta ad account
+  | "tiktok_select"     // pick TikTok advertiser account
   | "fetching"          // data pull in progress
   | "done";             // success
 
@@ -31,21 +34,27 @@ export default function AuditConnectPage() {
   const oauthError = searchParams.get("oauth_error");
 
   // Determine initial step from URL params
+  const oauthConnected = searchParams.get("connected"); // "true" from TikTok callback
+
   const getInitialStep = (): Step => {
     if (oauthStatus === "success" && oauthPlatform === "GOOGLE") return "google_select";
     if (oauthStatus === "success" && oauthPlatform === "META") return "meta_select";
+    if (oauthConnected === "true" && oauthPlatform === "TIKTOK") return "tiktok_select";
     return "connect";
   };
 
   const [step, setStep] = useState<Step>(getInitialStep);
   const [selectedCustomerId, setSelectedCustomerId] = useState<string>("");
   const [selectedMetaAccountId, setSelectedMetaAccountId] = useState<string>("");
+  const [selectedAdvertiserId, setSelectedAdvertiserId] = useState<string>("");
   const [fetchResult, setFetchResult] = useState<{ spend: number; impressions: number; clicks: number; conversions: number; currency: string | null } | null>(null);
 
   const googleAccounts = useGoogleAdAccounts(step === "google_select");
   const metaAccounts = useMetaAdAccounts(step === "meta_select");
+  const tiktokAccounts = useTikTokAdAccounts(step === "tiktok_select");
   const fetchGoogleData = useFetchGoogleData();
   const fetchMetaData = useFetchMetaData();
+  const fetchTikTokData = useFetchTikTokData();
 
   // Auto-select if only one Google account
   useEffect(() => {
@@ -60,6 +69,13 @@ export default function AuditConnectPage() {
       setSelectedMetaAccountId(metaAccounts.data[0].id);
     }
   }, [metaAccounts.data, selectedMetaAccountId]);
+
+  // Auto-select if only one TikTok advertiser
+  useEffect(() => {
+    if (tiktokAccounts.data?.length === 1 && !selectedAdvertiserId) {
+      setSelectedAdvertiserId(tiktokAccounts.data[0].advertiserId);
+    }
+  }, [tiktokAccounts.data, selectedAdvertiserId]);
 
   const [fetchError, setFetchError] = useState<string | null>(null);
 
@@ -79,6 +95,25 @@ export default function AuditConnectPage() {
       console.error("[Connect] Google data fetch failed:", message);
       setFetchError(message);
       setStep("google_select");
+    }
+  };
+
+  const handleFetchTikTok = async () => {
+    if (!selectedAdvertiserId) return;
+    setFetchError(null);
+    setStep("fetching");
+    try {
+      const result = await fetchTikTokData.mutateAsync({
+        auditId: params.auditId,
+        advertiserId: selectedAdvertiserId,
+      });
+      setFetchResult(result.summary);
+      setStep("done");
+    } catch (err: unknown) {
+      const message = getErrorMessage(err);
+      console.error("[Connect] TikTok data fetch failed:", message);
+      setFetchError(message);
+      setStep("tiktok_select");
     }
   };
 
@@ -343,6 +378,94 @@ export default function AuditConnectPage() {
                     className="mt-4 w-full rounded-xl bg-[#1877F2] px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-[#1660d0] disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     Pull Meta Ads data
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* ── Step: TikTok account picker ────────────────────────── */}
+          {step === "tiktok_select" && (
+            <>
+              <div className="flex items-center gap-2">
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-green-100 text-xs text-green-700">✓</span>
+                <span className="text-sm font-medium text-green-700">TikTok account authorized</span>
+              </div>
+              <p className="mt-1 text-xs font-medium uppercase tracking-wide text-[#6b7280]">
+                Step 2 of 2
+              </p>
+              <h1 className="mt-2 text-2xl font-semibold text-[#171717]">
+                Select TikTok Ads account
+              </h1>
+              <p className="mt-2 text-sm leading-6 text-[#6b7280]">
+                Choose the advertiser account to pull data from for this audit.
+              </p>
+
+              {fetchError && (
+                <div className="mt-6 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                  <p className="font-medium">Data fetch failed</p>
+                  <p className="mt-1 font-mono text-xs break-all">{fetchError}</p>
+                </div>
+              )}
+
+              {tiktokAccounts.isLoading && (
+                <div className="mt-8 flex items-center gap-3 text-sm text-[#6b7280]">
+                  <Spinner />
+                  Loading your TikTok advertiser accounts...
+                </div>
+              )}
+
+              {tiktokAccounts.isError && (
+                <div className="mt-6 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                  <p className="font-medium">Failed to load TikTok advertiser accounts</p>
+                  <p className="mt-1 font-mono text-xs break-all">
+                    {getErrorMessage(tiktokAccounts.error)}
+                  </p>
+                </div>
+              )}
+
+              {tiktokAccounts.data && tiktokAccounts.data.length === 0 && (
+                <div className="mt-6 rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+                  No TikTok advertiser accounts found. Make sure you have access to at least one account.
+                </div>
+              )}
+
+              {tiktokAccounts.data && tiktokAccounts.data.length > 0 && (
+                <div className="mt-8 space-y-3">
+                  {tiktokAccounts.data.map((account) => (
+                    <label
+                      key={account.advertiserId}
+                      className={`flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition-all ${
+                        selectedAdvertiserId === account.advertiserId
+                          ? "border-[#171717] bg-[#f7f4ef]"
+                          : "border-[#e5ddd0] hover:border-[#d1cac0]"
+                      }`}
+                    >
+                      <input
+                        type="radio"
+                        name="advertiserId"
+                        value={account.advertiserId}
+                        checked={selectedAdvertiserId === account.advertiserId}
+                        onChange={() => setSelectedAdvertiserId(account.advertiserId)}
+                        className="mt-0.5"
+                      />
+                      <div>
+                        <p className="text-sm font-semibold text-[#171717]">{account.name}</p>
+                        <p className="text-xs text-[#6b7280]">
+                          ID: {account.advertiserId}
+                          {account.currency ? ` · ${account.currency}` : ""}
+                          {account.timezone ? ` · ${account.timezone}` : ""}
+                        </p>
+                      </div>
+                    </label>
+                  ))}
+
+                  <button
+                    onClick={handleFetchTikTok}
+                    disabled={!selectedAdvertiserId}
+                    className="mt-4 w-full rounded-xl bg-black px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-[#1a1a1a] disabled:cursor-not-allowed disabled:opacity-40"
+                  >
+                    Pull TikTok Ads data
                   </button>
                 </div>
               )}
