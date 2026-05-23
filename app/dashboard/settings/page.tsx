@@ -226,7 +226,7 @@ export default function SettingsPage() {
                 </p>
               </div>
               <Link
-                href="/onboarding"
+                href="/onboarding?mode=edit"
                 className="rounded-md border border-[#d1cac0] px-4 py-2 text-sm font-semibold text-[#374151] hover:bg-[#f7f4ef]"
               >
                 Edit business profile

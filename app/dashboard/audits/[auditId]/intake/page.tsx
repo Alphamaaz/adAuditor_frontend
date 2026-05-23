@@ -78,9 +78,35 @@ export default function PlatformIntakePage() {
     setAnswer(platform, questionId, nextValue);
   };
 
+  const getMissingQuestions = (): string[] => {
+    const missing: string[] = [];
+    for (const platform of selectedPlatforms) {
+      const platformAnswers = answers[platform] || {};
+      const questions = PLATFORM_QUESTIONS[platform].filter((q) =>
+        isVisibleQuestion(q, platformAnswers)
+      );
+      for (const q of questions) {
+        if (q.type !== "select") continue; // only select questions are required
+        const val = platformAnswers[q.id];
+        if (val === undefined || val === "") {
+          missing.push(`${PLATFORM_LABELS[platform]}: ${q.label}`);
+        }
+      }
+    }
+    return missing;
+  };
+
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError("");
+
+    const missing = getMissingQuestions();
+    if (missing.length > 0) {
+      setError(
+        `Please answer all required questions before continuing. Unanswered: ${missing[0]}${missing.length > 1 ? ` (+${missing.length - 1} more)` : ""}.`
+      );
+      return;
+    }
 
     try {
       await submitIntake.mutateAsync({
@@ -235,6 +261,7 @@ function QuestionField({
     <div>
       <label className="block text-sm font-semibold text-[#374151]">
         {question.id}. {question.label}
+        {question.type === "select" && <span className="ml-1 text-red-500">*</span>}
       </label>
 
       {question.type === "select" && (

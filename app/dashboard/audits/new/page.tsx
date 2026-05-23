@@ -1,7 +1,8 @@
 ﻿"use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useCurrentUser } from "@/hooks/use-auth";
 import { useCreateAuditSetup } from "@/hooks/use-audits";
 import { getErrorMessage } from "@/lib/api";
@@ -47,12 +48,20 @@ const DATA_SOURCE_OPTIONS: Array<{
 ];
 
 export default function NewAuditPage() {
-  const { data: auth } = useCurrentUser();
+  const router = useRouter();
+  const { data: auth, isLoading: authLoading } = useCurrentUser();
   const createAudit = useCreateAuditSetup();
   const [accountName, setAccountName] = useState("");
   const [selectedPlatforms, setSelectedPlatforms] = useState<Platform[]>([]);
   const [dataSource, setDataSource] = useState<DataSource>("MANUAL_UPLOAD");
   const [error, setError] = useState("");
+
+  // Block audit creation if business profile is not complete.
+  useEffect(() => {
+    if (!authLoading && auth && !auth.hasBusinessProfile) {
+      router.replace("/onboarding");
+    }
+  }, [authLoading, auth, router]);
 
   const orgName = auth?.organizations[0]?.name;
   const canSubmit = useMemo(
@@ -85,6 +94,28 @@ export default function NewAuditPage() {
       setError(getErrorMessage(err));
     }
   };
+
+  // Show redirect screen while profile check resolves.
+  if (authLoading || (auth && !auth.hasBusinessProfile)) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-[#f7f4ef]">
+        <div className="max-w-md rounded-xl border border-[#e5ddd0] bg-white p-8 text-center shadow-sm">
+          <h2 className="text-lg font-semibold text-[#171717]">Business profile required</h2>
+          <p className="mt-2 text-sm text-[#6b7280]">
+            Complete your business profile before running an audit. The rule engine and AI
+            narrative need your business type, budget, and tracking setup to generate
+            meaningful findings.
+          </p>
+          <Link
+            href="/onboarding"
+            className="mt-5 inline-block rounded-md bg-[#1f4d3a] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#183c2d]"
+          >
+            Complete business profile →
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#f7f4ef]">

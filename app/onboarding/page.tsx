@@ -1,9 +1,9 @@
 ﻿"use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useEffect, useState, Suspense } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useCurrentUser } from "@/hooks/use-auth";
-import { useUpsertBusinessProfile } from "@/hooks/use-business-profile";
+import { useBusinessProfile, useUpsertBusinessProfile } from "@/hooks/use-business-profile";
 import { getErrorMessage } from "@/lib/api";
 import type { BusinessProfileAnswers } from "@/lib/business-profile";
 import Link from "next/link";
@@ -37,10 +37,11 @@ function Hint({ children }: { children: React.ReactNode }) {
   return <p className="mt-1 text-xs text-[#9ca3af]">{children}</p>;
 }
 
-function FieldLabel({ children, optional }: { children: React.ReactNode; optional?: boolean }) {
+function FieldLabel({ children, optional, required }: { children: React.ReactNode; optional?: boolean; required?: boolean }) {
   return (
     <label className="block text-sm font-medium text-[#374151]">
       {children}
+      {required && <span className="ml-1 text-red-500">*</span>}
       {optional && <span className="ml-1 text-xs font-normal text-[#9ca3af]">(optional)</span>}
     </label>
   );
@@ -161,26 +162,87 @@ const defaultAnswers = () => ({
 
 // ── main component ────────────────────────────────────────────────────────────
 
-export default function OnboardingPage() {
+function OnboardingPageInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const isEditMode = searchParams.get("mode") === "edit";
+
   const { data: auth, isLoading } = useCurrentUser();
+  const { data: profile, isLoading: profileLoading } = useBusinessProfile();
   const upsert = useUpsertBusinessProfile();
 
   const [step, setStep] = useState(1);
   const [form, setForm] = useState(defaultAnswers);
   const [error, setError] = useState("");
 
-  // Already has a profile → skip to dashboard.
+  // In onboarding mode: redirect users who already have a profile to dashboard.
+  // In edit mode: skip the redirect so they can update their answers.
   useEffect(() => {
-    if (!isLoading && auth?.hasBusinessProfile) {
-      router.replace("/dashboard");
-    }
     if (!isLoading && !auth) {
       router.replace("/login");
+      return;
     }
-  }, [isLoading, auth, router]);
+    if (!isLoading && !isEditMode && auth?.hasBusinessProfile) {
+      router.replace("/dashboard");
+    }
+  }, [isLoading, auth, isEditMode, router]);
 
-  if (isLoading || !auth) return null;
+  // Pre-fill the form with existing answers when editing.
+  useEffect(() => {
+    if (isEditMode && profile?.answers) {
+      const a = profile.answers.sectionA || {};
+      const b = profile.answers.sectionB || {};
+      const c = profile.answers.sectionC || {};
+      setForm({
+        sectionA: {
+          businessType: a.businessType || "",
+          monthlyBudget: a.monthlyBudget != null ? String(a.monthlyBudget) : "",
+          targetCpa: a.targetCpa != null ? String(a.targetCpa) : "",
+          targetRoas: a.targetRoas != null ? String(a.targetRoas) : "",
+          avgOrderValue: a.avgOrderValue != null ? String(a.avgOrderValue) : "",
+          blendedCac: a.blendedCac != null ? String(a.blendedCac) : "",
+          blendedCacUnknown: a.blendedCac == null,
+          productsServices: a.productsServices || "",
+          geoMarkets: a.geoMarkets || [],
+          campaignAge: a.campaignAge || "",
+          campaignObjective: a.campaignObjective || [],
+        },
+        sectionB: {
+          pixelInstalled: b.pixelInstalled || "",
+          correctConversionEvent: b.correctConversionEvent || "",
+          utmConsistency: b.utmConsistency || "",
+          crossReferencesGa4: b.crossReferencesGa4 || "",
+          serverSideTracking: b.serverSideTracking || "",
+        },
+        sectionC: {
+          bestEverCpa: c.bestEverCpa != null ? String(c.bestEverCpa) : "",
+          bestEverRoas: c.bestEverRoas != null ? String(c.bestEverRoas) : "",
+          avgCtr90Days: c.avgCtr90Days != null ? String(c.avgCtr90Days) : "",
+          avgCpm90Days: c.avgCpm90Days != null ? String(c.avgCpm90Days) : "",
+          landingPageConversionRate: c.landingPageConversionRate != null ? String(c.landingPageConversionRate) : "",
+          historicalSpend: c.historicalSpend || "",
+          skipped: false,
+        },
+      });
+    }
+  }, [isEditMode, profile]);
+
+  if (isLoading || !auth || (isEditMode && profileLoading)) return null;
+
+  const validateStep = (s: number): string | null => {
+    if (s === 1) {
+      if (!form.sectionA.businessType) return "Business type is required — every benchmark rule uses it.";
+      if (!form.sectionA.monthlyBudget) return "Monthly ad budget is required.";
+    }
+    if (s === 2) {
+      if (!form.sectionB.pixelInstalled) return "Pixel / tag installation status is required.";
+      if (!form.sectionB.correctConversionEvent) return "Conversion event configuration is required.";
+      if (!form.sectionB.utmConsistency) return "UTM consistency is required.";
+      if (!form.sectionB.crossReferencesGa4) return "GA4 cross-reference status is required.";
+      if (!form.sectionB.serverSideTracking) return "Server-side tracking status is required.";
+    }
+    return null;
+  };
 
   const setA = (field: string, value: unknown) =>
     setForm((prev) => ({ ...prev, sectionA: { ...prev.sectionA, [field]: value } }));
@@ -195,6 +257,11 @@ export default function OnboardingPage() {
 
   const save = async (skipSectionC = false) => {
     setError("");
+    // Re-validate sectionA and sectionB regardless of current step.
+    const errA = validateStep(1);
+    if (errA) { setError(errA); setStep(1); return; }
+    const errB = validateStep(2);
+    if (errB) { setError(errB); setStep(2); return; }
     const payload: BusinessProfileAnswers = {
       sectionA: {
         businessType: form.sectionA.businessType || null,
@@ -228,7 +295,7 @@ export default function OnboardingPage() {
     };
 
     upsert.mutate(payload, {
-      onSuccess: () => router.push("/dashboard"),
+      onSuccess: () => router.push(isEditMode ? "/dashboard/settings" : "/dashboard"),
       onError: (err) => setError(getErrorMessage(err)),
     });
   };
@@ -238,7 +305,7 @@ export default function OnboardingPage() {
   const SectionA = (
     <div className="space-y-6">
       <div>
-        <FieldLabel>A1 — What is your primary business type?</FieldLabel>
+        <FieldLabel required>A1 — What is your primary business type?</FieldLabel>
         <Hint>Determines which KPIs and benchmarks apply to your account.</Hint>
         <Select
           value={form.sectionA.businessType}
@@ -252,7 +319,7 @@ export default function OnboardingPage() {
       </div>
 
       <div>
-        <FieldLabel optional>A2 — Monthly ad budget across all platforms ($)</FieldLabel>
+        <FieldLabel required>A2 — Monthly ad budget across all platforms ($)</FieldLabel>
         <Hint>Used to detect budget fragmentation and calibrate spend checks.</Hint>
         <Input
           type="number"
@@ -407,7 +474,7 @@ export default function OnboardingPage() {
     <div className="space-y-7">
       {trackingQuestions.map((q) => (
         <div key={q.key}>
-          <FieldLabel>{q.label}</FieldLabel>
+          <FieldLabel required>{q.label}</FieldLabel>
           <Hint>{q.hint}</Hint>
           <RadioGroup
             options={q.options as unknown as string[]}
@@ -517,9 +584,19 @@ export default function OnboardingPage() {
           <Link href="/" className="text-lg font-semibold text-[#171717]">
             Ad Adviser
           </Link>
-          <span className="text-sm text-[#6b7280]">
-            Step {step} of {STEPS.length}
-          </span>
+          <div className="flex items-center gap-4">
+            {isEditMode && (
+              <Link
+                href="/dashboard/settings"
+                className="text-sm text-[#6b7280] hover:text-[#374151]"
+              >
+                Cancel
+              </Link>
+            )}
+            <span className="text-sm text-[#6b7280]">
+              {isEditMode ? "Edit business profile" : `Step ${step} of ${STEPS.length}`}
+            </span>
+          </div>
         </div>
       </nav>
 
@@ -622,7 +699,12 @@ export default function OnboardingPage() {
               {step < 3 ? (
                 <button
                   type="button"
-                  onClick={() => setStep((s) => s + 1)}
+                  onClick={() => {
+                    const err = validateStep(step);
+                    if (err) { setError(err); return; }
+                    setError("");
+                    setStep((s) => s + 1);
+                  }}
                   className="rounded-md bg-[#1f4d3a] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#183c2d]"
                 >
                   Next →
@@ -634,7 +716,7 @@ export default function OnboardingPage() {
                   disabled={upsert.isPending}
                   className="rounded-md bg-[#1f4d3a] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#183c2d] disabled:opacity-60"
                 >
-                  {upsert.isPending ? "Saving…" : "Save & continue →"}
+                  {upsert.isPending ? "Saving…" : isEditMode ? "Save changes" : "Save & continue →"}
                 </button>
               )}
             </div>
@@ -642,9 +724,19 @@ export default function OnboardingPage() {
         </div>
 
         <p className="mt-4 text-center text-xs text-[#9ca3af]">
-          You can edit these answers later from your profile settings.
+          {isEditMode
+            ? "Changes take effect on your next audit."
+            : "You can edit these answers later from your profile settings."}
         </p>
       </main>
     </div>
+  );
+}
+
+export default function OnboardingPage() {
+  return (
+    <Suspense>
+      <OnboardingPageInner />
+    </Suspense>
   );
 }
