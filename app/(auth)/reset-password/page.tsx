@@ -14,6 +14,8 @@ function ResetPasswordForm() {
   const [otp, setOtp] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showNew, setShowNew] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [error, setError] = useState("");
 
   const resetPassword = useResetPassword();
@@ -21,119 +23,89 @@ function ResetPasswordForm() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-
     if (newPassword !== confirmPassword) {
       setError("Passwords do not match.");
       return;
     }
-
     resetPassword.mutate(
       { email, otp, newPassword },
       { onError: (err) => setError(getErrorMessage(err)) }
     );
   };
 
+  const strength = (() => {
+    const v = newPassword;
+    let s = 0;
+    if (v.length >= 8) s++;
+    if (/[A-Z]/.test(v) && /[a-z]/.test(v)) s++;
+    if (/[0-9]/.test(v)) s++;
+    if (/[^A-Za-z0-9]/.test(v)) s++;
+    return s;
+  })();
+  const strengthLabel = ["", "Weak", "Fair", "Good", "Strong"][strength] || "";
+  const strengthClass = strength <= 1 ? "weak" : strength <= 3 ? "med" : "strong";
+
   return (
-    <div className="w-full max-w-md">
-      <div className="rounded-xl border border-[#e5ddd0] bg-white p-8 shadow-sm">
-        <h1 className="text-2xl font-semibold text-[#171717]">
-          Set new password
-        </h1>
-        <p className="mt-1.5 text-sm text-[#6b7280]">
-          Enter the 6-digit code we sent to{" "}
-          <span className="font-medium text-[#374151]">
-            {email || "your email"}
-          </span>{" "}
-          and choose a new password.
-        </p>
+    <div className="auth-wrap">
+      <div className="orb orb-1" /><div className="orb orb-2" />
+      <div className="auth-shell">
+        <div className="auth-card">
+          <div className="icon-circle lime">🔑</div>
+          <h1 className="auth-title" style={{ textAlign: "center" }}>Set a new <span className="em">password</span></h1>
+          <p className="auth-sub" style={{ textAlign: "center" }}>
+            Enter the code we sent to <strong>{email || "your email"}</strong> and choose a new password.
+          </p>
 
-        {error && (
-          <div className="mt-4 rounded-md bg-red-50 px-4 py-3 text-sm text-red-700">
-            {error}
-          </div>
-        )}
+          {error && <div className="auth-alert-error">{error}</div>}
 
-        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-          {!emailFromQuery && (
-            <div>
-              <label className="block text-sm font-medium text-[#374151]">
-                Email
-              </label>
+          <form onSubmit={handleSubmit}>
+            {!emailFromQuery && (
+              <div className="af">
+                <label className="af-label">Email</label>
+                <input className="af-input" type="email" value={email} onChange={e => setEmail(e.target.value)} required />
+              </div>
+            )}
+            <div className="af">
+              <label className="af-label">Reset code</label>
               <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
+                className="otp-single"
+                style={{ marginBottom: 0 }}
+                type="text"
+                inputMode="numeric"
+                value={otp}
+                onChange={e => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
+                placeholder="000000"
                 required
-                className="mt-1.5 w-full rounded-md border border-[#d1cac0] bg-[#faf9f7] px-3 py-2.5 text-sm text-[#171717] placeholder-[#9ca3af] outline-none focus:border-[#1f4d3a] focus:ring-2 focus:ring-[#1f4d3a]/20"
+                maxLength={6}
               />
             </div>
-          )}
+            <div className="af">
+              <label className="af-label">New password</label>
+              <input className="af-input with-icon" type={showNew ? "text" : "password"} value={newPassword} onChange={e => setNewPassword(e.target.value)} placeholder="Enter new password" required minLength={8} />
+              <button type="button" className="af-toggle" onClick={() => setShowNew(s => !s)} aria-label="Toggle">{showNew ? "🙈" : "👁"}</button>
+              {newPassword && (
+                <div className="strength-wrap">
+                  <div className="strength-bars">
+                    {[0,1,2,3].map(i => (
+                      <div key={i} className={`strength-bar ${i < strength ? strengthClass : ""}`} />
+                    ))}
+                  </div>
+                  <span className="strength-text">{strengthLabel} password</span>
+                </div>
+              )}
+            </div>
+            <div className="af">
+              <label className="af-label">Confirm password</label>
+              <input className="af-input with-icon" type={showConfirm ? "text" : "password"} value={confirmPassword} onChange={e => setConfirmPassword(e.target.value)} placeholder="Re-enter new password" required />
+              <button type="button" className="af-toggle" onClick={() => setShowConfirm(s => !s)} aria-label="Toggle">{showConfirm ? "🙈" : "👁"}</button>
+            </div>
+            <button type="submit" className="btn-full" disabled={resetPassword.isPending || otp.length < 6}>
+              {resetPassword.isPending ? "Resetting…" : "Update password →"}
+            </button>
+          </form>
 
-          <div>
-            <label className="block text-sm font-medium text-[#374151]">
-              Reset code
-            </label>
-            <input
-              type="text"
-              inputMode="numeric"
-              value={otp}
-              onChange={(e) =>
-                setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))
-              }
-              placeholder="123456"
-              required
-              maxLength={6}
-              className="mt-1.5 w-full rounded-md border border-[#d1cac0] bg-[#faf9f7] px-3 py-2.5 text-center text-2xl font-semibold tracking-[0.5em] text-[#171717] placeholder-[#9ca3af] outline-none focus:border-[#1f4d3a] focus:ring-2 focus:ring-[#1f4d3a]/20"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-[#374151]">
-              New password
-            </label>
-            <input
-              type="password"
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              placeholder="At least 8 characters"
-              required
-              minLength={8}
-              className="mt-1.5 w-full rounded-md border border-[#d1cac0] bg-[#faf9f7] px-3 py-2.5 text-sm text-[#171717] placeholder-[#9ca3af] outline-none focus:border-[#1f4d3a] focus:ring-2 focus:ring-[#1f4d3a]/20"
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-[#374151]">
-              Confirm new password
-            </label>
-            <input
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="Repeat your new password"
-              required
-              className="mt-1.5 w-full rounded-md border border-[#d1cac0] bg-[#faf9f7] px-3 py-2.5 text-sm text-[#171717] placeholder-[#9ca3af] outline-none focus:border-[#1f4d3a] focus:ring-2 focus:ring-[#1f4d3a]/20"
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={resetPassword.isPending || otp.length < 6}
-            className="mt-2 w-full rounded-md bg-[#1f4d3a] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#183c2d] disabled:opacity-60"
-          >
-            {resetPassword.isPending ? "Resetting…" : "Reset password"}
-          </button>
-        </form>
-
-        <p className="mt-5 text-center text-sm text-[#6b7280]">
-          Didn&apos;t receive a code?{" "}
-          <Link
-            href={`/forgot-password${email ? `?email=${encodeURIComponent(email)}` : ""}`}
-            className="font-medium text-[#1f4d3a] hover:underline"
-          >
-            Resend
-          </Link>
-        </p>
+          <p className="auth-footer">Back to <Link href="/login" className="auth-link">Log in</Link></p>
+        </div>
       </div>
     </div>
   );

@@ -23,54 +23,35 @@ function ForgotPasswordForm() {
   };
 
   return (
-    <div className="w-full max-w-md">
-      <div className="rounded-xl border border-[#e5ddd0] bg-white p-8 shadow-sm">
-        <h1 className="text-2xl font-semibold text-[#171717]">
-          Reset your password
-        </h1>
-        <p className="mt-1.5 text-sm text-[#6b7280]">
-          Enter your email and we&apos;ll send you a 6-digit reset code.
-        </p>
+    <div className="auth-wrap">
+      <div className="orb orb-1" /><div className="orb orb-2" />
+      <div className="auth-shell">
+        <div className="auth-card">
+          <Link href="/login" className="back-link">← Back to login</Link>
+          <div className="icon-circle">🔒</div>
+          <h1 className="auth-title" style={{ textAlign: "center" }}>Forgot <span className="em">password?</span></h1>
+          <p className="auth-sub" style={{ textAlign: "center" }}>No worries. Enter your email and we&apos;ll send you a reset code.</p>
 
-        {error && (
-          <div className="mt-4 rounded-md bg-red-50 px-4 py-3 text-sm text-red-700">
-            {error}
-          </div>
-        )}
+          {error && <div className="auth-alert-error">{error}</div>}
 
-        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-[#374151]">
-              Email
-            </label>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@company.com"
-              required
-              className="mt-1.5 w-full rounded-md border border-[#d1cac0] bg-[#faf9f7] px-3 py-2.5 text-sm text-[#171717] placeholder-[#9ca3af] outline-none focus:border-[#1f4d3a] focus:ring-2 focus:ring-[#1f4d3a]/20"
-            />
-          </div>
+          {forgotPassword.isSuccess ? (
+            <div className="auth-alert-success">
+              Reset code sent! Check your inbox and follow the link to reset your password.
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit}>
+              <div className="af">
+                <label className="af-label">Email address</label>
+                <input className="af-input" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="you@company.com" required />
+              </div>
+              <button type="submit" className="btn-full" disabled={forgotPassword.isPending}>
+                {forgotPassword.isPending ? "Sending…" : "Send reset code →"}
+              </button>
+            </form>
+          )}
 
-          <button
-            type="submit"
-            disabled={forgotPassword.isPending}
-            className="mt-2 w-full rounded-md bg-[#1f4d3a] px-4 py-2.5 text-sm font-semibold text-white hover:bg-[#183c2d] disabled:opacity-60"
-          >
-            {forgotPassword.isPending ? "Sending…" : "Send reset code"}
-          </button>
-        </form>
-
-        <p className="mt-6 text-center text-sm text-[#6b7280]">
-          Remembered it?{" "}
-          <Link
-            href="/login"
-            className="font-medium text-[#1f4d3a] hover:underline"
-          >
-            Back to login
-          </Link>
-        </p>
+          <p className="auth-footer">Remembered it? <Link href="/login" className="auth-link">Log in</Link></p>
+        </div>
       </div>
     </div>
   );
