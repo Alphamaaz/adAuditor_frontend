@@ -15,8 +15,20 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Ad Adviser",
-  description: "AI-powered ad account audits for Meta, Google Ads, and TikTok Ads.",
+  title: "AdAdvisor — Find Wasted Ad Spend in 3 Minutes",
+  description:
+    "AI audits your Google, Meta & TikTok accounts against 150+ rules and shows exactly where budget is wasted. Free audit, no credit card.",
+  keywords: [
+    "ad account audit tool",
+    "Google Ads wasted spend",
+    "PPC audit software",
+  ],
+  openGraph: {
+    title: "Your ad account is wasting money. We'll show you exactly where.",
+    description:
+      "AdAdvisor runs 150+ audit rules across Google, Meta & TikTok in under 3 minutes, then hands you a prioritised fix list with every leak in dollars. Free to try.",
+    type: "website",
+  },
   icons: {
     icon: [
       { url: "/favicons/favicon-16x16.png", sizes: "16x16", type: "image/png" },
