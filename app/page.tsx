@@ -1,6 +1,6 @@
 "use client";
 
-import { memo, useEffect, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { CASE_STUDIES } from "./case-studies/data";
 import "./landing.css";
@@ -646,8 +646,46 @@ const CaseStudyCard = ({ cs }: { cs: typeof CASE_STUDIES[number] }) => (
 );
 
 const CaseStudyCarousel = memo(function CaseStudyCarousel() {
-  // Duplicate the list so the marquee can loop seamlessly
-  const loop = [...CASE_STUDIES, ...CASE_STUDIES];
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [active, setActive] = useState(0);
+  const pausedRef = useRef(false);
+  const n = CASE_STUDIES.length;
+
+  const goTo = (i: number) => {
+    const track = trackRef.current;
+    if (!track) return;
+    const card = track.children[i] as HTMLElement | undefined;
+    if (card) track.scrollTo({ left: card.offsetLeft - track.offsetLeft, behavior: "smooth" });
+  };
+
+  // Auto-advance — pauses while the pointer is over the carousel
+  useEffect(() => {
+    const id = setInterval(() => {
+      if (pausedRef.current) return;
+      setActive(a => {
+        const next = (a + 1) % n;
+        goTo(next);
+        return next;
+      });
+    }, 4000);
+    return () => clearInterval(id);
+  }, [n]);
+
+  // Track the active card as the user scrolls manually
+  const onScroll = () => {
+    const track = trackRef.current;
+    if (!track) return;
+    const center = track.scrollLeft + track.clientWidth / 2;
+    let best = Infinity, idx = 0;
+    Array.from(track.children).forEach((c, i) => {
+      const el = c as HTMLElement;
+      const mid = el.offsetLeft - track.offsetLeft + el.offsetWidth / 2;
+      const d = Math.abs(mid - center);
+      if (d < best) { best = d; idx = i; }
+    });
+    setActive(idx);
+  };
+
   return (
     <section className="case-study-section">
       <div className="cs-eyebrow"><div className="badge-dot" />Proof, with numbers</div>
@@ -655,13 +693,30 @@ const CaseStudyCarousel = memo(function CaseStudyCarousel() {
         Real accounts. Real recoveries.<br /><span className="em">Pick one and dig in</span>.
       </h2>
       <p className="section-desc reveal reveal-delay-2" style={{ marginBottom: 48 }}>
-        Hover to pause · click any card for the full breakdown.
+        Click a dot to browse · click any card for the full breakdown.
       </p>
 
-      <div className="cs-marquee">
-        <div className="cs-track">
-          {loop.map((cs, i) => <CaseStudyCard key={`${cs.slug}-${i}`} cs={cs} />)}
-        </div>
+      <div
+        className="cs-viewport"
+        ref={trackRef}
+        onScroll={onScroll}
+        onPointerEnter={() => { pausedRef.current = true; }}
+        onPointerLeave={() => { pausedRef.current = false; }}
+      >
+        {CASE_STUDIES.map(cs => <CaseStudyCard key={cs.slug} cs={cs} />)}
+      </div>
+
+      <div className="cs-dots" role="tablist" aria-label="Case studies">
+        {CASE_STUDIES.map((cs, i) => (
+          <button
+            key={cs.slug}
+            className={`cs-dot${active === i ? " active" : ""}`}
+            aria-label={`Show ${cs.agency}`}
+            aria-selected={active === i}
+            role="tab"
+            onClick={() => { setActive(i); goTo(i); }}
+          />
+        ))}
       </div>
 
       <div className="cs-carousel-cta">
@@ -838,7 +893,6 @@ export default function HomePage() {
           <Link href="/signup" className="btn-ghost-hero">Book Free Demo Now!</Link>
         </div>
         <SecurityBadges center />
-        <p className="sec-oneliner">We can see your data. We can <strong>never</strong> touch it.</p>
         <div className="stats-bar stats-bar-3">
           <div className="stat-item">
             <div className="stat-num"><span className="stat-accent" data-counter="2.4" data-prefix="$" data-suffix="B">$2.4B</span></div>
@@ -1023,8 +1077,6 @@ export default function HomePage() {
           <div className="trust-item"><span className="trust-icon">🚫</span><span>Never modifies your campaigns</span></div>
           <div className="trust-sep" />
           <div className="trust-item"><span className="trust-icon">✅</span><span>GDPR compliant</span></div>
-          <div className="trust-sep" />
-          <div className="trust-item trust-item-note"><span>We can see your data. We can never touch it.</span></div>
         </div>
       </section>
 

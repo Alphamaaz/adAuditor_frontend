@@ -1574,10 +1574,10 @@
   margin-bottom: 6px;
 }
 .about-stat-label {
-  font-size: 12.5px;
-  color: var(--hint);
-  font-family: var(--lp-mono);
-  line-height: 1.5;
+  font-size: 14px;
+  color: var(--muted);
+  font-family: var(--lp-body);
+  line-height: 1.6;
 }
 
 /* Team header */
@@ -1890,14 +1890,6 @@
   white-space: nowrap;
 }
 .sec-badge svg { color: var(--teal); flex-shrink: 0; }
-.sec-oneliner {
-  text-align: center;
-  margin-top: 14px;
-  font-size: 13px;
-  color: var(--hint);
-  font-style: italic;
-}
-.sec-oneliner strong { color: var(--teal); font-style: normal; }
 
 /* ── Billing toggle ── */
 .billing-toggle {
@@ -2531,11 +2523,52 @@
   .metrics-row { grid-template-columns: repeat(2,1fr); }
   .dash-split { grid-template-columns: 1fr; }
   .chart-area { height: 180px; }
-  .badge-top-left { top: 4%; left: 2%; }
-  .badge-bottom-right { bottom: 4%; right: 2%; }
+  .floating-badge { display: none; }
   .halftone { width: 90%; height: 60%; }
   .preview-section { padding-bottom: 120px; }
   .how-section { padding-left: 20px; padding-right: 20px; }
+}
+
+/* ─── Small devices: bump eyebrow + italic emphasis so they stay legible ─── */
+@media (max-width: 560px) {
+  .section-eyebrow,
+  .estimator-eyebrow,
+  .cs-eyebrow { font-size: 13px; letter-spacing: .1em; }
+  .section-title .em,
+  .cta-title .em { font-size: 1.16em; }
+}
+
+/* ─── Small devices: CTA buttons stay compact & single-line ─── */
+@media (max-width: 560px) {
+  .btn-hero { font-size: 14px; padding: 15px 22px; gap: 8px; }
+  .est-teaser-btn,
+  .est-cta-btn {
+    width: 100%;
+    justify-content: center;
+    font-size: 14px;
+    padding: 15px 20px;
+  }
+  .est-teaser-btn { white-space: nowrap; }
+  .btn-hero .arrow-icon { font-size: 15px; }
+}
+
+/* ─── Extra-small devices: nav fits without overlap ─── */
+@media (max-width: 560px) {
+  .lp-nav { padding: 0 14px; height: 60px; gap: 10px; }
+  .nav-logo { font-size: 13px; letter-spacing: .04em; gap: 7px; }
+  .nav-logo svg { width: 22px; height: 14px; }
+  .nav-cta { gap: 10px; flex-shrink: 0; }
+  .nav-cta .btn-ghost { font-size: 13px; white-space: nowrap; }
+  .nav-cta .btn-primary {
+    font-size: 12.5px;
+    padding: 9px 14px;
+    white-space: nowrap;
+    line-height: 1.1;
+  }
+}
+@media (max-width: 380px) {
+  .nav-logo { letter-spacing: .02em; }
+  .nav-cta .btn-ghost { display: none; }   /* drop "Log in" to guarantee the CTA fits */
 }
 
 /* ═══════════════════════════════
@@ -2736,29 +2769,42 @@
 /* ═══════════════════════════════
    Case Study Carousel
 ═══════════════════════════════ */
-.cs-carousel-cta { text-align: center; margin-top: 36px; }
+.cs-carousel-cta { text-align: center; margin-top: 28px; }
 
-.cs-marquee {
-  position: relative;
-  overflow: hidden;
-  width: 100%;
-  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 6%, #000 94%, transparent 100%);
-  mask-image: linear-gradient(90deg, transparent 0, #000 6%, #000 94%, transparent 100%);
-}
-.cs-track {
+/* Scroll-snap viewport */
+.cs-viewport {
   display: flex;
   gap: 22px;
-  width: max-content;
-  animation: cs-marquee 48s linear infinite;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-padding: 0 24px;
+  padding: 4px 24px 8px;
+  scrollbar-width: none;            /* Firefox */
+  -ms-overflow-style: none;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 5%, #000 95%, transparent 100%);
+  mask-image: linear-gradient(90deg, transparent 0, #000 5%, #000 95%, transparent 100%);
 }
-.cs-marquee:hover .cs-track { animation-play-state: paused; }
-@keyframes cs-marquee {
-  from { transform: translateX(0); }
-  to   { transform: translateX(-50%); }
+.cs-viewport::-webkit-scrollbar { display: none; }   /* Chrome/Safari */
+.cs-viewport .cs-carousel-card { scroll-snap-align: center; }
+
+/* Dots */
+.cs-dots {
+  display: flex;
+  justify-content: center;
+  gap: 9px;
+  margin-top: 30px;
 }
-@media (prefers-reduced-motion: reduce) {
-  .cs-track { animation: none; flex-wrap: wrap; justify-content: center; }
+.cs-dot {
+  width: 9px; height: 9px;
+  border-radius: 999px;
+  background: rgba(255,255,255,.18);
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  transition: width .3s ease, background .3s ease;
 }
+.cs-dot:hover { background: rgba(255,255,255,.4); }
+.cs-dot.active { width: 26px; background: var(--lime); }
 
 /* Carousel card */
 .cs-carousel-card {
