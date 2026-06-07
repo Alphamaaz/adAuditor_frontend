@@ -230,6 +230,10 @@ function OnboardingPageInner() {
   if (isLoading || !auth || (isEditMode && profileLoading)) return null;
 
   const validateStep = (s: number): string | null => {
+    // Edit mode is fully skippable — power users update whatever they want
+    // and save partial profiles. Required fields only apply to the (now
+    // optional) first-time onboarding path.
+    if (isEditMode) return null;
     if (s === 1) {
       if (!form.sectionA.businessType) return "Business type is required — every benchmark rule uses it.";
       if (!form.sectionA.monthlyBudget) return "Monthly ad budget is required.";
@@ -305,7 +309,7 @@ function OnboardingPageInner() {
   const SectionA = (
     <div className="space-y-6">
       <div>
-        <FieldLabel required>A1 — What is your primary business type?</FieldLabel>
+        <FieldLabel required={!isEditMode}>A1 — What is your primary business type?</FieldLabel>
         <Hint>Determines which KPIs and benchmarks apply to your account.</Hint>
         <Select
           value={form.sectionA.businessType}
@@ -319,7 +323,7 @@ function OnboardingPageInner() {
       </div>
 
       <div>
-        <FieldLabel required>A2 — Monthly ad budget across all platforms ($)</FieldLabel>
+        <FieldLabel required={!isEditMode}>A2 — Monthly ad budget across all platforms ($)</FieldLabel>
         <Hint>Used to detect budget fragmentation and calibrate spend checks.</Hint>
         <Input
           type="number"
@@ -474,7 +478,7 @@ function OnboardingPageInner() {
     <div className="space-y-7">
       {trackingQuestions.map((q) => (
         <div key={q.key}>
-          <FieldLabel required>{q.label}</FieldLabel>
+          <FieldLabel required={!isEditMode}>{q.label}</FieldLabel>
           <Hint>{q.hint}</Hint>
           <RadioGroup
             options={q.options as unknown as string[]}

@@ -1,12 +1,12 @@
-﻿"use client";
+"use client";
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { useCurrentUser } from "@/hooks/use-auth";
 import { useCreateAuditSetup } from "@/hooks/use-audits";
+import { useBusinessProfile } from "@/hooks/use-business-profile";
 import { getErrorMessage } from "@/lib/api";
-import type { DataSource, Platform } from "@/lib/audits";
+import type { AuditContextInput, DataSource, Platform } from "@/lib/audits";
 
 const PLATFORM_OPTIONS: Array<{
   id: Platform;
@@ -47,26 +47,58 @@ const DATA_SOURCE_OPTIONS: Array<{
   },
 ];
 
+const BUSINESS_TYPES = [
+  "eCommerce",
+  "Lead Gen",
+  "App Install",
+  "Local",
+  "B2B SaaS",
+  "Other",
+];
+
+function parseNum(val: string): number | null {
+  const n = parseFloat(val);
+  return isNaN(n) || n <= 0 ? null : n;
+}
+
 export default function NewAuditPage() {
-  const router = useRouter();
   const { data: auth, isLoading: authLoading } = useCurrentUser();
+  const { data: profile } = useBusinessProfile();
   const createAudit = useCreateAuditSetup();
+
   const [accountName, setAccountName] = useState("");
   const [selectedPlatforms, setSelectedPlatforms] = useState<Platform[]>([]);
   const [dataSource, setDataSource] = useState<DataSource>("MANUAL_UPLOAD");
+
+  // Audit context (replaces the long /onboarding profile).
+  const [businessType, setBusinessType] = useState("");
+  const [monthlyBudget, setMonthlyBudget] = useState("");
+  const [targetCpa, setTargetCpa] = useState("");
+  const [targetRoas, setTargetRoas] = useState("");
+  const [brandTerms, setBrandTerms] = useState("");
+
   const [error, setError] = useState("");
 
-  // Block audit creation if business profile is not complete.
+  // Prefill context from any existing business profile so returning users
+  // don't retype. New users see empty fields — no onboarding wall.
   useEffect(() => {
-    if (!authLoading && auth && !auth.hasBusinessProfile) {
-      router.replace("/onboarding");
-    }
-  }, [authLoading, auth, router]);
+    const a = profile?.answers?.sectionA;
+    if (!a) return;
+    if (a.businessType) setBusinessType(a.businessType);
+    if (a.monthlyBudget != null) setMonthlyBudget(String(a.monthlyBudget));
+    if (a.targetCpa != null) setTargetCpa(String(a.targetCpa));
+    if (a.targetRoas != null) setTargetRoas(String(a.targetRoas));
+    const extra = a as { brandTerms?: string | null };
+    if (extra.brandTerms) setBrandTerms(extra.brandTerms);
+  }, [profile]);
 
   const orgName = auth?.organizations[0]?.name;
   const canSubmit = useMemo(
-    () => accountName.trim().length > 0 && selectedPlatforms.length > 0,
-    [accountName, selectedPlatforms]
+    () =>
+      accountName.trim().length > 0 &&
+      selectedPlatforms.length > 0 &&
+      businessType.length > 0,
+    [accountName, selectedPlatforms, businessType]
   );
 
   const togglePlatform = (platform: Platform) => {
@@ -80,39 +112,36 @@ export default function NewAuditPage() {
     setError("");
 
     if (!canSubmit) {
-      setError("Enter an account name and select at least one platform.");
+      setError(
+        "Enter an account name, pick a platform, and select your business type."
+      );
       return;
     }
+
+    const context: AuditContextInput = {
+      businessType,
+      monthlyBudget: parseNum(monthlyBudget),
+      targetCpa: parseNum(targetCpa),
+      targetRoas: parseNum(targetRoas),
+      brandTerms: brandTerms.trim() || null,
+    };
 
     try {
       await createAudit.mutateAsync({
         accountName: accountName.trim(),
         selectedPlatforms,
         dataSource,
+        context,
       });
     } catch (err) {
       setError(getErrorMessage(err));
     }
   };
 
-  // Show redirect screen while profile check resolves.
-  if (authLoading || (auth && !auth.hasBusinessProfile)) {
+  if (authLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-[#f7f4ef]">
-        <div className="max-w-md rounded-xl border border-[#e5ddd0] bg-white p-8 text-center shadow-sm">
-          <h2 className="text-lg font-semibold text-[#171717]">Business profile required</h2>
-          <p className="mt-2 text-sm text-[#6b7280]">
-            Complete your business profile before running an audit. The rule engine and AI
-            narrative need your business type, budget, and tracking setup to generate
-            meaningful findings.
-          </p>
-          <Link
-            href="/onboarding"
-            className="mt-5 inline-block rounded-md bg-[#1f4d3a] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#183c2d]"
-          >
-            Complete business profile →
-          </Link>
-        </div>
+        <p className="text-sm text-[#6b7280]">Loading…</p>
       </div>
     );
   }
@@ -140,9 +169,8 @@ export default function NewAuditPage() {
             Create a new audit
           </h1>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-[#6b7280]">
-            Select the ad platforms to audit, name the account, and choose how
-            data will enter the audit pipeline. Both upload and OAuth paths use
-            the same normalized audit engine.
+            Name the account, pick a platform, give us a little context, then
+            connect or upload your data. Takes about a minute.
           </p>
         </div>
 
@@ -164,9 +192,7 @@ export default function NewAuditPage() {
 
           <section className="rounded-lg border border-[#e5ddd0] bg-white p-6">
             <div className="mb-4">
-              <h2 className="text-base font-semibold text-[#171717]">
-                Platforms
-              </h2>
+              <h2 className="text-base font-semibold text-[#171717]">Platforms</h2>
               <p className="mt-1 text-sm text-[#6b7280]">
                 Select a platform for this audit.
               </p>
@@ -174,7 +200,6 @@ export default function NewAuditPage() {
             <div className="grid gap-3 md:grid-cols-3">
               {PLATFORM_OPTIONS.map((platform) => {
                 const active = selectedPlatforms.includes(platform.id);
-
                 return (
                   <button
                     key={platform.id}
@@ -198,6 +223,119 @@ export default function NewAuditPage() {
             </div>
           </section>
 
+          {/* Audit context — replaces the long onboarding profile */}
+          <section className="rounded-lg border border-[#e5ddd0] bg-white p-6">
+            <div className="mb-4">
+              <h2 className="text-base font-semibold text-[#171717]">
+                Audit context
+              </h2>
+              <p className="mt-1 text-sm text-[#6b7280]">
+                A few details help the engine judge whether your performance is
+                good for your business. Only business type is required — the
+                rest sharpen the report.
+              </p>
+            </div>
+
+            <div className="space-y-5">
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label className="block text-sm font-medium text-[#374151]">
+                    Business type <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    value={businessType}
+                    onChange={(e) => setBusinessType(e.target.value)}
+                    className="mt-1.5 w-full rounded-md border border-[#d1cac0] bg-[#faf9f7] px-3 py-2.5 text-sm text-[#171717] outline-none focus:border-[#1f4d3a] focus:ring-2 focus:ring-[#1f4d3a]/20"
+                  >
+                    <option value="">Select one…</option>
+                    {BUSINESS_TYPES.map((o) => (
+                      <option key={o} value={o}>
+                        {o}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-[#374151]">
+                    Monthly ad budget ($){" "}
+                    <span className="text-xs font-normal text-[#9ca3af]">
+                      (optional)
+                    </span>
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    placeholder="e.g. 5000"
+                    value={monthlyBudget}
+                    onChange={(e) => setMonthlyBudget(e.target.value)}
+                    className="mt-1.5 w-full rounded-md border border-[#d1cac0] bg-[#faf9f7] px-3 py-2.5 text-sm text-[#171717] outline-none focus:border-[#1f4d3a] focus:ring-2 focus:ring-[#1f4d3a]/20"
+                  />
+                </div>
+              </div>
+
+              <div className="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label className="block text-sm font-medium text-[#374151]">
+                    Target CPA ($){" "}
+                    <span className="text-xs font-normal text-[#9ca3af]">
+                      (optional)
+                    </span>
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    placeholder="e.g. 25"
+                    value={targetCpa}
+                    onChange={(e) => setTargetCpa(e.target.value)}
+                    className="mt-1.5 w-full rounded-md border border-[#d1cac0] bg-[#faf9f7] px-3 py-2.5 text-sm text-[#171717] outline-none focus:border-[#1f4d3a] focus:ring-2 focus:ring-[#1f4d3a]/20"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium text-[#374151]">
+                    Target ROAS{" "}
+                    <span className="text-xs font-normal text-[#9ca3af]">
+                      (optional)
+                    </span>
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    step="0.1"
+                    placeholder="e.g. 3.0"
+                    value={targetRoas}
+                    onChange={(e) => setTargetRoas(e.target.value)}
+                    className="mt-1.5 w-full rounded-md border border-[#d1cac0] bg-[#faf9f7] px-3 py-2.5 text-sm text-[#171717] outline-none focus:border-[#1f4d3a] focus:ring-2 focus:ring-[#1f4d3a]/20"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-[#374151]">
+                  Your brand / product search terms{" "}
+                  <span className="text-xs font-normal text-[#9ca3af]">
+                    (optional, Google audits)
+                  </span>
+                </label>
+                <input
+                  type="text"
+                  maxLength={300}
+                  placeholder="e.g. Acme, Acme Shoes, AcmePro"
+                  value={brandTerms}
+                  onChange={(e) => setBrandTerms(e.target.value)}
+                  className="mt-1.5 w-full rounded-md border border-[#d1cac0] bg-[#faf9f7] px-3 py-2.5 text-sm text-[#171717] outline-none focus:border-[#1f4d3a] focus:ring-2 focus:ring-[#1f4d3a]/20"
+                />
+                <p className="mt-1 text-xs text-[#9ca3af]">
+                  The words people search when they already know you (brand
+                  name, product names). Comma-separated. Lets the audit separate
+                  cheap brand search from real non-brand demand — and catch when
+                  they&apos;re mixed and inflating your reported ROAS.
+                </p>
+              </div>
+            </div>
+          </section>
+
           <section className="rounded-lg border border-[#e5ddd0] bg-white p-6">
             <div className="mb-4">
               <h2 className="text-base font-semibold text-[#171717]">
@@ -211,7 +349,6 @@ export default function NewAuditPage() {
             <div className="grid gap-3 md:grid-cols-2">
               {DATA_SOURCE_OPTIONS.map((option) => {
                 const active = dataSource === option.id;
-
                 return (
                   <button
                     key={option.id}

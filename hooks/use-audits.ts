@@ -39,7 +39,14 @@ export function useCreateAuditSetup() {
     onSuccess: ({ audit }) => {
       queryClient.invalidateQueries({ queryKey: AUDITS_QUERY_KEY });
       queryClient.invalidateQueries({ queryKey: AD_ACCOUNTS_QUERY_KEY });
-      router.push(`/dashboard/audits/${audit.id}/intake`);
+      // Launch flow: context is collected on the new-audit page itself, so we
+      // skip the long platform intake questionnaire and go straight to the
+      // data step. The /intake route still exists for optional deep context.
+      if (audit.dataSource === "OAUTH") {
+        router.push(`/dashboard/audits/${audit.id}/connect`);
+        return;
+      }
+      router.push(`/dashboard/audits/${audit.id}/upload`);
     },
   });
 }

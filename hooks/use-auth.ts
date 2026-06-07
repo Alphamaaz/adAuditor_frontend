@@ -45,7 +45,9 @@ export function useVerifyEmail() {
       if (data.user.internalRole === "SUPER_ADMIN") {
         router.push("/admin");
       } else {
-        router.push(data.hasBusinessProfile ? "/dashboard" : "/onboarding");
+        // Launch flow: no forced onboarding. Land on the dashboard; audit
+        // context is collected inside the new-audit flow instead.
+        router.push("/dashboard");
       }
     },
   });
@@ -71,7 +73,9 @@ export function useLogin() {
       if (data.user.internalRole === "SUPER_ADMIN") {
         router.push("/admin");
       } else {
-        router.push(data.hasBusinessProfile ? "/dashboard" : "/onboarding");
+        // Launch flow: no forced onboarding. Land on the dashboard; audit
+        // context is collected inside the new-audit flow instead.
+        router.push("/dashboard");
       }
     },
   });
@@ -170,7 +174,9 @@ export function useGoogleAuth() {
       if (data.user.internalRole === "SUPER_ADMIN") {
         router.push("/admin");
       } else {
-        router.push(data.hasBusinessProfile ? "/dashboard" : "/onboarding");
+        // Launch flow: no forced onboarding. Land on the dashboard; audit
+        // context is collected inside the new-audit flow instead.
+        router.push("/dashboard");
       }
     },
   });

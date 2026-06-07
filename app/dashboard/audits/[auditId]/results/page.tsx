@@ -57,6 +57,29 @@ const evidenceEntries = (evidence: unknown) => {
   return Object.entries(evidence as Record<string, unknown>);
 };
 
+/**
+ * Pull the highest-signal evidence values into labeled chips so the most
+ * important facts (waste, confidence, driver, segment) are visible without
+ * scanning the raw evidence grid. Returns [] when none present.
+ */
+const evidenceHighlights = (evidence: unknown): Array<{ label: string; value: string }> => {
+  if (!evidence || typeof evidence !== "object" || Array.isArray(evidence)) return [];
+  const e = evidence as Record<string, unknown>;
+  const out: Array<{ label: string; value: string }> = [];
+  const money = (v: unknown) =>
+    typeof v === "number" ? `$${v.toLocaleString()}` : null;
+
+  const waste = e.estimatedWaste ?? e.wastedSpend ?? e.lossMakingSpend;
+  if (money(waste)) out.push({ label: "Est. waste", value: money(waste) as string });
+  if (e.dominantDriver) out.push({ label: "Driver", value: String(e.dominantDriver).replace(/_/g, " ") });
+  if (e.dimension && e.segment) out.push({ label: "Segment", value: `${e.segment} (${e.dimension})` });
+  if (typeof e.ctrGapPct === "number") out.push({ label: "CTR gap", value: `${e.ctrGapPct}%` });
+  if (typeof e.cpaDeltaPct === "number") out.push({ label: "CPA change", value: `${e.cpaDeltaPct}%` });
+  if (e.confidence) out.push({ label: "Confidence", value: String(e.confidence) });
+  if (e.sampleNote && out.length < 4) out.push({ label: "Sample", value: String(e.sampleNote) });
+  return out.slice(0, 5);
+};
+
 export default function AuditResultsPage() {
   const params = useParams<{ auditId: string }>();
   const auditId = params.auditId;
@@ -112,6 +135,18 @@ export default function AuditResultsPage() {
   const confidenceNotes = audit?.aiReport?.output?.confidenceNotes || [];
   const clientReadyRecommendations =
     audit?.aiReport?.output?.clientReadyRecommendations || [];
+  // v2 evidence-packet sections — all optional; absent on legacy/first audits.
+  const aiOutput = audit?.aiReport?.output;
+  const segmentInsights = aiOutput?.segmentInsights || [];
+  const comparisonInsights = aiOutput?.comparisonInsights || [];
+  const memoryInsights = aiOutput?.memoryInsights || [];
+  const risksAndAssumptions = aiOutput?.risksAndAssumptions || [];
+  const dataConfidenceSummary = aiOutput?.dataConfidenceSummary || null;
+  const narrativeVersion = aiOutput?.auditNarrativeVersion || null;
+  const hasDeeperInsights =
+    segmentInsights.length > 0 ||
+    comparisonInsights.length > 0 ||
+    memoryInsights.length > 0;
   const latestPdfReport = audit?.pdfReports?.[0];
   const severityCounts = useMemo(() => {
     return (audit?.ruleFindings || []).reduce(
@@ -337,6 +372,22 @@ export default function AuditResultsPage() {
                     the source of truth. AI narrative can be layered on later
                     without changing the scoring math.
                   </p>
+                  {/* Trust signals — subtle, factual. */}
+                  <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-[#6b7280]">
+                    <span className="rounded-full border border-[#d1cac0] bg-[#faf9f7] px-2.5 py-1">
+                      Every figure computed by the rule engine
+                    </span>
+                    {dataConfidenceSummary && (
+                      <span className="rounded-full border border-[#b8d9c3] bg-[#eff7f1] px-2.5 py-1 text-[#1f4d3a]">
+                        {dataConfidenceSummary}
+                      </span>
+                    )}
+                    {narrativeVersion && (
+                      <span className="rounded-full border border-[#d1cac0] bg-[#faf9f7] px-2.5 py-1">
+                        Report {narrativeVersion}
+                      </span>
+                    )}
+                  </div>
                 </div>
                 <div className="grid min-w-72 gap-3 sm:grid-cols-2">
                   <SummaryTile label="Score band" value={scoreLabel(healthScore)} />
@@ -554,6 +605,47 @@ export default function AuditResultsPage() {
                 <ul className="mt-4 space-y-2 text-sm leading-6 text-[#374151]">
                   {confidenceNotes.map((note) => (
                     <li key={note}>{note}</li>
+                  ))}
+                </ul>
+              </section>
+            ) : null}
+
+            {hasDeeperInsights ? (
+              <section className="rounded-lg border border-[#e5ddd0] bg-white p-6">
+                <h2 className="text-lg font-semibold text-[#171717]">
+                  Deeper insights
+                </h2>
+                <p className="mt-1 text-sm text-[#6b7280]">
+                  Segment, peer, and trend analysis computed from your data.
+                </p>
+                <div className="mt-4 grid gap-5 lg:grid-cols-3">
+                  <InsightColumn
+                    title="Segment waste"
+                    emptyHint="No segment-level waste detected."
+                    items={segmentInsights}
+                  />
+                  <InsightColumn
+                    title="Peer comparison"
+                    emptyHint="No comparable account in your portfolio yet."
+                    items={comparisonInsights}
+                  />
+                  <InsightColumn
+                    title="Since last audit"
+                    emptyHint="First audit for this account — trends appear next time."
+                    items={memoryInsights}
+                  />
+                </div>
+              </section>
+            ) : null}
+
+            {risksAndAssumptions.length ? (
+              <section className="rounded-lg border border-[#eee7dc] bg-[#faf9f7] p-6">
+                <h2 className="text-base font-semibold text-[#171717]">
+                  Risks &amp; assumptions
+                </h2>
+                <ul className="mt-3 space-y-1.5 text-sm leading-6 text-[#6b7280]">
+                  {risksAndAssumptions.map((note) => (
+                    <li key={note}>• {note}</li>
                   ))}
                 </ul>
               </section>
@@ -801,6 +893,31 @@ function FailedBanner({
   );
 }
 
+function InsightColumn({
+  title,
+  items,
+  emptyHint,
+}: {
+  title: string;
+  items: string[];
+  emptyHint: string;
+}) {
+  return (
+    <div className="rounded-md border border-[#eee7dc] bg-[#faf9f7] p-4">
+      <h3 className="text-sm font-semibold text-[#171717]">{title}</h3>
+      {items.length ? (
+        <ul className="mt-2 space-y-2 text-sm leading-6 text-[#374151]">
+          {items.map((item) => (
+            <li key={item}>• {item}</li>
+          ))}
+        </ul>
+      ) : (
+        <p className="mt-2 text-xs leading-5 text-[#9ca3af]">{emptyHint}</p>
+      )}
+    </div>
+  );
+}
+
 function SummaryTile({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-md border border-[#eee7dc] bg-[#faf9f7] p-4">
@@ -936,6 +1053,7 @@ function PriorityRow({
 
 function FindingCard({ finding }: { finding: RuleFinding }) {
   const entries = evidenceEntries(finding.evidence);
+  const highlights = evidenceHighlights(finding.evidence);
 
   return (
     <article className="rounded-md border border-[#eee7dc] bg-[#faf9f7] p-4">
@@ -964,6 +1082,20 @@ function FindingCard({ finding }: { finding: RuleFinding }) {
           <p className="mt-1 text-sm text-[#6b7280]">{finding.category}</p>
         </div>
       </div>
+
+      {highlights.length > 0 && (
+        <div className="mt-3 flex flex-wrap gap-2">
+          {highlights.map((h) => (
+            <span
+              key={h.label}
+              className="rounded-md border border-[#d1cac0] bg-white px-2.5 py-1 text-xs text-[#374151]"
+            >
+              <span className="font-semibold text-[#6b7280]">{h.label}:</span>{" "}
+              {h.value}
+            </span>
+          ))}
+        </div>
+      )}
 
       {finding.detail && (
         <p className="mt-3 text-sm leading-6 text-[#374151]">{finding.detail}</p>

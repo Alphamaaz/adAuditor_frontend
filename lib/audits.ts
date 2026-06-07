@@ -177,6 +177,13 @@ export interface AiReport {
       nextSteps: string[];
       sourceRuleIds: string[];
     }>;
+    // v2 evidence-packet fields — optional; older reports omit them.
+    auditNarrativeVersion?: string;
+    dataConfidenceSummary?: string | null;
+    segmentInsights?: string[];
+    comparisonInsights?: string[];
+    memoryInsights?: string[];
+    risksAndAssumptions?: string[];
   };
   createdAt: string;
   updatedAt: string;
@@ -276,10 +283,28 @@ export interface AuditComparison {
   };
 }
 
+export type MainGoal =
+  | "leads"
+  | "sales"
+  | "roas"
+  | "cpa_reduction"
+  | "traffic"
+  | "awareness";
+
+export interface AuditContextInput {
+  businessType?: string | null;
+  monthlyBudget?: number | null;
+  mainGoal?: MainGoal | null;
+  targetCpa?: number | null;
+  targetRoas?: number | null;
+  brandTerms?: string | null;
+}
+
 export interface CreateAuditSetupInput {
   accountName: string;
   selectedPlatforms: Platform[];
   dataSource: DataSource;
+  context?: AuditContextInput;
 }
 
 export interface CreateAuditSetupResult {
