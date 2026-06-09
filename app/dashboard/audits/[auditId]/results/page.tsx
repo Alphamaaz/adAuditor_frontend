@@ -859,12 +859,12 @@ export default function AuditResultsPage() {
                             {recommendation.explanation}
                           </p>
                           <ol className="mt-3 list-decimal space-y-1 pl-5 text-sm leading-6 text-[#374151]">
-                            {recommendation.nextSteps.map((step) => (
+                            {(recommendation.nextSteps || []).map((step) => (
                               <li key={step}>{step}</li>
                             ))}
                           </ol>
                           <p className="mt-3 text-xs font-medium text-[#6b7280]">
-                            Source rules: {recommendation.sourceRuleIds.join(", ")}
+                            Source rules: {(recommendation.sourceRuleIds || []).join(", ")}
                           </p>
                         </div>
                       )
@@ -1163,7 +1163,7 @@ function HypothesisCard({
         <span className="rounded border border-[#b8d9c3] bg-[#eff7f1] px-2 py-0.5 text-xs font-semibold capitalize text-[#1f4d3a]">
           {item.confidence} confidence
         </span>
-        {item.sourceRuleIds.map((ruleId) => (
+        {(item.sourceRuleIds || []).map((ruleId) => (
           <span key={ruleId} className="text-xs font-semibold text-[#6b7280]">
             {ruleId}
           </span>
@@ -1173,7 +1173,7 @@ function HypothesisCard({
         {item.hypothesis}
       </h3>
       <ul className="mt-2 space-y-1 text-sm leading-6 text-[#6b7280]">
-        {item.testsRun.map((test) => (
+        {(item.testsRun || []).map((test) => (
           <li key={test}>{test}</li>
         ))}
       </ul>
@@ -1248,7 +1248,7 @@ function FindingAnalysisCard({
           <div>
             <p className="text-xs font-semibold uppercase text-[#6b7280]">Evidence</p>
             <ul className="mt-2 space-y-1 text-sm leading-6 text-[#374151]">
-              {item.evidence.map((fact) => (
+              {(item.evidence || []).map((fact) => (
                 <li key={fact}>{fact}</li>
               ))}
             </ul>
@@ -1258,7 +1258,7 @@ function FindingAnalysisCard({
               Recommended actions
             </p>
             <ol className="mt-2 list-decimal space-y-1 pl-4 text-sm leading-6 text-[#374151]">
-              {item.recommendedActions.map((action) => (
+              {(item.recommendedActions || []).map((action) => (
                 <li key={action}>{action}</li>
               ))}
             </ol>
