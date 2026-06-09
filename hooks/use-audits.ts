@@ -152,6 +152,16 @@ export function useGenerateAiReport(auditId: string) {
 }
 
 /**
+ * Runs the agentic Deep Audit (Claude Opus). Synchronous — resolves with the
+ * deep report (or a fallback). The caller renders the result directly.
+ */
+export function useRunDeepAudit(auditId: string) {
+  return useMutation({
+    mutationFn: () => auditsApi.runDeepAudit(auditId),
+  });
+}
+
+/**
  * Queues PDF generation. Poll the audit; `pdfReports` will populate when done.
  */
 export function useGeneratePdfReport(auditId: string) {

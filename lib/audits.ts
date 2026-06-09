@@ -184,6 +184,39 @@ export interface AiReport {
     comparisonInsights?: string[];
     memoryInsights?: string[];
     risksAndAssumptions?: string[];
+    opportunitySummary?: {
+      biggestMoneyLeak?: string | null;
+      estimatedWaste?: string | null;
+      estimatedUpside?: string | null;
+      auditFocus?: string | null;
+      rankingBasis?: string;
+    };
+    findingAnalyses?: Array<{
+      ruleId: string;
+      platform: Platform | null;
+      title: string;
+      whatIsHappening: string;
+      whyItIsHappening: string;
+      evidence: string[];
+      estimatedBusinessImpact: string;
+      confidence: "high" | "medium" | "low";
+      easeOfImplementation: "easy" | "medium" | "hard";
+      recommendedActions: string[];
+      expectedOutcome: string;
+    }>;
+    hypothesisAnalyses?: Array<{
+      hypothesis: string;
+      testsRun: string[];
+      conclusion: string;
+      confidence: "high" | "medium" | "low";
+      sourceRuleIds: string[];
+    }>;
+    benchmarkComparisons?: Array<{
+      label: string;
+      comparisonType: "industry" | "historical" | "peer";
+      finding: string;
+      confidence: "high" | "medium" | "low";
+    }>;
   };
   createdAt: string;
   updatedAt: string;
@@ -295,6 +328,15 @@ export interface AuditContextInput {
   businessType?: string | null;
   monthlyBudget?: number | null;
   mainGoal?: MainGoal | null;
+  auditFocus?:
+    | "lower_cpa"
+    | "improve_ctr"
+    | "increase_roas"
+    | "more_leads"
+    | "diagnose_performance"
+    | "other"
+    | null;
+  auditFocusOther?: string | null;
   targetCpa?: number | null;
   targetRoas?: number | null;
   brandTerms?: string | null;
@@ -332,6 +374,40 @@ export interface UploadAuditFileInput {
 export interface UploadAuditFileResult {
   uploadedFile: UploadedFile;
   normalizedDataset: NormalizedDataset | null;
+}
+
+export interface DeepAuditRecommendation {
+  action: string;
+  rationale?: string;
+  estimatedImpact?: string;
+}
+
+export interface DeepAuditReport {
+  headline: string;
+  rootCause: string;
+  confidence: "high" | "medium" | "low";
+  drivers?: string;
+  recommendations: DeepAuditRecommendation[];
+}
+
+export interface DeepAuditTraceStep {
+  step?: number;
+  tool: string;
+  phase?: string;
+}
+
+export interface DeepAuditResult {
+  auditId: string;
+  mode: "deep" | "fallback";
+  report: DeepAuditReport | null;
+  reasoningTrace: DeepAuditTraceStep[];
+  reason?: string;
+  usage?: {
+    totalTokens?: number;
+    inputTokens?: number;
+    outputTokens?: number;
+    toolCalls?: number;
+  };
 }
 
 export const auditsApi = {
@@ -425,6 +501,19 @@ export const auditsApi = {
       status: "queued";
       data: { auditId: string; jobId: string; driver: string };
     }>(`/api/audits/${auditId}/ai-report`);
+    return res.data.data;
+  },
+
+  /**
+   * Runs the agentic Deep Audit (Claude Opus). Synchronous — the loop can take
+   * ~30-60s, so we override the request timeout. Returns the report directly.
+   */
+  runDeepAudit: async (auditId: string): Promise<DeepAuditResult> => {
+    const res = await api.post<{ status: string; data: DeepAuditResult }>(
+      `/api/audits/${auditId}/deep-audit`,
+      undefined,
+      { timeout: 180000 }
+    );
     return res.data.data;
   },
 

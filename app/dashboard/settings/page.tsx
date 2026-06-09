@@ -12,6 +12,7 @@ import {
   useUpdateProfile,
 } from "@/hooks/use-auth";
 import { useConnections, useDisconnectPlatform } from "@/hooks/use-connections";
+import { useMyPlanAndUsage } from "@/hooks/use-plans";
 import { connectionsApi } from "@/lib/connections";
 import { getErrorMessage } from "@/lib/api";
 
@@ -27,6 +28,7 @@ export default function SettingsPage() {
   const router = useRouter();
   const { data: auth, isLoading } = useCurrentUser();
   const { data: sessions = [] } = useAuthSessions();
+  const { data: planUsage } = useMyPlanAndUsage();
   const updateProfile = useUpdateProfile();
   const changePassword = useChangePassword();
   const revokeOtherSessions = useRevokeOtherSessions();
@@ -63,6 +65,11 @@ export default function SettingsPage() {
   const user = auth.user;
   const organization = auth.organizations[0];
   const canEditOrganization = organization?.role === "OWNER";
+  const effectivePlan = planUsage?.plan;
+  const planStatus =
+    planUsage?.source === "override"
+      ? "Active override"
+      : planUsage?.subscription?.status || organization?.plan?.status || "Unknown";
 
   const onProfileSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -165,8 +172,8 @@ export default function SettingsPage() {
             <h2 className="text-lg font-semibold text-[#171717]">Profile</h2>
             <div className="mt-4 grid gap-4 text-sm md:grid-cols-4">
               <InfoItem label="Email" value={user.email} />
-              <InfoItem label="Plan" value={organization?.plan?.name || "No Plan"} />
-              <InfoItem label="Plan Status" value={organization?.plan?.status || "Unknown"} />
+              <InfoItem label="Plan" value={effectivePlan?.name || organization?.plan?.name || "No Plan"} />
+              <InfoItem label="Plan Status" value={planStatus} />
               <InfoItem label="Last login" value={formatDate(user.lastLoginAt)} />
             </div>
 

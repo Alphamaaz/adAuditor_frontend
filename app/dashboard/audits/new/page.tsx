@@ -56,6 +56,18 @@ const BUSINESS_TYPES = [
   "Other",
 ];
 
+const AUDIT_FOCUS_OPTIONS: Array<{
+  id: NonNullable<AuditContextInput["auditFocus"]>;
+  label: string;
+}> = [
+  { id: "diagnose_performance", label: "Diagnose account performance" },
+  { id: "lower_cpa", label: "Lower CPA" },
+  { id: "improve_ctr", label: "Improve CTR" },
+  { id: "increase_roas", label: "Increase ROAS" },
+  { id: "more_leads", label: "More leads" },
+  { id: "other", label: "Other" },
+];
+
 function parseNum(val: string): number | null {
   const n = parseFloat(val);
   return isNaN(n) || n <= 0 ? null : n;
@@ -76,6 +88,9 @@ export default function NewAuditPage() {
   const [targetCpa, setTargetCpa] = useState("");
   const [targetRoas, setTargetRoas] = useState("");
   const [brandTerms, setBrandTerms] = useState("");
+  const [auditFocus, setAuditFocus] =
+    useState<NonNullable<AuditContextInput["auditFocus"]>>("diagnose_performance");
+  const [auditFocusOther, setAuditFocusOther] = useState("");
 
   const [error, setError] = useState("");
 
@@ -124,6 +139,9 @@ export default function NewAuditPage() {
       targetCpa: parseNum(targetCpa),
       targetRoas: parseNum(targetRoas),
       brandTerms: brandTerms.trim() || null,
+      auditFocus,
+      auditFocusOther:
+        auditFocus === "other" ? auditFocusOther.trim() || null : null,
     };
 
     try {
@@ -272,6 +290,48 @@ export default function NewAuditPage() {
                     className="mt-1.5 w-full rounded-md border border-[#d1cac0] bg-[#faf9f7] px-3 py-2.5 text-sm text-[#171717] outline-none focus:border-[#1f4d3a] focus:ring-2 focus:ring-[#1f4d3a]/20"
                   />
                 </div>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-[#374151]">
+                  Audit focus{" "}
+                  <span className="text-xs font-normal text-[#9ca3af]">
+                    (optional)
+                  </span>
+                </label>
+                <div className="mt-2 grid gap-2 sm:grid-cols-3">
+                  {AUDIT_FOCUS_OPTIONS.map((option) => {
+                    const active = auditFocus === option.id;
+                    return (
+                      <button
+                        key={option.id}
+                        type="button"
+                        onClick={() => setAuditFocus(option.id)}
+                        className={`rounded-md border px-3 py-2 text-left text-sm transition-colors ${
+                          active
+                            ? "border-[#1f4d3a] bg-[#eff7f1] text-[#1f4d3a]"
+                            : "border-[#d1cac0] bg-[#faf9f7] text-[#374151] hover:border-[#1f4d3a]"
+                        }`}
+                      >
+                        {option.label}
+                      </button>
+                    );
+                  })}
+                </div>
+                {auditFocus === "other" && (
+                  <input
+                    type="text"
+                    maxLength={240}
+                    placeholder="What should the audit prioritize?"
+                    value={auditFocusOther}
+                    onChange={(e) => setAuditFocusOther(e.target.value)}
+                    className="mt-2 w-full rounded-md border border-[#d1cac0] bg-[#faf9f7] px-3 py-2.5 text-sm text-[#171717] outline-none focus:border-[#1f4d3a] focus:ring-2 focus:ring-[#1f4d3a]/20"
+                  />
+                )}
+                <p className="mt-1 text-xs text-[#9ca3af]">
+                  This guides prioritization only. The audit still scans the
+                  whole account for hidden problems.
+                </p>
               </div>
 
               <div className="grid gap-4 sm:grid-cols-2">

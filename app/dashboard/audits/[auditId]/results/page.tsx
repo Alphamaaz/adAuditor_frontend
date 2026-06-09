@@ -13,7 +13,13 @@ import {
 } from "@/hooks/use-audits";
 import { useMyPlanAndUsage } from "@/hooks/use-plans";
 import { getErrorMessage } from "@/lib/api";
-import type { Audit, Platform, RuleFinding, UploadReadiness } from "@/lib/audits";
+import type {
+  Audit,
+  AiReport,
+  Platform,
+  RuleFinding,
+  UploadReadiness,
+} from "@/lib/audits";
 import { PLATFORM_LABELS } from "@/lib/platform-questionnaire";
 
 const severityOrder: Record<RuleFinding["severity"], number> = {
@@ -38,6 +44,41 @@ const scoreLabel = (score: number) => {
   if (score >= 60) return "Fair";
   if (score >= 40) return "Poor";
   return "Critical";
+};
+
+const parseMoneyMagnitude = (value: unknown): number => {
+  if (typeof value !== "string") return 0;
+  const match = value.match(/(?:\$|USD|PKR|EUR|GBP|CAD|AUD|AED|INR)\s?([\d,]+(?:\.\d+)?)/i);
+  if (!match) return 0;
+  const n = Number(match[1].replace(/,/g, ""));
+  return Number.isFinite(n) ? n : 0;
+};
+
+const confidenceRank = (value: unknown): number => {
+  const v = String(value || "").toLowerCase();
+  if (v === "high") return 3;
+  if (v === "medium") return 2;
+  if (v === "low") return 1;
+  return 2;
+};
+
+const easeRank = (value: unknown): number => {
+  const v = String(value || "").toLowerCase();
+  if (v === "easy") return 3;
+  if (v === "medium") return 2;
+  if (v === "hard") return 1;
+  return 2;
+};
+
+const evidenceImpact = (evidence: Record<string, unknown> | null): number => {
+  const raw =
+    evidence?.estimatedWaste ??
+    evidence?.wastedSpend ??
+    evidence?.lossMakingSpend ??
+    evidence?.estimatedWasteFormatted ??
+    evidence?.wastedSpendFormatted;
+  if (typeof raw === "number" && Number.isFinite(raw)) return raw;
+  return parseMoneyMagnitude(raw);
 };
 
 const formatEvidenceValue = (value: unknown): string => {
@@ -66,11 +107,20 @@ const evidenceHighlights = (evidence: unknown): Array<{ label: string; value: st
   if (!evidence || typeof evidence !== "object" || Array.isArray(evidence)) return [];
   const e = evidence as Record<string, unknown>;
   const out: Array<{ label: string; value: string }> = [];
-  const money = (v: unknown) =>
-    typeof v === "number" ? `$${v.toLocaleString()}` : null;
+  const currency = typeof e.currency === "string" ? e.currency : "USD";
+  const money = (v: unknown, formatted?: unknown) => {
+    if (typeof formatted === "string" && formatted.trim()) return formatted;
+    if (typeof v !== "number") return null;
+    const amount = Math.round(v).toLocaleString("en-US");
+    return currency && currency !== "USD" ? `${currency} ${amount}` : `$${amount}`;
+  };
 
   const waste = e.estimatedWaste ?? e.wastedSpend ?? e.lossMakingSpend;
-  if (money(waste)) out.push({ label: "Est. waste", value: money(waste) as string });
+  const wasteFormatted =
+    e.estimatedWasteFormatted ?? e.wastedSpendFormatted ?? e.lossMakingSpendFormatted;
+  if (money(waste, wasteFormatted)) {
+    out.push({ label: "Est. waste", value: money(waste, wasteFormatted) as string });
+  }
   if (e.dominantDriver) out.push({ label: "Driver", value: String(e.dominantDriver).replace(/_/g, " ") });
   if (e.dimension && e.segment) out.push({ label: "Segment", value: `${e.segment} (${e.dimension})` });
   if (typeof e.ctrGapPct === "number") out.push({ label: "CTR gap", value: `${e.ctrGapPct}%` });
@@ -108,7 +158,18 @@ export default function AuditResultsPage() {
         return left.category.localeCompare(right.category);
       }
 
-      return severityOrder[right.severity] - severityOrder[left.severity];
+      const leftEvidence = left.evidence as Record<string, unknown> | null;
+      const rightEvidence = right.evidence as Record<string, unknown> | null;
+      const rightImpact =
+        parseMoneyMagnitude(right.estimatedImpact) || evidenceImpact(rightEvidence);
+      const leftImpact =
+        parseMoneyMagnitude(left.estimatedImpact) || evidenceImpact(leftEvidence);
+      return (
+        rightImpact - leftImpact ||
+        confidenceRank(rightEvidence?.confidence) - confidenceRank(leftEvidence?.confidence) ||
+        easeRank(rightEvidence?.easeOfImplementation) - easeRank(leftEvidence?.easeOfImplementation) ||
+        severityOrder[right.severity] - severityOrder[left.severity]
+      );
     });
   }, [audit?.ruleFindings, sortMode]);
 
@@ -141,6 +202,10 @@ export default function AuditResultsPage() {
   const comparisonInsights = aiOutput?.comparisonInsights || [];
   const memoryInsights = aiOutput?.memoryInsights || [];
   const risksAndAssumptions = aiOutput?.risksAndAssumptions || [];
+  const opportunitySummary = aiOutput?.opportunitySummary;
+  const findingAnalyses = aiOutput?.findingAnalyses || [];
+  const hypothesisAnalyses = aiOutput?.hypothesisAnalyses || [];
+  const benchmarkComparisons = aiOutput?.benchmarkComparisons || [];
   const dataConfidenceSummary = aiOutput?.dataConfidenceSummary || null;
   const narrativeVersion = aiOutput?.auditNarrativeVersion || null;
   const hasDeeperInsights =
@@ -368,9 +433,9 @@ export default function AuditResultsPage() {
                     Health score: {healthScore}/100
                   </h1>
                   <p className="mt-2 max-w-3xl text-sm leading-6 text-[#6b7280]">
-                    The rule engine uses validated uploads and intake answers as
-                    the source of truth. AI narrative can be layered on later
-                    without changing the scoring math.
+                    The rule engine computes the facts and score. The strategist
+                    report turns those facts into a deeper diagnosis without
+                    changing the scoring math.
                   </p>
                   {/* Trust signals — subtle, factual. */}
                   <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-[#6b7280]">
@@ -470,30 +535,30 @@ export default function AuditResultsPage() {
               <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
                 <div>
                   <h2 className="text-lg font-semibold text-[#171717]">
-                    AI narrative
-                    {aiNarrativeMode === "automatic" && (
+                    Strategist report
+                    {aiNarrativeMode !== false && (
                       <span className="ml-2 rounded bg-[#eff7f1] px-2 py-0.5 text-xs font-semibold text-[#1f4d3a]">
-                        Auto
+                        Deep audit default
                       </span>
                     )}
                   </h2>
                   {/* Description varies by plan mode so users know what to expect. */}
                   {aiNarrativeMode === "automatic" ? (
                     <p className="mt-2 max-w-3xl text-sm leading-6 text-[#6b7280]">
-                      Your plan generates an AI narrative automatically after
-                      every audit. It usually appears here within a minute. You
-                      can also regenerate it any time.
+                      The strategist report runs automatically after every
+                      audit. It uses the deterministic findings, comparisons,
+                      and hypothesis checks to produce the client-facing diagnosis.
                     </p>
                   ) : aiNarrativeMode === "manual" ? (
                     <p className="mt-2 max-w-3xl text-sm leading-6 text-[#6b7280]">
-                      Generate client-ready language from the saved rule findings.
-                      Deterministic scores and issues remain the source of truth.
+                      The strategist report is now generated automatically after
+                      the audit. Use regenerate only when you want a fresh version.
                     </p>
                   ) : (
                     <p className="mt-2 max-w-3xl text-sm leading-6 text-[#6b7280]">
-                      The AI narrative writes a polished executive summary,
-                      priorities, and client-ready recommendations from your
-                      audit findings. Available on Starter and higher.
+                      The strategist report writes the executive summary,
+                      hypothesis analysis, benchmarks, and client-ready
+                      recommendations. Available on Starter and higher.
                     </p>
                   )}
                   {audit.aiReport && (
@@ -508,7 +573,7 @@ export default function AuditResultsPage() {
                     href="/pricing"
                     className="rounded-md bg-[#1f4d3a] px-4 py-2 text-sm font-semibold text-white hover:bg-[#183c2d]"
                   >
-                    Upgrade for AI report
+                    Upgrade for strategist report
                   </Link>
                 ) : (
                   <button
@@ -524,8 +589,8 @@ export default function AuditResultsPage() {
                     {generateAiReport.isPending || aiPolling
                       ? "Generating..."
                       : aiGenerated
-                        ? "Regenerate AI report"
-                        : "Generate AI report"}
+                        ? "Regenerate report"
+                        : "Generate report"}
                   </button>
                 )}
               </div>
@@ -534,7 +599,7 @@ export default function AuditResultsPage() {
                   <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                     <div>
                       <p className="text-sm font-semibold text-[#1f4d3a]">
-                        AI report is ready
+                        Strategist report is ready
                       </p>
                       <p className="mt-1 text-sm leading-6 text-[#3d6a50]">
                         Saved with {audit.aiReport.provider} /{" "}
@@ -552,9 +617,9 @@ export default function AuditResultsPage() {
                 </div>
               )}
               {/* Auto-mode hint while we wait for the worker to land the AI report. */}
-              {aiNarrativeMode === "automatic" && !aiGenerated && (
+              {aiNarrativeMode !== false && !aiGenerated && (
                 <div className="mt-5 rounded-md border border-[#eee7dc] bg-[#faf9f7] px-4 py-3 text-sm leading-6 text-[#374151]">
-                  <span className="font-semibold">Heads up:</span> AI narrative
+                  <span className="font-semibold">Heads up:</span> Strategist report
                   is queued automatically. While we wait, the sections below
                   show the deterministic report.
                 </div>
@@ -592,6 +657,78 @@ export default function AuditResultsPage() {
                     <p key={paragraph} className="text-sm leading-6 text-[#374151]">
                       {paragraph}
                     </p>
+                  ))}
+                </div>
+              </section>
+            ) : null}
+
+            {opportunitySummary && (
+              <section className="rounded-lg border border-[#b8d9c3] bg-[#eff7f1] p-6">
+                <div className="grid gap-4 lg:grid-cols-3">
+                  <SummaryCallout
+                    label="Biggest money leak"
+                    value={opportunitySummary.biggestMoneyLeak || "Not identified"}
+                  />
+                  <SummaryCallout
+                    label="Estimated waste"
+                    value={opportunitySummary.estimatedWaste || "Not quantified"}
+                  />
+                  <SummaryCallout
+                    label="Upside after fixing"
+                    value={opportunitySummary.estimatedUpside || "Directional"}
+                  />
+                </div>
+                <p className="mt-4 text-sm leading-6 text-[#1f4d3a]">
+                  {opportunitySummary.rankingBasis}
+                </p>
+              </section>
+            )}
+
+            {hypothesisAnalyses.length ? (
+              <section className="rounded-lg border border-[#e5ddd0] bg-white p-6">
+                <h2 className="text-lg font-semibold text-[#171717]">
+                  Hypothesis-driven diagnosis
+                </h2>
+                <div className="mt-5 grid gap-4 lg:grid-cols-2">
+                  {hypothesisAnalyses.map((item, index) => (
+                    <HypothesisCard key={`${item.hypothesis}-${index}`} item={item} />
+                  ))}
+                </div>
+              </section>
+            ) : null}
+
+            {findingAnalyses.length ? (
+              <section className="rounded-lg border border-[#e5ddd0] bg-white p-6">
+                <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
+                  <div>
+                    <h2 className="text-lg font-semibold text-[#171717]">
+                      Major finding analysis
+                    </h2>
+                    <p className="mt-1 text-sm text-[#6b7280]">
+                      Ranked by recoverable money, confidence, and ease of implementation.
+                    </p>
+                  </div>
+                </div>
+                <div className="mt-5 space-y-5">
+                  {findingAnalyses.map((item, index) => (
+                    <FindingAnalysisCard
+                      key={`${item.ruleId}-${index}`}
+                      item={item}
+                      index={index + 1}
+                    />
+                  ))}
+                </div>
+              </section>
+            ) : null}
+
+            {benchmarkComparisons.length ? (
+              <section className="rounded-lg border border-[#e5ddd0] bg-white p-6">
+                <h2 className="text-lg font-semibold text-[#171717]">
+                  Benchmark comparisons
+                </h2>
+                <div className="mt-4 grid gap-3 lg:grid-cols-3">
+                  {benchmarkComparisons.map((item, index) => (
+                    <BenchmarkCard key={`${item.label}-${index}`} item={item} />
                   ))}
                 </div>
               </section>
@@ -1002,6 +1139,165 @@ function ReadinessWarning({ readiness }: { readiness: UploadReadiness }) {
   );
 }
 
+function SummaryCallout({ label, value }: { label: string; value: string }) {
+  return (
+    <div>
+      <p className="text-xs font-semibold uppercase tracking-wide text-[#3d6a50]">
+        {label}
+      </p>
+      <p className="mt-1 text-base font-semibold leading-6 text-[#171717]">
+        {value}
+      </p>
+    </div>
+  );
+}
+
+function HypothesisCard({
+  item,
+}: {
+  item: NonNullable<AiReport["output"]["hypothesisAnalyses"]>[number];
+}) {
+  return (
+    <article className="border-l-2 border-[#1f4d3a] pl-4">
+      <div className="flex flex-wrap items-center gap-2">
+        <span className="rounded border border-[#b8d9c3] bg-[#eff7f1] px-2 py-0.5 text-xs font-semibold capitalize text-[#1f4d3a]">
+          {item.confidence} confidence
+        </span>
+        {item.sourceRuleIds.map((ruleId) => (
+          <span key={ruleId} className="text-xs font-semibold text-[#6b7280]">
+            {ruleId}
+          </span>
+        ))}
+      </div>
+      <h3 className="mt-2 text-sm font-semibold text-[#171717]">
+        {item.hypothesis}
+      </h3>
+      <ul className="mt-2 space-y-1 text-sm leading-6 text-[#6b7280]">
+        {item.testsRun.map((test) => (
+          <li key={test}>{test}</li>
+        ))}
+      </ul>
+      <p className="mt-2 text-sm leading-6 text-[#374151]">{item.conclusion}</p>
+    </article>
+  );
+}
+
+function FindingAnalysisCard({
+  item,
+  index,
+}: {
+  item: NonNullable<AiReport["output"]["findingAnalyses"]>[number];
+  index: number;
+}) {
+  return (
+    <article className="border-t border-[#eee7dc] pt-5 first:border-t-0 first:pt-0">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
+        <div>
+          <div className="flex flex-wrap gap-2">
+            <span className="rounded bg-[#171717] px-2 py-1 text-xs font-semibold text-white">
+              {index}
+            </span>
+            <span className="rounded border border-[#d1cac0] px-2 py-1 text-xs font-semibold text-[#374151]">
+              {item.ruleId}
+            </span>
+            {item.platform && (
+              <span className="rounded border border-[#d1cac0] px-2 py-1 text-xs font-semibold text-[#374151]">
+                {PLATFORM_LABELS[item.platform]}
+              </span>
+            )}
+            <span className="rounded border border-[#b8d9c3] bg-[#eff7f1] px-2 py-1 text-xs font-semibold capitalize text-[#1f4d3a]">
+              {item.confidence}
+            </span>
+            <span className="rounded border border-[#eee7dc] bg-[#faf9f7] px-2 py-1 text-xs font-semibold capitalize text-[#6b7280]">
+              {item.easeOfImplementation} fix
+            </span>
+          </div>
+          <h3 className="mt-3 text-base font-semibold text-[#171717]">
+            {item.title}
+          </h3>
+        </div>
+        <p className="text-sm font-semibold text-[#1f4d3a] lg:max-w-xs lg:text-right">
+          {item.estimatedBusinessImpact}
+        </p>
+      </div>
+
+      <div className="mt-4 grid gap-5 lg:grid-cols-2">
+        <div>
+          <p className="text-xs font-semibold uppercase text-[#6b7280]">
+            What is happening
+          </p>
+          <p className="mt-1 text-sm leading-6 text-[#374151]">
+            {item.whatIsHappening}
+          </p>
+        </div>
+        <div>
+          <p className="text-xs font-semibold uppercase text-[#6b7280]">
+            Why it is happening
+          </p>
+          <p className="mt-1 text-sm leading-6 text-[#374151]">
+            {item.whyItIsHappening}
+          </p>
+        </div>
+      </div>
+
+      <details className="mt-4 rounded-md border border-[#eee7dc] bg-[#faf9f7] p-4">
+        <summary className="cursor-pointer text-sm font-semibold text-[#374151]">
+          Evidence and actions
+        </summary>
+        <div className="mt-3 grid gap-5 lg:grid-cols-3">
+          <div>
+            <p className="text-xs font-semibold uppercase text-[#6b7280]">Evidence</p>
+            <ul className="mt-2 space-y-1 text-sm leading-6 text-[#374151]">
+              {item.evidence.map((fact) => (
+                <li key={fact}>{fact}</li>
+              ))}
+            </ul>
+          </div>
+          <div>
+            <p className="text-xs font-semibold uppercase text-[#6b7280]">
+              Recommended actions
+            </p>
+            <ol className="mt-2 list-decimal space-y-1 pl-4 text-sm leading-6 text-[#374151]">
+              {item.recommendedActions.map((action) => (
+                <li key={action}>{action}</li>
+              ))}
+            </ol>
+          </div>
+          <div>
+            <p className="text-xs font-semibold uppercase text-[#6b7280]">
+              Expected outcome
+            </p>
+            <p className="mt-2 text-sm leading-6 text-[#374151]">
+              {item.expectedOutcome}
+            </p>
+          </div>
+        </div>
+      </details>
+    </article>
+  );
+}
+
+function BenchmarkCard({
+  item,
+}: {
+  item: NonNullable<AiReport["output"]["benchmarkComparisons"]>[number];
+}) {
+  return (
+    <article className="border-l-2 border-[#d1cac0] pl-4">
+      <div className="flex flex-wrap gap-2">
+        <span className="rounded border border-[#d1cac0] px-2 py-0.5 text-xs font-semibold capitalize text-[#374151]">
+          {item.comparisonType}
+        </span>
+        <span className="rounded border border-[#b8d9c3] bg-[#eff7f1] px-2 py-0.5 text-xs font-semibold capitalize text-[#1f4d3a]">
+          {item.confidence}
+        </span>
+      </div>
+      <h3 className="mt-2 text-sm font-semibold text-[#171717]">{item.label}</h3>
+      <p className="mt-2 text-sm leading-6 text-[#6b7280]">{item.finding}</p>
+    </article>
+  );
+}
+
 function PriorityRow({
   index,
   ruleId,
@@ -1108,8 +1404,13 @@ function FindingCard({ finding }: { finding: RuleFinding }) {
       )}
 
       {entries.length > 0 && (
-        <div className="mt-3 rounded-md border border-[#eee7dc] bg-white p-3">
-          <p className="text-sm font-semibold text-[#374151]">Evidence</p>
+        <details
+          open={finding.severity === "CRITICAL" || finding.severity === "HIGH"}
+          className="mt-3 rounded-md border border-[#eee7dc] bg-white p-3"
+        >
+          <summary className="cursor-pointer text-sm font-semibold text-[#374151]">
+            Evidence
+          </summary>
           <dl className="mt-2 grid gap-2 text-xs sm:grid-cols-2">
             {entries.slice(0, 6).map(([key, value]) => (
               <div key={key}>
@@ -1120,7 +1421,7 @@ function FindingCard({ finding }: { finding: RuleFinding }) {
               </div>
             ))}
           </dl>
-        </div>
+        </details>
       )}
 
       {finding.fixSteps?.length ? (
