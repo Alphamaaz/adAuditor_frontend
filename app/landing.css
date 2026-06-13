@@ -836,6 +836,27 @@
   position: relative;
   z-index: 2;
 }
+.auth-home-link {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: fit-content;
+  margin: 0 auto 18px;
+  padding: 8px 14px;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: rgba(255,255,255,.04);
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: border-color .2s, color .2s, background .2s;
+}
+.auth-home-link:hover {
+  border-color: rgba(234,255,0,.45);
+  background: rgba(234,255,0,.08);
+  color: var(--white);
+}
 .auth-logo {
   display: flex;
   align-items: center;

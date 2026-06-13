@@ -1,8 +1,8 @@
 ﻿"use client";
 
 import Link from "next/link";
-import { useParams, useSearchParams, useRouter } from "next/navigation";
-import { useState, useEffect } from "react";
+import { useParams, useSearchParams } from "next/navigation";
+import { useState } from "react";
 import { useAudit } from "@/hooks/use-audits";
 import {
   useGoogleAdAccounts,
@@ -25,7 +25,6 @@ type Step =
 export default function AuditConnectPage() {
   const params = useParams<{ auditId: string }>();
   const searchParams = useSearchParams();
-  const router = useRouter();
 
   const { data: audit, isLoading } = useAudit(params.auditId);
 
@@ -39,6 +38,7 @@ export default function AuditConnectPage() {
   const getInitialStep = (): Step => {
     if (oauthStatus === "success" && oauthPlatform === "GOOGLE") return "google_select";
     if (oauthStatus === "success" && oauthPlatform === "META") return "meta_select";
+    if (oauthConnected === "true" && oauthPlatform === "META") return "meta_select";
     if (oauthConnected === "true" && oauthPlatform === "TIKTOK") return "tiktok_select";
     return "connect";
   };
@@ -55,40 +55,41 @@ export default function AuditConnectPage() {
   const fetchGoogleData = useFetchGoogleData();
   const fetchMetaData = useFetchMetaData();
   const fetchTikTokData = useFetchTikTokData();
-
-  // Auto-select if only one Google account
-  useEffect(() => {
-    if (googleAccounts.data?.length === 1 && !selectedCustomerId) {
-      setSelectedCustomerId(googleAccounts.data[0].customerId);
-    }
-  }, [googleAccounts.data, selectedCustomerId]);
-
-  // Auto-select if only one Meta account
-  useEffect(() => {
-    if (metaAccounts.data?.length === 1 && !selectedMetaAccountId) {
-      setSelectedMetaAccountId(metaAccounts.data[0].id);
-    }
-  }, [metaAccounts.data, selectedMetaAccountId]);
-
-  // Auto-select if only one TikTok advertiser
-  useEffect(() => {
-    if (tiktokAccounts.data?.length === 1 && !selectedAdvertiserId) {
-      setSelectedAdvertiserId(tiktokAccounts.data[0].advertiserId);
-    }
-  }, [tiktokAccounts.data, selectedAdvertiserId]);
+  const effectiveCustomerId =
+    selectedCustomerId || (googleAccounts.data?.length === 1 ? googleAccounts.data[0].customerId : "");
+  const effectiveMetaAccountId =
+    selectedMetaAccountId || (metaAccounts.data?.length === 1 ? metaAccounts.data[0].id : "");
+  const effectiveAdvertiserId =
+    selectedAdvertiserId || (tiktokAccounts.data?.length === 1 ? tiktokAccounts.data[0].advertiserId : "");
+  const selectedGoogleAccount = googleAccounts.data?.find((account) => account.customerId === effectiveCustomerId);
+  const selectedMetaAccount = metaAccounts.data?.find((account) => account.id === effectiveMetaAccountId);
+  const selectedTikTokAccount = tiktokAccounts.data?.find((account) => account.advertiserId === effectiveAdvertiserId);
+  const selectedCurrency =
+    fetchResult?.currency ||
+    selectedGoogleAccount?.currencyCode ||
+    selectedMetaAccount?.currency ||
+    selectedTikTokAccount?.currency ||
+    null;
+  const formatAccountMoney = (value: number) => {
+    const amount = value.toLocaleString(undefined, {
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0,
+    });
+    return selectedCurrency ? `${selectedCurrency} ${amount}` : amount;
+  };
 
   const [fetchError, setFetchError] = useState<string | null>(null);
 
   const handleFetchGoogle = async () => {
-    if (!selectedCustomerId) return;
+    if (!effectiveCustomerId) return;
     setFetchError(null);
     setStep("fetching");
     try {
       const result = await fetchGoogleData.mutateAsync({
         auditId: params.auditId,
-        customerId: selectedCustomerId,
+        customerId: effectiveCustomerId,
       });
-      setFetchResult(result.summary);
+      setFetchResult({ ...result.summary, currency: result.summary.currency || result.currency });
       setStep("done");
     } catch (err: unknown) {
       const message = getErrorMessage(err);
@@ -99,15 +100,15 @@ export default function AuditConnectPage() {
   };
 
   const handleFetchTikTok = async () => {
-    if (!selectedAdvertiserId) return;
+    if (!effectiveAdvertiserId) return;
     setFetchError(null);
     setStep("fetching");
     try {
       const result = await fetchTikTokData.mutateAsync({
         auditId: params.auditId,
-        advertiserId: selectedAdvertiserId,
+        advertiserId: effectiveAdvertiserId,
       });
-      setFetchResult(result.summary);
+      setFetchResult({ ...result.summary, currency: result.summary.currency || result.currency });
       setStep("done");
     } catch (err: unknown) {
       const message = getErrorMessage(err);
@@ -118,18 +119,20 @@ export default function AuditConnectPage() {
   };
 
   const handleFetchMeta = async () => {
-    if (!selectedMetaAccountId) return;
+    if (!effectiveMetaAccountId) return;
+    setFetchError(null);
     setStep("fetching");
     try {
       const result = await fetchMetaData.mutateAsync({
         auditId: params.auditId,
-        externalAdAccountId: selectedMetaAccountId,
+        externalAdAccountId: effectiveMetaAccountId,
       });
-      setFetchResult(result.summary);
+      setFetchResult({ ...result.summary, currency: result.summary.currency || result.currency });
       setStep("done");
     } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : "Unknown error";
+      const message = getErrorMessage(err);
       console.error("[Connect] Meta data fetch failed:", message);
+      setFetchError(message);
       setStep("meta_select");
     }
   };
@@ -276,7 +279,7 @@ export default function AuditConnectPage() {
                     <label
                       key={account.customerId}
                       className={`flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition-all ${
-                        selectedCustomerId === account.customerId
+                        effectiveCustomerId === account.customerId
                           ? "border-[#171717] bg-[#f7f4ef]"
                           : "border-[#e5ddd0] hover:border-[#d1cac0]"
                       }`}
@@ -285,7 +288,7 @@ export default function AuditConnectPage() {
                         type="radio"
                         name="customerId"
                         value={account.customerId}
-                        checked={selectedCustomerId === account.customerId}
+                        checked={effectiveCustomerId === account.customerId}
                         onChange={() => setSelectedCustomerId(account.customerId)}
                         className="mt-0.5"
                       />
@@ -300,9 +303,15 @@ export default function AuditConnectPage() {
                     </label>
                   ))}
 
+                  {selectedGoogleAccount?.currencyCode && (
+                    <div className="rounded-md border border-[#b8d9c3] bg-[#eff7f1] px-4 py-3 text-sm text-[#1f4d3a]">
+                      Currency detected: <span className="font-semibold">{selectedGoogleAccount.currencyCode}</span>. Spend, benchmarks, and recommendations will use this account currency.
+                    </div>
+                  )}
+
                   <button
                     onClick={handleFetchGoogle}
-                    disabled={!selectedCustomerId}
+                    disabled={!effectiveCustomerId}
                     className="mt-4 w-full rounded-xl bg-[#171717] px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-[#2d2d2d] disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     Pull Google Ads data
@@ -338,7 +347,23 @@ export default function AuditConnectPage() {
 
               {metaAccounts.isError && (
                 <div className="mt-6 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-                  Failed to load Meta ad accounts.
+                  <p className="font-medium">Failed to load Meta ad accounts</p>
+                  <p className="mt-1 font-mono text-xs break-all">
+                    {getErrorMessage(metaAccounts.error)}
+                  </p>
+                </div>
+              )}
+
+              {fetchError && (
+                <div className="mt-6 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                  <p className="font-medium">Data fetch failed</p>
+                  <p className="mt-1 font-mono text-xs break-all">{fetchError}</p>
+                </div>
+              )}
+
+              {metaAccounts.data && metaAccounts.data.length === 0 && (
+                <div className="mt-6 rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+                  No Meta ad accounts found. Make sure this Facebook user has access to at least one ad account in Business Manager.
                 </div>
               )}
 
@@ -348,7 +373,7 @@ export default function AuditConnectPage() {
                     <label
                       key={account.id}
                       className={`flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition-all ${
-                        selectedMetaAccountId === account.id
+                        effectiveMetaAccountId === account.id
                           ? "border-[#171717] bg-[#f7f4ef]"
                           : "border-[#e5ddd0] hover:border-[#d1cac0]"
                       }`}
@@ -357,7 +382,7 @@ export default function AuditConnectPage() {
                         type="radio"
                         name="metaAccountId"
                         value={account.id}
-                        checked={selectedMetaAccountId === account.id}
+                        checked={effectiveMetaAccountId === account.id}
                         onChange={() => setSelectedMetaAccountId(account.id)}
                         className="mt-0.5"
                       />
@@ -372,9 +397,15 @@ export default function AuditConnectPage() {
                     </label>
                   ))}
 
+                  {selectedMetaAccount?.currency && (
+                    <div className="rounded-md border border-[#b8d9c3] bg-[#eff7f1] px-4 py-3 text-sm text-[#1f4d3a]">
+                      Currency detected: <span className="font-semibold">{selectedMetaAccount.currency}</span>. Spend, benchmarks, and recommendations will use this account currency.
+                    </div>
+                  )}
+
                   <button
                     onClick={handleFetchMeta}
-                    disabled={!selectedMetaAccountId}
+                    disabled={!effectiveMetaAccountId}
                     className="mt-4 w-full rounded-xl bg-[#1877F2] px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-[#1660d0] disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     Pull Meta Ads data
@@ -436,7 +467,7 @@ export default function AuditConnectPage() {
                     <label
                       key={account.advertiserId}
                       className={`flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition-all ${
-                        selectedAdvertiserId === account.advertiserId
+                        effectiveAdvertiserId === account.advertiserId
                           ? "border-[#171717] bg-[#f7f4ef]"
                           : "border-[#e5ddd0] hover:border-[#d1cac0]"
                       }`}
@@ -445,7 +476,7 @@ export default function AuditConnectPage() {
                         type="radio"
                         name="advertiserId"
                         value={account.advertiserId}
-                        checked={selectedAdvertiserId === account.advertiserId}
+                        checked={effectiveAdvertiserId === account.advertiserId}
                         onChange={() => setSelectedAdvertiserId(account.advertiserId)}
                         className="mt-0.5"
                       />
@@ -460,9 +491,15 @@ export default function AuditConnectPage() {
                     </label>
                   ))}
 
+                  {selectedTikTokAccount?.currency && (
+                    <div className="rounded-md border border-[#b8d9c3] bg-[#eff7f1] px-4 py-3 text-sm text-[#1f4d3a]">
+                      Currency detected: <span className="font-semibold">{selectedTikTokAccount.currency}</span>. Spend, benchmarks, and recommendations will use this account currency.
+                    </div>
+                  )}
+
                   <button
                     onClick={handleFetchTikTok}
-                    disabled={!selectedAdvertiserId}
+                    disabled={!effectiveAdvertiserId}
                     className="mt-4 w-full rounded-xl bg-black px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-[#1a1a1a] disabled:cursor-not-allowed disabled:opacity-40"
                   >
                     Pull TikTok Ads data
@@ -497,10 +534,7 @@ export default function AuditConnectPage() {
               </div>
 
               <div className="mt-4 grid grid-cols-2 gap-3 rounded-lg border border-[#e5ddd0] bg-[#f7f4ef] p-4 sm:grid-cols-4">
-                <Stat label="Spend" value={fetchResult.currency
-                  ? `${fetchResult.currency} ${fetchResult.spend.toLocaleString(undefined, { minimumFractionDigits: 0, maximumFractionDigits: 0 })}`
-                  : `$${fetchResult.spend.toLocaleString()}`}
-                />
+                <Stat label="Spend" value={formatAccountMoney(fetchResult.spend)} />
                 <Stat label="Impressions" value={fetchResult.impressions.toLocaleString()} />
                 <Stat label="Clicks" value={fetchResult.clicks.toLocaleString()} />
                 <Stat label="Conversions" value={(fetchResult.conversions ?? 0).toLocaleString()} />

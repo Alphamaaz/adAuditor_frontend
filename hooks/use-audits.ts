@@ -73,6 +73,15 @@ export function useAudit(auditId: string) {
   });
 }
 
+export function usePremiumAuditReportHtml(auditId: string, enabled = true) {
+  return useQuery({
+    queryKey: ["audit", auditId, "premium-report-html"],
+    queryFn: () => auditsApi.getPremiumReportHtml(auditId),
+    enabled: Boolean(auditId) && enabled,
+    retry: false,
+  });
+}
+
 export function useSubmitPlatformIntake() {
   const router = useRouter();
   const queryClient = useQueryClient();

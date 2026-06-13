@@ -85,6 +85,13 @@ export const adminApi = {
     return res.data.data;
   },
 
+  deleteUser: async (userId: string): Promise<AdminUser> => {
+    const res = await api.delete<{ status: string; data: AdminUser }>(
+      `/api/admin/users/${userId}`
+    );
+    return res.data.data;
+  },
+
   listOrganizations: async (params: {
     page?: number;
     limit?: number;
@@ -144,4 +151,3 @@ export const adminApi = {
     await api.delete(`/api/admin/plans/${id}`);
   },
 };
-

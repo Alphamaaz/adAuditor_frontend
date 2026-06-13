@@ -78,6 +78,7 @@ export default function SignupPage() {
     <div className="auth-wrap">
       <div className="orb orb-1" /><div className="orb orb-2" />
       <div className="auth-shell">
+        <Link href="/" className="auth-home-link">Go to home</Link>
         <div className="auth-card">
           <div className="auth-badge"><span className="auth-badge-dot" />Free 14-day trial</div>
           <h1 className="auth-title">Create your <span className="em">account</span></h1>

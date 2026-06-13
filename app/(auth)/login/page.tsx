@@ -79,6 +79,7 @@ function LoginForm() {
     <div className="auth-wrap">
       <div className="orb orb-1" /><div className="orb orb-2" />
       <div className="auth-shell">
+        <Link href="/" className="auth-home-link">Go to home</Link>
         <div className="auth-card">
           <div className="auth-badge"><span className="auth-badge-dot" />Welcome back</div>
           <h1 className="auth-title">Log in to <span className="em">AdAdvisor</span></h1>

@@ -41,6 +41,7 @@ export interface TikTokAdAccount {
 export interface FetchDataResult {
   auditId: string;
   platform: string;
+  currency: string | null;
   summary: {
     rowCount: number;
     spend: number;

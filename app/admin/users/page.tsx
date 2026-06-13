@@ -1,7 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { useAdminUsers, useUpdateUserStatus, useImpersonateUser } from "@/hooks/use-admin";
+import { useAdminUsers, useUpdateUserStatus, useImpersonateUser, useDeleteUser } from "@/hooks/use-admin";
+import type { AdminUser } from "@/lib/admin";
 import { 
   Search, 
   Filter, 
@@ -11,8 +12,9 @@ import {
   Shield, 
   Mail,
   Calendar,
-  ExternalLink,
-  Loader2
+  Loader2,
+  Trash2,
+  AlertTriangle
 } from "lucide-react";
 import { format } from "date-fns";
 
@@ -22,11 +24,23 @@ export default function AdminUsersPage() {
   const { data: response, isLoading } = useAdminUsers({ page, search, limit: 10 });
   const updateStatus = useUpdateUserStatus();
   const impersonate = useImpersonateUser();
+  const deleteUser = useDeleteUser();
   
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
+  const [userToDelete, setUserToDelete] = useState<AdminUser | null>(null);
 
   const handleImpersonate = (userId: string) => {
     impersonate.mutate({ userId });
+  };
+
+  const confirmDelete = () => {
+    if (!userToDelete) return;
+    deleteUser.mutate(userToDelete.id, {
+      onSuccess: () => {
+        setUserToDelete(null);
+        setSelectedUser(null);
+      },
+    });
   };
 
   return (
@@ -153,7 +167,7 @@ export default function AdminUsersPage() {
                     <div className="flex items-center justify-end gap-2">
                       <button
                         onClick={() => handleImpersonate(user.id)}
-                        disabled={user.internalRole === 'SUPER_ADMIN' || impersonate.isPending}
+                        disabled={user.internalRole === 'SUPER_ADMIN' || user.status === 'DELETED' || impersonate.isPending}
                         className="rounded-md bg-[#1f4d3a] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#183c2d] disabled:opacity-50"
                       >
                         {impersonate.isPending && selectedUser === user.id ? '...' : 'Impersonate'}
@@ -188,6 +202,16 @@ export default function AdminUsersPage() {
                                 <UserCheck size={16} /> Activate User
                               </button>
                             )}
+                            <button
+                              onClick={() => {
+                                setUserToDelete(user);
+                                setSelectedUser(null);
+                              }}
+                              disabled={user.internalRole === 'SUPER_ADMIN' || user.status === 'DELETED'}
+                              className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-red-700 hover:bg-red-50 disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                              <Trash2 size={16} /> Delete Account
+                            </button>
                           </div>
                         )}
                       </div>
@@ -222,6 +246,43 @@ export default function AdminUsersPage() {
           </div>
         </div>
       </div>
+
+      {userToDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 px-4">
+          <div className="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl">
+            <div className="flex items-start gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-red-100 text-red-700">
+                <AlertTriangle size={20} />
+              </div>
+              <div>
+                <h2 className="text-lg font-bold text-[#171717]">Delete user account?</h2>
+                <p className="mt-2 text-sm leading-6 text-[#6b7280]">
+                  This is a soft delete. <span className="font-semibold text-[#171717]">{userToDelete.email}</span> will be marked as deleted, all active sessions will be revoked, and the user will not be able to log in.
+                </p>
+              </div>
+            </div>
+            <div className="mt-6 flex justify-end gap-3">
+              <button
+                type="button"
+                onClick={() => setUserToDelete(null)}
+                disabled={deleteUser.isPending}
+                className="rounded-lg border border-[#d1cac0] bg-white px-4 py-2 text-sm font-semibold text-[#374151] hover:bg-gray-50 disabled:opacity-50"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={confirmDelete}
+                disabled={deleteUser.isPending}
+                className="inline-flex items-center gap-2 rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-50"
+              >
+                {deleteUser.isPending && <Loader2 size={16} className="animate-spin" />}
+                Confirm delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

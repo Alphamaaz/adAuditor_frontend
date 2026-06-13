@@ -1,6 +1,6 @@
 ﻿"use client";
 
-import { useEffect, useState, Suspense } from "react";
+import { useEffect, useRef, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCurrentUser } from "@/hooks/use-auth";
 import { useBusinessProfile, useUpsertBusinessProfile } from "@/hooks/use-business-profile";
@@ -174,6 +174,7 @@ function OnboardingPageInner() {
   const [step, setStep] = useState(1);
   const [form, setForm] = useState(defaultAnswers);
   const [error, setError] = useState("");
+  const didPrefillForm = useRef(false);
 
   // In onboarding mode: redirect users who already have a profile to dashboard.
   // In edit mode: skip the redirect so they can update their answers.
@@ -189,10 +190,11 @@ function OnboardingPageInner() {
 
   // Pre-fill the form with existing answers when editing.
   useEffect(() => {
-    if (isEditMode && profile?.answers) {
+    if (isEditMode && profile?.answers && !didPrefillForm.current) {
       const a = profile.answers.sectionA || {};
       const b = profile.answers.sectionB || {};
       const c = profile.answers.sectionC || {};
+      didPrefillForm.current = true;
       setForm({
         sectionA: {
           businessType: a.businessType || "",
@@ -323,8 +325,8 @@ function OnboardingPageInner() {
       </div>
 
       <div>
-        <FieldLabel required={!isEditMode}>A2 — Monthly ad budget across all platforms ($)</FieldLabel>
-        <Hint>Used to detect budget fragmentation and calibrate spend checks.</Hint>
+        <FieldLabel required={!isEditMode}>A2 — Monthly ad budget across all platforms</FieldLabel>
+        <Hint>Enter this in your ad account currency. Used to detect budget fragmentation and calibrate spend checks.</Hint>
         <Input
           type="number"
           min="0"
@@ -336,8 +338,8 @@ function OnboardingPageInner() {
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <FieldLabel optional>A3 — Target CPA ($)</FieldLabel>
-          <Hint>Core benchmark for flagging underperforming campaigns.</Hint>
+          <FieldLabel optional>A3 — Target CPA</FieldLabel>
+          <Hint>Enter this in your ad account currency. Core benchmark for flagging underperforming campaigns.</Hint>
           <Input
             type="number"
             min="0"
@@ -348,7 +350,7 @@ function OnboardingPageInner() {
         </div>
         <div>
           <FieldLabel optional>A4 — Target ROAS</FieldLabel>
-          <Hint>e.g. 3.0 means $3 revenue per $1 spent.</Hint>
+          <Hint>e.g. 3.0 means 3x revenue per 1 unit spent.</Hint>
           <Input
             type="number"
             min="0"
@@ -362,8 +364,8 @@ function OnboardingPageInner() {
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <FieldLabel optional>A5 — Avg order / lead value ($)</FieldLabel>
-          <Hint>Used to calculate true ROAS and LTV efficiency.</Hint>
+          <FieldLabel optional>A5 — Avg order / lead value</FieldLabel>
+          <Hint>Enter this in your ad account currency. Used to calculate true ROAS and LTV efficiency.</Hint>
           <Input
             type="number"
             min="0"
@@ -373,8 +375,8 @@ function OnboardingPageInner() {
           />
         </div>
         <div>
-          <FieldLabel optional>A6 — Blended CAC ($)</FieldLabel>
-          <Hint>Reveals if ads are truly profitable at a business level.</Hint>
+          <FieldLabel optional>A6 — Blended CAC</FieldLabel>
+          <Hint>Enter this in your ad account currency. Reveals if ads are truly profitable at a business level.</Hint>
           <Input
             type="number"
             min="0"
@@ -501,8 +503,8 @@ function OnboardingPageInner() {
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div>
-          <FieldLabel optional>C1 — Best-ever CPA ($)</FieldLabel>
-          <Hint>Helps compare current performance to your past best.</Hint>
+          <FieldLabel optional>C1 — Best-ever CPA</FieldLabel>
+          <Hint>Enter this in your ad account currency. Helps compare current performance to your past best.</Hint>
           <Input
             type="number"
             min="0"
@@ -540,8 +542,8 @@ function OnboardingPageInner() {
           />
         </div>
         <div>
-          <FieldLabel optional>C4 — Avg CPM last 90 days ($)</FieldLabel>
-          <Hint>Baseline for audience efficiency checks.</Hint>
+          <FieldLabel optional>C4 — Avg CPM last 90 days</FieldLabel>
+          <Hint>Enter this in your ad account currency. Baseline for audience efficiency checks.</Hint>
           <Input
             type="number"
             min="0"
@@ -568,9 +570,9 @@ function OnboardingPageInner() {
 
       <div>
         <FieldLabel optional>C6 — Roughly how much has been spent on this account historically?</FieldLabel>
-        <Hint>Context for interpreting account maturity and benchmark expectations.</Hint>
+        <Hint>Use your ad account currency. Context for interpreting account maturity and benchmark expectations.</Hint>
         <RadioGroup
-          options={["<$1K", "$1K-$10K", "$10K-$100K", "$100K+"]}
+          options={["<1K", "1K-10K", "10K-100K", "100K+"]}
           value={form.sectionC.historicalSpend}
           onChange={(v) => setC("historicalSpend", v)}
         />

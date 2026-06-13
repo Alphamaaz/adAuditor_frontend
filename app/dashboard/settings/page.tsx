@@ -1,41 +1,58 @@
-﻿"use client";
+"use client";
 
-import { FormEvent, useEffect, useState } from "react";
+import { FormEvent, useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import {
   useAuthSessions,
   useChangePassword,
   useCurrentUser,
-  useLogout,
   useRevokeOtherSessions,
   useUpdateProfile,
 } from "@/hooks/use-auth";
 import { useConnections, useDisconnectPlatform } from "@/hooks/use-connections";
 import { useMyPlanAndUsage } from "@/hooks/use-plans";
 import { connectionsApi } from "@/lib/connections";
+import type { Platform } from "@/lib/audits";
 import { getErrorMessage } from "@/lib/api";
+import { DashboardShell } from "../_components/DashboardShell";
+
+type Tab = "profile" | "security" | "integrations" | "appearance";
+
+const TABS: { key: Tab; label: string }[] = [
+  { key: "profile", label: "Profile" },
+  { key: "security", label: "Security" },
+  { key: "integrations", label: "Integrations" },
+  { key: "appearance", label: "Appearance" },
+];
+
+const PLATFORMS: { platform: Platform; label: string; mark: string; cls: string }[] = [
+  { platform: "META", label: "Meta Ads", mark: "Mt", cls: "meta" },
+  { platform: "GOOGLE", label: "Google Ads", mark: "Gg", cls: "google" },
+  { platform: "TIKTOK", label: "TikTok Ads", mark: "Tk", cls: "tiktok" },
+];
 
 const formatDate = (value: string | null) => {
   if (!value) return "Never";
-  return new Intl.DateTimeFormat("en", {
-    dateStyle: "medium",
-    timeStyle: "short",
-  }).format(new Date(value));
+  return new Intl.DateTimeFormat("en", { dateStyle: "medium", timeStyle: "short" }).format(
+    new Date(value)
+  );
 };
 
+function Alert({ tone, message }: { tone: "success" | "error"; message: string }) {
+  return <div className={`alert ${tone}`}>{message}</div>;
+}
+
 export default function SettingsPage() {
-  const router = useRouter();
-  const { data: auth, isLoading } = useCurrentUser();
+  const { data: auth } = useCurrentUser();
   const { data: sessions = [] } = useAuthSessions();
   const { data: planUsage } = useMyPlanAndUsage();
+  const { data: connections = [] } = useConnections();
   const updateProfile = useUpdateProfile();
   const changePassword = useChangePassword();
   const revokeOtherSessions = useRevokeOtherSessions();
-  const logout = useLogout();
-  const { data: connections = [] } = useConnections();
   const disconnect = useDisconnectPlatform();
 
+  const [tab, setTab] = useState<Tab>("profile");
   const [profileMessage, setProfileMessage] = useState("");
   const [profileError, setProfileError] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
@@ -46,48 +63,22 @@ export default function SettingsPage() {
   const [sessionMessage, setSessionMessage] = useState("");
   const [sessionError, setSessionError] = useState("");
 
-  useEffect(() => {
-    if (!isLoading && !auth) {
-      router.replace("/login");
-    }
-  }, [auth, isLoading, router]);
-
-  if (isLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-[#f7f4ef]">
-        <div className="text-sm text-[#6b7280]">Loading...</div>
-      </div>
-    );
-  }
-
-  if (!auth) return null;
-
-  const user = auth.user;
-  const organization = auth.organizations[0];
+  const user = auth?.user;
+  const organization = auth?.organizations[0];
   const canEditOrganization = organization?.role === "OWNER";
   const effectivePlan = planUsage?.plan;
-  const planStatus =
-    planUsage?.source === "override"
-      ? "Active override"
-      : planUsage?.subscription?.status || organization?.plan?.status || "Unknown";
 
   const onProfileSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setProfileMessage("");
     setProfileError("");
-
     const formData = new FormData(event.currentTarget);
     const nextName = String(formData.get("name") || "").trim();
-    const nextOrganizationName = String(
-      formData.get("organizationName") || ""
-    ).trim();
-
+    const nextOrganizationName = String(formData.get("organizationName") || "").trim();
     try {
       await updateProfile.mutateAsync({
         name: nextName || undefined,
-        organizationName: canEditOrganization
-          ? nextOrganizationName || undefined
-          : undefined,
+        organizationName: canEditOrganization ? nextOrganizationName || undefined : undefined,
       });
       setProfileMessage("Profile updated.");
     } catch (err) {
@@ -99,17 +90,12 @@ export default function SettingsPage() {
     event.preventDefault();
     setPasswordMessage("");
     setPasswordError("");
-
     if (newPassword !== confirmPassword) {
       setPasswordError("New password and confirmation do not match.");
       return;
     }
-
     try {
-      await changePassword.mutateAsync({
-        currentPassword,
-        newPassword,
-      });
+      await changePassword.mutateAsync({ currentPassword, newPassword });
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
@@ -122,7 +108,6 @@ export default function SettingsPage() {
   const onRevokeOtherSessions = async () => {
     setSessionMessage("");
     setSessionError("");
-
     try {
       const result = await revokeOtherSessions.mutateAsync();
       setSessionMessage(`${result.data.revokedCount} session(s) revoked.`);
@@ -131,339 +116,275 @@ export default function SettingsPage() {
     }
   };
 
-  return (
-    <div className="min-h-screen bg-[#f7f4ef]">
-      <nav className="border-b border-[#e5ddd0] bg-white">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-          <Link href="/dashboard" className="text-lg font-semibold text-[#171717]">
-            Ad Adviser
-          </Link>
-          <div className="flex items-center gap-3">
-            <Link
-              href="/dashboard"
-              className="rounded-md border border-[#d1cac0] px-3 py-1.5 text-sm font-medium text-[#374151] hover:bg-[#f7f4ef]"
-            >
-              Dashboard
-            </Link>
-            <button
-              onClick={() => logout.mutate()}
-              disabled={logout.isPending}
-              className="rounded-md border border-[#d1cac0] px-3 py-1.5 text-sm font-medium text-[#374151] hover:bg-[#f7f4ef] disabled:opacity-60"
-            >
-              {logout.isPending ? "Logging out..." : "Log out"}
-            </button>
-          </div>
-        </div>
-      </nav>
+  const initials = (user?.name || user?.email || "?")
+    .trim()
+    .split(/\s+/)
+    .map((p) => p[0])
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
 
-      <main className="mx-auto max-w-5xl px-6 py-10">
-        <div className="mb-8">
-          <h1 className="text-3xl font-semibold text-[#171717]">
-            Account settings
+  return (
+    <DashboardShell active="settings" section="Settings">
+      <div className="page-head">
+        <div className="page-head-text">
+          <div className="page-eyebrow">Account settings</div>
+          <h1 className="page-h1">
+            Make AdAdviser <span className="em">yours</span>.
           </h1>
-          <p className="mt-2 text-sm leading-6 text-[#6b7280]">
-            Manage your login profile, organization details, password, and
-            active sessions.
-          </p>
-        </div>
-
-        <div className="grid gap-6">
-          <section className="rounded-lg border border-[#e5ddd0] bg-white p-6">
-            <h2 className="text-lg font-semibold text-[#171717]">Profile</h2>
-            <div className="mt-4 grid gap-4 text-sm md:grid-cols-4">
-              <InfoItem label="Email" value={user.email} />
-              <InfoItem label="Plan" value={effectivePlan?.name || organization?.plan?.name || "No Plan"} />
-              <InfoItem label="Plan Status" value={planStatus} />
-              <InfoItem label="Last login" value={formatDate(user.lastLoginAt)} />
-            </div>
-
-            <form onSubmit={onProfileSubmit} className="mt-6 grid gap-4">
-              <div>
-                <label className="block text-sm font-semibold text-[#374151]">
-                  Full name
-                </label>
-                <input
-                  name="name"
-                  defaultValue={user.name || ""}
-                  className="mt-2 w-full rounded-md border border-[#d1cac0] bg-[#faf9f7] px-3 py-2.5 text-sm text-[#171717] outline-none focus:border-[#1f4d3a] focus:ring-2 focus:ring-[#1f4d3a]/20"
-                />
-              </div>
-
-              <div>
-                <label className="block text-sm font-semibold text-[#374151]">
-                  Organization name
-                </label>
-                <input
-                  name="organizationName"
-                  defaultValue={organization?.name || ""}
-                  disabled={!canEditOrganization}
-                  className="mt-2 w-full rounded-md border border-[#d1cac0] bg-[#faf9f7] px-3 py-2.5 text-sm text-[#171717] outline-none focus:border-[#1f4d3a] focus:ring-2 focus:ring-[#1f4d3a]/20 disabled:opacity-60"
-                />
-                {!canEditOrganization && (
-                  <p className="mt-2 text-xs text-[#6b7280]">
-                    Only organization owners can update this field.
-                  </p>
-                )}
-              </div>
-
-              {profileError && <Alert tone="error" message={profileError} />}
-              {profileMessage && <Alert tone="success" message={profileMessage} />}
-
-              <div>
-                <button
-                  type="submit"
-                  disabled={updateProfile.isPending}
-                  className="rounded-md bg-[#1f4d3a] px-4 py-2 text-sm font-semibold text-white hover:bg-[#183c2d] disabled:opacity-60"
-                >
-                  {updateProfile.isPending ? "Saving..." : "Save profile"}
-                </button>
-              </div>
-            </form>
-          </section>
-
-          <section className="rounded-lg border border-[#e5ddd0] bg-white p-6">
-            <div className="flex flex-col justify-between gap-4 md:flex-row md:items-start">
-              <div>
-                <h2 className="text-lg font-semibold text-[#171717]">
-                  Business profile
-                </h2>
-                <p className="mt-2 max-w-2xl text-sm leading-6 text-[#6b7280]">
-                  These onboarding answers are used as default context for each
-                  audit and AI report.
-                </p>
-              </div>
-              <Link
-                href="/onboarding?mode=edit"
-                className="rounded-md border border-[#d1cac0] px-4 py-2 text-sm font-semibold text-[#374151] hover:bg-[#f7f4ef]"
-              >
-                Edit business profile
-              </Link>
-            </div>
-          </section>
-
-          <section className="rounded-lg border border-[#e5ddd0] bg-white p-6">
-            <h2 className="text-lg font-semibold text-[#171717]">
-              Platform connections
-            </h2>
-            <p className="mt-2 text-sm leading-6 text-[#6b7280]">
-              Connect your ad platforms via OAuth to enable automated data fetching for audits.
-            </p>
-            
-            <div className="mt-6 grid gap-4 sm:grid-cols-2 md:grid-cols-3">
-              <PlatformConnectionCard 
-                platform="META"
-                label="Meta Ads"
-                connection={connections.find(c => c.platform === "META")}
-                onDisconnect={(id) => disconnect.mutate(id)}
-              />
-              <PlatformConnectionCard 
-                platform="TIKTOK"
-                label="TikTok Ads"
-                connection={connections.find(c => c.platform === "TIKTOK")}
-                onDisconnect={(id) => disconnect.mutate(id)}
-              />
-              <PlatformConnectionCard 
-                platform="GOOGLE"
-                label="Google Ads"
-                connection={connections.find(c => c.platform === "GOOGLE")}
-                onDisconnect={(id) => disconnect.mutate(id)}
-              />
-            </div>
-          </section>
-
-          <section className="rounded-lg border border-[#e5ddd0] bg-white p-6">
-            <h2 className="text-lg font-semibold text-[#171717]">
-              Change password
-            </h2>
-            <form onSubmit={onPasswordSubmit} className="mt-6 grid gap-4">
-              <PasswordInput
-                label="Current password"
-                value={currentPassword}
-                onChange={setCurrentPassword}
-              />
-              <PasswordInput
-                label="New password"
-                value={newPassword}
-                onChange={setNewPassword}
-              />
-              <PasswordInput
-                label="Confirm new password"
-                value={confirmPassword}
-                onChange={setConfirmPassword}
-              />
-
-              {passwordError && <Alert tone="error" message={passwordError} />}
-              {passwordMessage && <Alert tone="success" message={passwordMessage} />}
-
-              <div>
-                <button
-                  type="submit"
-                  disabled={changePassword.isPending}
-                  className="rounded-md bg-[#171717] px-4 py-2 text-sm font-semibold text-white hover:bg-black disabled:opacity-60"
-                >
-                  {changePassword.isPending ? "Changing..." : "Change password"}
-                </button>
-              </div>
-            </form>
-          </section>
-
-          <section className="rounded-lg border border-[#e5ddd0] bg-white p-6">
-            <div className="flex flex-col justify-between gap-4 md:flex-row md:items-start">
-              <div>
-                <h2 className="text-lg font-semibold text-[#171717]">
-                  Active sessions
-                </h2>
-                <p className="mt-2 text-sm leading-6 text-[#6b7280]">
-                  Review where your account is signed in and revoke old sessions.
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={onRevokeOtherSessions}
-                disabled={revokeOtherSessions.isPending}
-                className="rounded-md border border-[#d1cac0] px-4 py-2 text-sm font-semibold text-[#374151] hover:bg-[#f7f4ef] disabled:opacity-60"
-              >
-                {revokeOtherSessions.isPending
-                  ? "Revoking..."
-                  : "Revoke other sessions"}
-              </button>
-            </div>
-
-            {sessionError && <Alert tone="error" message={sessionError} />}
-            {sessionMessage && <Alert tone="success" message={sessionMessage} />}
-
-            <div className="mt-5 divide-y divide-[#ece7df] rounded-md border border-[#eee7dc]">
-              {sessions.length === 0 ? (
-                <div className="p-4 text-sm text-[#6b7280]">
-                  No active sessions found.
-                </div>
-              ) : (
-                sessions.map((session) => (
-                  <div
-                    key={session.id}
-                    className="flex flex-col gap-2 p-4 md:flex-row md:items-center md:justify-between"
-                  >
-                    <div>
-                      <p className="text-sm font-semibold text-[#171717]">
-                        {session.isCurrent ? "Current session" : "Signed-in session"}
-                      </p>
-                      <p className="mt-1 text-xs text-[#6b7280]">
-                        {session.userAgent || "Unknown browser"}
-                      </p>
-                      <p className="mt-1 text-xs text-[#9ca3af]">
-                        IP: {session.ipAddress || "Unknown"} | Created:{" "}
-                        {formatDate(session.createdAt)}
-                      </p>
-                    </div>
-                    <span className="rounded bg-[#f7f4ef] px-2 py-1 text-xs font-semibold text-[#374151]">
-                      Expires {formatDate(session.expiresAt)}
-                    </span>
-                  </div>
-                ))
-              )}
-            </div>
-          </section>
-        </div>
-      </main>
-    </div>
-  );
-}
-
-function PlatformConnectionCard({ 
-  platform, 
-  label, 
-  connection, 
-  onDisconnect 
-}: { 
-  platform: string; 
-  label: string; 
-  connection?: any;
-  onDisconnect: (id: string) => void;
-}) {
-  const isConnected = connection?.status === "ACTIVE";
-
-  return (
-    <div className="flex items-center justify-between rounded-xl border border-[#eee7dc] bg-[#faf9f7] p-5">
-      <div className="flex items-center gap-4">
-        <div className={`flex h-10 w-10 items-center justify-center rounded-full ${isConnected ? 'bg-[#1f4d3a] text-white' : 'bg-gray-200 text-gray-400'}`}>
-          <span className="text-xs font-bold">{platform.charAt(0)}</span>
-        </div>
-        <div>
-          <p className="text-sm font-bold text-[#171717]">{label}</p>
-          <p className={`text-xs ${isConnected ? 'text-[#1f4d3a]' : 'text-[#6b7280]'}`}>
-            {isConnected ? "Connected" : "Not connected"}
+          <p className="page-h1-sub">
+            Manage your profile, security, and platform integrations.
           </p>
         </div>
       </div>
-      
-      {isConnected ? (
-        <button
-          onClick={() => onDisconnect(connection.id)}
-          className="text-xs font-semibold text-red-600 hover:underline"
-        >
-          Disconnect
-        </button>
-      ) : (
-        <a
-          href={connectionsApi.getConnectUrl(platform as any)}
-          className="rounded-md bg-[#1f4d3a] px-3 py-1.5 text-xs font-bold text-white hover:bg-[#183c2d]"
-        >
-          Connect
-        </a>
+
+      <div className="tabs">
+        {TABS.map((t) => (
+          <button
+            key={t.key}
+            className={`tab ${tab === t.key ? "active" : ""}`}
+            onClick={() => setTab(t.key)}
+          >
+            {t.label}
+          </button>
+        ))}
+      </div>
+
+      {/* ── Profile ─────────────────────────────────────────────── */}
+      {tab === "profile" && (
+        <div className="settings-section">
+          <div className="settings-grid">
+            <div>
+              <div className="settings-section-h">Personal profile</div>
+              <div className="settings-section-s">
+                This is how teammates and AdAdviser will refer to you in reports and notifications.
+              </div>
+              <form onSubmit={onProfileSubmit}>
+                <div className="field-grid">
+                  <div className="field">
+                    <label className="field-label">Full name</label>
+                    <input className="field-input" name="name" defaultValue={user?.name || ""} />
+                  </div>
+                  <div className="field">
+                    <label className="field-label">Work email</label>
+                    <input className="field-input" value={user?.email || ""} disabled />
+                  </div>
+                </div>
+                <div className="field">
+                  <label className="field-label">Organization name</label>
+                  <input
+                    className="field-input"
+                    name="organizationName"
+                    defaultValue={organization?.name || ""}
+                    disabled={!canEditOrganization}
+                  />
+                  {!canEditOrganization && (
+                    <p style={{ fontSize: 11.5, color: "var(--hint)", marginTop: 7 }}>
+                      Only organization owners can update this field.
+                    </p>
+                  )}
+                </div>
+                {profileError && <Alert tone="error" message={profileError} />}
+                {profileMessage && <Alert tone="success" message={profileMessage} />}
+                <button type="submit" className="btn btn-primary" disabled={updateProfile.isPending}>
+                  {updateProfile.isPending ? "Saving…" : "Save changes"}
+                </button>
+              </form>
+            </div>
+            <div>
+              <label className="field-label">Account</label>
+              <div style={{ background: "var(--card-2)", border: "1px solid var(--border)", borderRadius: 14, padding: 20, display: "flex", alignItems: "center", gap: 16 }}>
+                <div className="avatar xl">{initials}</div>
+                <div style={{ minWidth: 0 }}>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: "var(--text)", wordBreak: "break-word" }}>
+                    {user?.email}
+                  </div>
+                  <div style={{ fontSize: 12, color: "var(--hint)", fontFamily: "var(--font-mono)", marginTop: 4 }}>
+                    Last login · {formatDate(user?.lastLoginAt ?? null)}
+                  </div>
+                </div>
+              </div>
+
+              <label className="field-label" style={{ marginTop: 18 }}>Plan</label>
+              <div style={{ background: "var(--card-2)", border: "1px solid var(--border)", borderRadius: 14, padding: 18 }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10 }}>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: "var(--text)" }}>
+                    {effectivePlan?.name || organization?.plan?.name || "No plan"}
+                  </div>
+                  <span className="pill good"><span className="dot" />Active</span>
+                </div>
+                <Link href="/dashboard/billing" className="btn btn-sm btn-ghost" style={{ marginTop: 14 }}>
+                  Manage billing →
+                </Link>
+              </div>
+
+              <label className="field-label" style={{ marginTop: 18 }}>Business profile</label>
+              <div style={{ background: "var(--card-2)", border: "1px solid var(--border)", borderRadius: 14, padding: 18 }}>
+                <div style={{ fontSize: 12.5, color: "var(--text-dim)", lineHeight: 1.6, marginBottom: 12 }}>
+                  Onboarding answers used as default context for every audit and AI report.
+                </div>
+                <Link href="/onboarding?mode=edit" className="btn btn-sm btn-ghost">
+                  Edit business profile →
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
-    </div>
-  );
-}
 
-function InfoItem({ label, value }: { label: string; value: string }) {
-  return (
-    <div className="rounded-md border border-[#eee7dc] bg-[#faf9f7] p-3">
-      <p className="text-xs font-medium text-[#6b7280]">{label}</p>
-      <p className="mt-1 break-words font-semibold text-[#171717]">{value}</p>
-    </div>
-  );
-}
+      {/* ── Security ────────────────────────────────────────────── */}
+      {tab === "security" && (
+        <>
+          <div className="settings-section">
+            <div className="settings-section-h">Password &amp; access</div>
+            <div className="settings-section-s">
+              Changing your password signs out all other active sessions.
+            </div>
+            <form onSubmit={onPasswordSubmit}>
+              <div className="field">
+                <label className="field-label">Current password</label>
+                <input
+                  className="field-input"
+                  type="password"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                />
+              </div>
+              <div className="field-grid">
+                <div className="field">
+                  <label className="field-label">New password</label>
+                  <input
+                    className="field-input"
+                    type="password"
+                    placeholder="At least 8 characters"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                  />
+                </div>
+                <div className="field">
+                  <label className="field-label">Confirm</label>
+                  <input
+                    className="field-input"
+                    type="password"
+                    placeholder="Re-enter"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                  />
+                </div>
+              </div>
+              {passwordError && <Alert tone="error" message={passwordError} />}
+              {passwordMessage && <Alert tone="success" message={passwordMessage} />}
+              <button type="submit" className="btn btn-primary" disabled={changePassword.isPending}>
+                {changePassword.isPending ? "Updating…" : "Update password"}
+              </button>
+            </form>
+          </div>
 
-function PasswordInput({
-  label,
-  value,
-  onChange,
-}: {
-  label: string;
-  value: string;
-  onChange: (value: string) => void;
-}) {
-  return (
-    <div>
-      <label className="block text-sm font-semibold text-[#374151]">
-        {label}
-      </label>
-      <input
-        type="password"
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        className="mt-2 w-full rounded-md border border-[#d1cac0] bg-[#faf9f7] px-3 py-2.5 text-sm text-[#171717] outline-none focus:border-[#1f4d3a] focus:ring-2 focus:ring-[#1f4d3a]/20"
-      />
-    </div>
-  );
-}
+          <div className="settings-section">
+            <div className="card-h" style={{ marginBottom: 18 }}>
+              <div>
+                <div className="settings-section-h">Active sessions</div>
+                <div className="settings-section-s" style={{ marginBottom: 0 }}>
+                  Review where your account is signed in and revoke old sessions.
+                </div>
+              </div>
+              <button
+                type="button"
+                className="btn btn-sm btn-ghost"
+                onClick={onRevokeOtherSessions}
+                disabled={revokeOtherSessions.isPending}
+              >
+                {revokeOtherSessions.isPending ? "Revoking…" : "Revoke others"}
+              </button>
+            </div>
+            {sessionError && <Alert tone="error" message={sessionError} />}
+            {sessionMessage && <Alert tone="success" message={sessionMessage} />}
+            {sessions.length === 0 ? (
+              <div className="empty-state">No active sessions found.</div>
+            ) : (
+              sessions.map((session) => (
+                <div className="session-row" key={session.id}>
+                  <div className="kpi-icon good">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+                      <rect x="2" y="3" width="20" height="14" rx="2" />
+                      <line x1="8" y1="21" x2="16" y2="21" />
+                      <line x1="12" y1="17" x2="12" y2="21" />
+                    </svg>
+                  </div>
+                  <div className="session-meta">
+                    <div className="t">{session.isCurrent ? "Current session" : "Signed-in session"}</div>
+                    <div className="s">
+                      {session.userAgent || "Unknown browser"} · {session.ipAddress || "Unknown IP"} · expires {formatDate(session.expiresAt)}
+                    </div>
+                  </div>
+                  {session.isCurrent && (
+                    <span className="pill good"><span className="dot" />Current</span>
+                  )}
+                </div>
+              ))
+            )}
+          </div>
+        </>
+      )}
 
-function Alert({
-  tone,
-  message,
-}: {
-  tone: "success" | "error";
-  message: string;
-}) {
-  return (
-    <div
-      className={`rounded-md border px-4 py-3 text-sm ${
-        tone === "success"
-          ? "border-[#b8d9c3] bg-[#eff7f1] text-[#1f4d3a]"
-          : "border-red-200 bg-red-50 text-red-700"
-      }`}
-    >
-      {message}
-    </div>
+      {/* ── Integrations ────────────────────────────────────────── */}
+      {tab === "integrations" && (
+        <div className="settings-section">
+          <div className="settings-section-h">Connected ad accounts</div>
+          <div className="settings-section-s">
+            AdAdviser reads campaign data via official APIs and CSV exports — read-only, no write access ever.
+          </div>
+          <div className="integ-grid">
+            {PLATFORMS.map(({ platform, label, mark, cls }) => {
+              const connection = connections.find((c) => c.platform === platform);
+              const isConnected = connection?.status === "ACTIVE";
+              return (
+                <div className="integ-card" key={platform}>
+                  <div className="integ-head">
+                    <div className={`plat-mark ${cls}`}>{mark}</div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div className="integ-name">{label}</div>
+                      <div className={`integ-status ${isConnected ? "" : "off"}`}>
+                        <span className="dot" />
+                        {isConnected ? "Connected" : "Not connected"}
+                      </div>
+                    </div>
+                  </div>
+                  {isConnected ? (
+                    <button
+                      className="btn btn-sm btn-ghost"
+                      style={{ color: "#ff8a8a" }}
+                      onClick={() => connection && disconnect.mutate(connection.id)}
+                      disabled={disconnect.isPending}
+                    >
+                      Disconnect
+                    </button>
+                  ) : (
+                    <a className="btn btn-sm btn-primary" href={connectionsApi.getConnectUrl(platform)}>
+                      Connect
+                    </a>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* ── Appearance ──────────────────────────────────────────── */}
+      {tab === "appearance" && (
+        <div className="settings-section">
+          <div className="settings-section-h">Theme</div>
+          <div className="settings-section-s">
+            AdAdviser ships dark by default — it&rsquo;s how performance dashboards belong. More themes are on the way.
+          </div>
+          <div className="theme-grid">
+            <div className="theme-tile dark active"><div className="label">Dark · default</div></div>
+            <div className="theme-tile midnight"><div className="label">Midnight · soon</div></div>
+            <div className="theme-tile system"><div className="label">Match system · soon</div></div>
+          </div>
+        </div>
+      )}
+    </DashboardShell>
   );
 }

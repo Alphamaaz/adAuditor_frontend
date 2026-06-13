@@ -531,6 +531,13 @@ export const auditsApi = {
     return res.data.data;
   },
 
+  getPremiumReportHtml: async (auditId: string): Promise<string> => {
+    const res = await api.get<string>(`/api/audits/${auditId}/report/html`, {
+      responseType: "text",
+    });
+    return res.data;
+  },
+
   /**
    * Score-trend points for the dashboard. Optional filters:
    *   - adAccountId: limit to one ad account

@@ -39,6 +39,18 @@ export function useUpdateUserStatus() {
   });
 }
 
+export function useDeleteUser() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (userId: string) => adminApi.deleteUser(userId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ADMIN_USERS_KEY });
+      queryClient.invalidateQueries({ queryKey: ADMIN_STATS_KEY });
+    },
+  });
+}
+
 export function useAdminOrgs(params: {
   page?: number;
   limit?: number;

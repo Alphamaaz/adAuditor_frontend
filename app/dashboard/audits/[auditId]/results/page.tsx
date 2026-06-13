@@ -9,6 +9,7 @@ import {
   useDownloadPdfReport,
   useGenerateAiReport,
   useGeneratePdfReport,
+  usePremiumAuditReportHtml,
   useRunAudit,
 } from "@/hooks/use-audits";
 import { useMyPlanAndUsage } from "@/hooks/use-plans";
@@ -48,7 +49,7 @@ const scoreLabel = (score: number) => {
 
 const parseMoneyMagnitude = (value: unknown): number => {
   if (typeof value !== "string") return 0;
-  const match = value.match(/(?:\$|USD|PKR|EUR|GBP|CAD|AUD|AED|INR)\s?([\d,]+(?:\.\d+)?)/i);
+  const match = value.match(/(?:\$|[A-Z]{3})\s?([\d,]+(?:\.\d+)?)/i);
   if (!match) return 0;
   const n = Number(match[1].replace(/,/g, ""));
   return Number.isFinite(n) ? n : 0;
@@ -112,7 +113,7 @@ const evidenceHighlights = (evidence: unknown): Array<{ label: string; value: st
     if (typeof formatted === "string" && formatted.trim()) return formatted;
     if (typeof v !== "number") return null;
     const amount = Math.round(v).toLocaleString("en-US");
-    return currency && currency !== "USD" ? `${currency} ${amount}` : `$${amount}`;
+    return `${currency.toUpperCase()} ${amount}`;
   };
 
   const waste = e.estimatedWaste ?? e.wastedSpend ?? e.lossMakingSpend;
@@ -140,11 +141,17 @@ export default function AuditResultsPage() {
   const generateAiReport = useGenerateAiReport(auditId);
   const generatePdfReport = useGeneratePdfReport(auditId);
   const downloadPdfReport = useDownloadPdfReport();
+  const premiumReport = usePremiumAuditReportHtml(
+    auditId,
+    audit?.status === "COMPLETED"
+  );
   const [sortMode, setSortMode] = useState<SortMode>("severity");
   const [aiError, setAiError] = useState("");
   const [aiMessage, setAiMessage] = useState("");
   const [pdfError, setPdfError] = useState("");
   const [pdfMessage, setPdfMessage] = useState("");
+  const reportFrameRef = useRef<HTMLIFrameElement | null>(null);
+  const [reportFrameHeight, setReportFrameHeight] = useState(1200);
 
   const findings = useMemo(() => {
     const items = [...(audit?.ruleFindings || [])];
@@ -371,6 +378,111 @@ export default function AuditResultsPage() {
       setPdfError(getErrorMessage(err));
     }
   };
+
+  const onReportFrameLoad = () => {
+    const doc = reportFrameRef.current?.contentDocument;
+    if (!doc) return;
+    const nextHeight = Math.max(
+      900,
+      doc.documentElement.scrollHeight,
+      doc.body.scrollHeight
+    );
+    setReportFrameHeight(nextHeight + 24);
+  };
+
+  if (audit && audit.status === "COMPLETED") {
+    return (
+      <div className="min-h-screen overflow-x-hidden bg-[#f7f4ef]">
+        <nav className="sticky top-0 z-20 border-b border-[#e5ddd0] bg-white/95 backdrop-blur">
+          <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
+            <div className="flex min-w-0 items-center gap-3">
+              <Link href="/dashboard" className="text-lg font-semibold text-[#171717]">
+                Ad Adviser
+              </Link>
+              <span className="hidden truncate text-sm text-[#6b7280] sm:inline">
+                Audit report
+              </span>
+            </div>
+            <div className="flex flex-wrap items-center justify-end gap-2">
+              <Link
+                href={`/dashboard/audits/compare?right=${auditId}`}
+                className="rounded-md border border-[#d1cac0] px-3 py-1.5 text-sm font-medium text-[#374151] hover:bg-[#f7f4ef]"
+              >
+                Compare with...
+              </Link>
+              <Link
+                href={`/dashboard/audits/${auditId}/upload`}
+                className="rounded-md border border-[#d1cac0] px-3 py-1.5 text-sm font-medium text-[#374151] hover:bg-[#f7f4ef]"
+              >
+                Back to uploads
+              </Link>
+              {latestPdfReport && (
+                <button
+                  type="button"
+                  onClick={onDownloadLatestPdf}
+                  disabled={downloadPdfReport.isPending}
+                  className="rounded-md border border-[#d1cac0] px-3 py-1.5 text-sm font-semibold text-[#374151] hover:bg-[#f7f4ef] disabled:cursor-not-allowed disabled:opacity-50"
+                >
+                  {downloadPdfReport.isPending ? "Downloading..." : "Download PDF"}
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={onGeneratePdfReport}
+                disabled={generatePdfReport.isPending || pdfPolling}
+                className="rounded-md bg-[#1f4d3a] px-3 py-1.5 text-sm font-semibold text-white hover:bg-[#173b2c] disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {generatePdfReport.isPending || pdfPolling
+                  ? "Generating..."
+                  : "Generate PDF"}
+              </button>
+            </div>
+          </div>
+        </nav>
+
+        <main className="w-full overflow-x-hidden bg-[#f7f4ef] pb-10">
+          {(pdfError || pdfMessage) && (
+            <div className="mx-auto mt-4 max-w-7xl px-6">
+              {pdfError && (
+                <p className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                  {pdfError}
+                </p>
+              )}
+              {pdfMessage && (
+                <p className="rounded-md border border-[#b8d9c3] bg-[#eff7f1] px-4 py-3 text-sm text-[#1f4d3a]">
+                  {pdfMessage}
+                </p>
+              )}
+            </div>
+          )}
+
+          {premiumReport.isLoading && (
+            <div className="mx-auto mt-6 max-w-7xl rounded-lg border border-[#e5ddd0] bg-white p-6 text-sm text-[#6b7280]">
+              Loading premium report...
+            </div>
+          )}
+
+          {premiumReport.error && (
+            <div className="mx-auto mt-6 max-w-7xl rounded-lg border border-red-200 bg-red-50 p-6 text-sm text-red-700">
+              Could not load the premium report. The audit data is saved; refresh and try again.
+            </div>
+          )}
+
+          {premiumReport.data && (
+            <iframe
+              ref={reportFrameRef}
+              title="Premium audit report"
+              srcDoc={premiumReport.data}
+              scrolling="no"
+              onLoad={onReportFrameLoad}
+              style={{ height: `${reportFrameHeight}px` }}
+              className="block w-full border-0 bg-[#f7f4ef]"
+            />
+          )}
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#f7f4ef]">
@@ -671,7 +783,7 @@ export default function AuditResultsPage() {
                   />
                   <SummaryCallout
                     label="Estimated waste"
-                    value={opportunitySummary.estimatedWaste || "Not quantified"}
+                    value={opportunitySummary.estimatedWaste || "No reliable money estimate"}
                   />
                   <SummaryCallout
                     label="Upside after fixing"

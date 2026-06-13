@@ -87,13 +87,17 @@ export function useLogout() {
   const router = useRouter();
   const queryClient = useQueryClient();
 
+  const finishLogout = () => {
+    queryClient.setQueryData(AUTH_QUERY_KEY, null);
+    queryClient.clear();
+    router.replace("/");
+    router.refresh();
+  };
+
   return useMutation({
     mutationFn: authApi.logout,
-    onSuccess: () => {
-      queryClient.setQueryData(AUTH_QUERY_KEY, null);
-      queryClient.clear();
-      router.push("/login");
-    },
+    onSuccess: finishLogout,
+    onError: finishLogout,
   });
 }
 

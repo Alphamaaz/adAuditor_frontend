@@ -2,30 +2,38 @@
 
 import { FormEvent, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import { useCurrentUser } from "@/hooks/use-auth";
 import { useCreateAuditSetup } from "@/hooks/use-audits";
 import { useBusinessProfile } from "@/hooks/use-business-profile";
 import { getErrorMessage } from "@/lib/api";
 import type { AuditContextInput, DataSource, Platform } from "@/lib/audits";
+import { DashboardShell } from "../../_components/DashboardShell";
 
 const PLATFORM_OPTIONS: Array<{
   id: Platform;
   label: string;
+  mark: string;
+  cls: string;
   description: string;
 }> = [
   {
     id: "META",
     label: "Meta Ads",
+    mark: "Mt",
+    cls: "meta",
     description: "Campaigns, ad sets, ads, audiences, pixel events.",
   },
   {
     id: "GOOGLE",
     label: "Google Ads",
+    mark: "Gg",
+    cls: "google",
     description: "Search, Shopping, PMax, keywords, search terms.",
   },
   {
     id: "TIKTOK",
     label: "TikTok Ads",
+    mark: "Tk",
+    cls: "tiktok",
     description: "Campaigns, ad groups, creatives, audiences, pixel events.",
   },
 ];
@@ -34,33 +42,28 @@ const DATA_SOURCE_OPTIONS: Array<{
   id: DataSource;
   label: string;
   description: string;
+  recommended?: boolean;
 }> = [
-  {
-    id: "MANUAL_UPLOAD",
-    label: "Upload CSV files",
-    description: "Use exported reports while OAuth approvals are being completed.",
-  },
   {
     id: "OAUTH",
     label: "Connect ad account",
-    description: "Use OAuth/API connection when platform app approval is available.",
+    description: "One-click, secure OAuth connection. We pull the freshest data automatically — no exports to wrangle.",
+    recommended: true,
+  },
+  {
+    id: "MANUAL_UPLOAD",
+    label: "Upload CSV files",
+    description: "Drop in exported reports from each platform. Good when you'd rather not connect an account.",
   },
 ];
 
-const BUSINESS_TYPES = [
-  "eCommerce",
-  "Lead Gen",
-  "App Install",
-  "Local",
-  "B2B SaaS",
-  "Other",
-];
+const BUSINESS_TYPES = ["eCommerce", "Lead Gen", "App Install", "Local", "B2B SaaS", "Other"];
 
 const AUDIT_FOCUS_OPTIONS: Array<{
   id: NonNullable<AuditContextInput["auditFocus"]>;
   label: string;
 }> = [
-  { id: "diagnose_performance", label: "Diagnose account performance" },
+  { id: "diagnose_performance", label: "Diagnose performance" },
   { id: "lower_cpa", label: "Lower CPA" },
   { id: "improve_ctr", label: "Improve CTR" },
   { id: "increase_roas", label: "Increase ROAS" },
@@ -74,15 +77,13 @@ function parseNum(val: string): number | null {
 }
 
 export default function NewAuditPage() {
-  const { data: auth, isLoading: authLoading } = useCurrentUser();
   const { data: profile } = useBusinessProfile();
   const createAudit = useCreateAuditSetup();
 
   const [accountName, setAccountName] = useState("");
   const [selectedPlatforms, setSelectedPlatforms] = useState<Platform[]>([]);
-  const [dataSource, setDataSource] = useState<DataSource>("MANUAL_UPLOAD");
+  const [dataSource, setDataSource] = useState<DataSource>("OAUTH");
 
-  // Audit context (replaces the long /onboarding profile).
   const [businessType, setBusinessType] = useState("");
   const [monthlyBudget, setMonthlyBudget] = useState("");
   const [targetCpa, setTargetCpa] = useState("");
@@ -107,7 +108,6 @@ export default function NewAuditPage() {
     if (extra.brandTerms) setBrandTerms(extra.brandTerms);
   }, [profile]);
 
-  const orgName = auth?.organizations[0]?.name;
   const canSubmit = useMemo(
     () =>
       accountName.trim().length > 0 &&
@@ -117,9 +117,7 @@ export default function NewAuditPage() {
   );
 
   const togglePlatform = (platform: Platform) => {
-    setSelectedPlatforms((current) =>
-      current.includes(platform) ? [] : [platform]
-    );
+    setSelectedPlatforms((current) => (current.includes(platform) ? [] : [platform]));
   };
 
   const onSubmit = async (event: FormEvent<HTMLFormElement>) => {
@@ -127,9 +125,7 @@ export default function NewAuditPage() {
     setError("");
 
     if (!canSubmit) {
-      setError(
-        "Enter an account name, pick a platform, and select your business type."
-      );
+      setError("Enter an account name, pick a platform, and select your business type.");
       return;
     }
 
@@ -140,8 +136,7 @@ export default function NewAuditPage() {
       targetRoas: parseNum(targetRoas),
       brandTerms: brandTerms.trim() || null,
       auditFocus,
-      auditFocusOther:
-        auditFocus === "other" ? auditFocusOther.trim() || null : null,
+      auditFocusOther: auditFocus === "other" ? auditFocusOther.trim() || null : null,
     };
 
     try {
@@ -156,305 +151,218 @@ export default function NewAuditPage() {
     }
   };
 
-  if (authLoading) {
-    return (
-      <div className="flex min-h-screen items-center justify-center bg-[#f7f4ef]">
-        <p className="text-sm text-[#6b7280]">Loading…</p>
-      </div>
-    );
-  }
-
   return (
-    <div className="min-h-screen bg-[#f7f4ef]">
-      <nav className="border-b border-[#e5ddd0] bg-white">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-          <Link href="/dashboard" className="text-lg font-semibold text-[#171717]">
-            Ad Adviser
-          </Link>
-          <Link
-            href="/dashboard"
-            className="rounded-md border border-[#d1cac0] px-3 py-1.5 text-sm font-medium text-[#374151] hover:bg-[#f7f4ef]"
-          >
-            Back to dashboard
-          </Link>
-        </div>
-      </nav>
-
-      <main className="mx-auto max-w-5xl px-6 py-10">
-        <div className="mb-8">
-          <p className="text-sm font-medium text-[#6b7280]">{orgName}</p>
-          <h1 className="mt-1 text-3xl font-semibold text-[#171717]">
-            Create a new audit
+    <DashboardShell active="" section="New Audit">
+      <div className="page-head">
+        <div className="page-head-text">
+          <div className="page-eyebrow">Set up a new audit</div>
+          <h1 className="page-h1">
+            Create a new <span className="em">audit</span>.
           </h1>
-          <p className="mt-2 max-w-2xl text-sm leading-6 text-[#6b7280]">
-            Name the account, pick a platform, give us a little context, then
-            connect or upload your data. Takes about a minute.
+          <p className="page-h1-sub">
+            Name the account, pick a platform, give us a little context, then connect or upload your
+            data. Takes about a minute.
           </p>
         </div>
+        <div className="page-head-actions">
+          <Link href="/dashboard" className="btn btn-ghost">Cancel</Link>
+        </div>
+      </div>
 
-        <form onSubmit={onSubmit} className="space-y-6">
-          <section className="rounded-lg border border-[#e5ddd0] bg-white p-6">
-            <label className="block text-sm font-semibold text-[#374151]">
-              Account name
-            </label>
+      <form onSubmit={onSubmit}>
+        {/* Account name */}
+        <div className="form-section">
+          <div className="form-section-h">Audit name</div>
+          <div className="form-section-s">A clear label helps you find this audit later.</div>
+          <div className="field" style={{ marginBottom: 0 }}>
+            <label className="field-label">Account name <span className="req">*</span></label>
             <input
+              className="field-input"
               value={accountName}
-              onChange={(event) => setAccountName(event.target.value)}
-              placeholder="Brand X"
-              className="mt-2 w-full rounded-md border border-[#d1cac0] bg-[#faf9f7] px-3 py-2.5 text-sm text-[#171717] outline-none focus:border-[#1f4d3a] focus:ring-2 focus:ring-[#1f4d3a]/20"
+              onChange={(e) => setAccountName(e.target.value)}
+              placeholder="e.g. Brand X — Production"
             />
-            <p className="mt-2 text-xs text-[#9ca3af]">
-              This name will be used to identify the platform record.
-            </p>
-          </section>
+          </div>
+        </div>
 
-          <section className="rounded-lg border border-[#e5ddd0] bg-white p-6">
-            <div className="mb-4">
-              <h2 className="text-base font-semibold text-[#171717]">Platforms</h2>
-              <p className="mt-1 text-sm text-[#6b7280]">
-                Select a platform for this audit.
-              </p>
-            </div>
-            <div className="grid gap-3 md:grid-cols-3">
-              {PLATFORM_OPTIONS.map((platform) => {
-                const active = selectedPlatforms.includes(platform.id);
-                return (
-                  <button
-                    key={platform.id}
-                    type="button"
-                    onClick={() => togglePlatform(platform.id)}
-                    className={`rounded-lg border p-4 text-left transition-colors ${
-                      active
-                        ? "border-[#1f4d3a] bg-[#eff7f1]"
-                        : "border-[#e5ddd0] bg-white hover:border-[#1f4d3a]"
-                    }`}
-                  >
-                    <span className="block text-sm font-semibold text-[#171717]">
-                      {platform.label}
-                    </span>
-                    <span className="mt-2 block text-sm leading-5 text-[#6b7280]">
-                      {platform.description}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-          </section>
+        {/* Platforms */}
+        <div className="form-section">
+          <div className="form-section-h">Platform <span className="req">*</span></div>
+          <div className="form-section-s">Select the ad platform to analyze for this audit.</div>
+          <div className="choice-grid cols-3">
+            {PLATFORM_OPTIONS.map((platform) => {
+              const active = selectedPlatforms.includes(platform.id);
+              return (
+                <button
+                  key={platform.id}
+                  type="button"
+                  onClick={() => togglePlatform(platform.id)}
+                  className={`choice ${active ? "selected" : ""}`}
+                >
+                  <div className={`choice-mark plat-mark ${platform.cls}`}>{platform.mark}</div>
+                  <div className="choice-body">
+                    <div className="choice-title">{platform.label}</div>
+                    <div className="choice-sub">{platform.description}</div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
 
-          {/* Audit context — replaces the long onboarding profile */}
-          <section className="rounded-lg border border-[#e5ddd0] bg-white p-6">
-            <div className="mb-4">
-              <h2 className="text-base font-semibold text-[#171717]">
-                Audit context
-              </h2>
-              <p className="mt-1 text-sm text-[#6b7280]">
-                A few details help the engine judge whether your performance is
-                good for your business. Only business type is required — the
-                rest sharpen the report.
-              </p>
-            </div>
+        {/* Audit context */}
+        <div className="form-section">
+          <div className="form-section-h">Business context</div>
+          <div className="form-section-s">
+            A few details help the engine judge whether your performance is good for your business.
+            Only business type is required — the rest sharpen the report.
+          </div>
 
-            <div className="space-y-5">
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <label className="block text-sm font-medium text-[#374151]">
-                    Business type <span className="text-red-500">*</span>
-                  </label>
-                  <select
-                    value={businessType}
-                    onChange={(e) => setBusinessType(e.target.value)}
-                    className="mt-1.5 w-full rounded-md border border-[#d1cac0] bg-[#faf9f7] px-3 py-2.5 text-sm text-[#171717] outline-none focus:border-[#1f4d3a] focus:ring-2 focus:ring-[#1f4d3a]/20"
-                  >
-                    <option value="">Select one…</option>
-                    {BUSINESS_TYPES.map((o) => (
-                      <option key={o} value={o}>
-                        {o}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-[#374151]">
-                    Monthly ad budget ($){" "}
-                    <span className="text-xs font-normal text-[#9ca3af]">
-                      (optional)
-                    </span>
-                  </label>
-                  <input
-                    type="number"
-                    min="0"
-                    placeholder="e.g. 5000"
-                    value={monthlyBudget}
-                    onChange={(e) => setMonthlyBudget(e.target.value)}
-                    className="mt-1.5 w-full rounded-md border border-[#d1cac0] bg-[#faf9f7] px-3 py-2.5 text-sm text-[#171717] outline-none focus:border-[#1f4d3a] focus:ring-2 focus:ring-[#1f4d3a]/20"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-[#374151]">
-                  Audit focus{" "}
-                  <span className="text-xs font-normal text-[#9ca3af]">
-                    (optional)
-                  </span>
-                </label>
-                <div className="mt-2 grid gap-2 sm:grid-cols-3">
-                  {AUDIT_FOCUS_OPTIONS.map((option) => {
-                    const active = auditFocus === option.id;
-                    return (
-                      <button
-                        key={option.id}
-                        type="button"
-                        onClick={() => setAuditFocus(option.id)}
-                        className={`rounded-md border px-3 py-2 text-left text-sm transition-colors ${
-                          active
-                            ? "border-[#1f4d3a] bg-[#eff7f1] text-[#1f4d3a]"
-                            : "border-[#d1cac0] bg-[#faf9f7] text-[#374151] hover:border-[#1f4d3a]"
-                        }`}
-                      >
-                        {option.label}
-                      </button>
-                    );
-                  })}
-                </div>
-                {auditFocus === "other" && (
-                  <input
-                    type="text"
-                    maxLength={240}
-                    placeholder="What should the audit prioritize?"
-                    value={auditFocusOther}
-                    onChange={(e) => setAuditFocusOther(e.target.value)}
-                    className="mt-2 w-full rounded-md border border-[#d1cac0] bg-[#faf9f7] px-3 py-2.5 text-sm text-[#171717] outline-none focus:border-[#1f4d3a] focus:ring-2 focus:ring-[#1f4d3a]/20"
-                  />
-                )}
-                <p className="mt-1 text-xs text-[#9ca3af]">
-                  This guides prioritization only. The audit still scans the
-                  whole account for hidden problems.
-                </p>
-              </div>
-
-              <div className="grid gap-4 sm:grid-cols-2">
-                <div>
-                  <label className="block text-sm font-medium text-[#374151]">
-                    Target CPA ($){" "}
-                    <span className="text-xs font-normal text-[#9ca3af]">
-                      (optional)
-                    </span>
-                  </label>
-                  <input
-                    type="number"
-                    min="0"
-                    placeholder="e.g. 25"
-                    value={targetCpa}
-                    onChange={(e) => setTargetCpa(e.target.value)}
-                    className="mt-1.5 w-full rounded-md border border-[#d1cac0] bg-[#faf9f7] px-3 py-2.5 text-sm text-[#171717] outline-none focus:border-[#1f4d3a] focus:ring-2 focus:ring-[#1f4d3a]/20"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-[#374151]">
-                    Target ROAS{" "}
-                    <span className="text-xs font-normal text-[#9ca3af]">
-                      (optional)
-                    </span>
-                  </label>
-                  <input
-                    type="number"
-                    min="0"
-                    step="0.1"
-                    placeholder="e.g. 3.0"
-                    value={targetRoas}
-                    onChange={(e) => setTargetRoas(e.target.value)}
-                    className="mt-1.5 w-full rounded-md border border-[#d1cac0] bg-[#faf9f7] px-3 py-2.5 text-sm text-[#171717] outline-none focus:border-[#1f4d3a] focus:ring-2 focus:ring-[#1f4d3a]/20"
-                  />
-                </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-[#374151]">
-                  Your brand / product search terms{" "}
-                  <span className="text-xs font-normal text-[#9ca3af]">
-                    (optional, Google audits)
-                  </span>
-                </label>
-                <input
-                  type="text"
-                  maxLength={300}
-                  placeholder="e.g. Acme, Acme Shoes, AcmePro"
-                  value={brandTerms}
-                  onChange={(e) => setBrandTerms(e.target.value)}
-                  className="mt-1.5 w-full rounded-md border border-[#d1cac0] bg-[#faf9f7] px-3 py-2.5 text-sm text-[#171717] outline-none focus:border-[#1f4d3a] focus:ring-2 focus:ring-[#1f4d3a]/20"
-                />
-                <p className="mt-1 text-xs text-[#9ca3af]">
-                  The words people search when they already know you (brand
-                  name, product names). Comma-separated. Lets the audit separate
-                  cheap brand search from real non-brand demand — and catch when
-                  they&apos;re mixed and inflating your reported ROAS.
-                </p>
+          <div className="field-grid">
+            <div className="field">
+              <label className="field-label">Business type <span className="req">*</span></label>
+              <div className="select-wrap">
+                <select
+                  className="field-select"
+                  value={businessType}
+                  onChange={(e) => setBusinessType(e.target.value)}
+                >
+                  <option value="">Select one…</option>
+                  {BUSINESS_TYPES.map((o) => (
+                    <option key={o} value={o}>{o}</option>
+                  ))}
+                </select>
               </div>
             </div>
-          </section>
-
-          <section className="rounded-lg border border-[#e5ddd0] bg-white p-6">
-            <div className="mb-4">
-              <h2 className="text-base font-semibold text-[#171717]">
-                Data source
-              </h2>
-              <p className="mt-1 text-sm text-[#6b7280]">
-                Start with CSV upload now, or create an OAuth connection flow
-                when platform approval is ready.
-              </p>
+            <div className="field">
+              <label className="field-label">Monthly ad budget <span style={{ color: "var(--hint)", fontWeight: 400 }}>(optional)</span></label>
+              <input
+                className="field-input"
+                type="number"
+                min="0"
+                placeholder="e.g. 5000"
+                value={monthlyBudget}
+                onChange={(e) => setMonthlyBudget(e.target.value)}
+              />
             </div>
-            <div className="grid gap-3 md:grid-cols-2">
-              {DATA_SOURCE_OPTIONS.map((option) => {
-                const active = dataSource === option.id;
+          </div>
+
+          <div className="field">
+            <label className="field-label">Audit focus <span style={{ color: "var(--hint)", fontWeight: 400 }}>(optional)</span></label>
+            <div className="choice-grid cols-3" style={{ gap: 10 }}>
+              {AUDIT_FOCUS_OPTIONS.map((option) => {
+                const active = auditFocus === option.id;
                 return (
                   <button
                     key={option.id}
                     type="button"
-                    onClick={() => setDataSource(option.id)}
-                    className={`rounded-lg border p-4 text-left transition-colors ${
-                      active
-                        ? "border-[#1f4d3a] bg-[#eff7f1]"
-                        : "border-[#e5ddd0] bg-white hover:border-[#1f4d3a]"
-                    }`}
+                    onClick={() => setAuditFocus(option.id)}
+                    className={`choice ${active ? "selected" : ""}`}
+                    style={{ padding: "11px 14px" }}
                   >
-                    <span className="block text-sm font-semibold text-[#171717]">
-                      {option.label}
-                    </span>
-                    <span className="mt-2 block text-sm leading-5 text-[#6b7280]">
-                      {option.description}
-                    </span>
+                    <div className="choice-body">
+                      <div className="choice-title" style={{ fontSize: 13 }}>{option.label}</div>
+                    </div>
                   </button>
                 );
               })}
             </div>
-          </section>
-
-          {error && (
-            <div className="rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
-              {error}
-            </div>
-          )}
-
-          <div className="flex items-center justify-end gap-3">
-            <Link
-              href="/dashboard"
-              className="rounded-md border border-[#d1cac0] px-4 py-2 text-sm font-semibold text-[#374151] hover:bg-white"
-            >
-              Cancel
-            </Link>
-            <button
-              type="submit"
-              disabled={!canSubmit || createAudit.isPending}
-              className="rounded-md bg-[#1f4d3a] px-4 py-2 text-sm font-semibold text-white hover:bg-[#183c2d] disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {createAudit.isPending ? "Creating audit..." : "Continue"}
-            </button>
+            {auditFocus === "other" && (
+              <input
+                className="field-input"
+                style={{ marginTop: 10 }}
+                type="text"
+                maxLength={240}
+                placeholder="What should the audit prioritize?"
+                value={auditFocusOther}
+                onChange={(e) => setAuditFocusOther(e.target.value)}
+              />
+            )}
+            <p style={{ fontSize: 11.5, color: "var(--hint)", marginTop: 8 }}>
+              This guides prioritization only. The audit still scans the whole account for hidden problems.
+            </p>
           </div>
-        </form>
-      </main>
-    </div>
+
+          <div className="field-grid">
+            <div className="field">
+              <label className="field-label">Target CPA <span style={{ color: "var(--hint)", fontWeight: 400 }}>(optional)</span></label>
+              <input
+                className="field-input"
+                type="number"
+                min="0"
+                placeholder="e.g. 25"
+                value={targetCpa}
+                onChange={(e) => setTargetCpa(e.target.value)}
+              />
+            </div>
+            <div className="field">
+              <label className="field-label">Target ROAS <span style={{ color: "var(--hint)", fontWeight: 400 }}>(optional)</span></label>
+              <input
+                className="field-input"
+                type="number"
+                min="0"
+                step="0.1"
+                placeholder="e.g. 3.0"
+                value={targetRoas}
+                onChange={(e) => setTargetRoas(e.target.value)}
+              />
+            </div>
+          </div>
+
+          <div className="field" style={{ marginBottom: 0 }}>
+            <label className="field-label">Brand / product search terms <span style={{ color: "var(--hint)", fontWeight: 400 }}>(optional, Google audits)</span></label>
+            <input
+              className="field-input"
+              type="text"
+              maxLength={300}
+              placeholder="e.g. Acme, Acme Shoes, AcmePro"
+              value={brandTerms}
+              onChange={(e) => setBrandTerms(e.target.value)}
+            />
+            <p style={{ fontSize: 11.5, color: "var(--hint)", marginTop: 8, lineHeight: 1.55 }}>
+              The words people search when they already know you. Comma-separated. Lets the audit
+              separate cheap brand search from real non-brand demand.
+            </p>
+          </div>
+        </div>
+
+        {/* Data source */}
+        <div className="form-section">
+          <div className="form-section-h">How should we get your data?</div>
+          <div className="form-section-s">Connect your account for the smoothest experience, or upload CSV exports.</div>
+          <div className="choice-grid cols-2">
+            {DATA_SOURCE_OPTIONS.map((option) => {
+              const active = dataSource === option.id;
+              return (
+                <button
+                  key={option.id}
+                  type="button"
+                  onClick={() => setDataSource(option.id)}
+                  className={`choice ${active ? "selected" : ""}`}
+                >
+                  <div className="opt-check" />
+                  <div className="choice-body">
+                    <div className="choice-title">
+                      {option.label}
+                      {option.recommended && <span className="rec-badge">Recommended</span>}
+                    </div>
+                    <div className="choice-sub">{option.description}</div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {error && <div className="alert error">{error}</div>}
+
+        <div className="form-actions">
+          <Link href="/dashboard" className="btn btn-ghost">Cancel</Link>
+          <button type="submit" className="btn btn-primary" disabled={!canSubmit || createAudit.isPending}>
+            {createAudit.isPending ? "Creating audit…" : "Continue →"}
+          </button>
+        </div>
+      </form>
+    </DashboardShell>
   );
 }
