@@ -5,6 +5,8 @@ import { GoogleOAuthProvider } from "@react-oauth/google";
 import { useState } from "react";
 
 export function Providers({ children }: { children: React.ReactNode }) {
+  const googleClientId =
+    process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "disabled-google-oauth-client";
   const [queryClient] = useState(
     () =>
       new QueryClient({
@@ -23,7 +25,7 @@ export function Providers({ children }: { children: React.ReactNode }) {
   );
 
   return (
-    <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!}>
+    <GoogleOAuthProvider clientId={googleClientId}>
       <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
     </GoogleOAuthProvider>
   );

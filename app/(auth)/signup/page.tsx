@@ -7,6 +7,7 @@ import { useSignup, useGoogleAuth } from "@/hooks/use-auth";
 import { getErrorMessage } from "@/lib/api";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000";
+const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 
 const GoogleIcon = () => (
   <svg width="16" height="16" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
@@ -87,9 +88,11 @@ export default function SignupPage() {
           {error && <div className="auth-alert-error">{error}</div>}
 
           <div className="social-row">
-            <button type="button" onClick={() => handleGoogleSignup()} disabled={isPending} className="social-btn" title="Continue with Google">
-              <GoogleIcon />Google
-            </button>
+            {GOOGLE_CLIENT_ID && (
+              <button type="button" onClick={() => handleGoogleSignup()} disabled={isPending} className="social-btn" title="Continue with Google">
+                <GoogleIcon />Google
+              </button>
+            )}
             <button
               type="button"
               onClick={() => { window.location.href = `${API_URL}/api/auth/meta/init`; }}

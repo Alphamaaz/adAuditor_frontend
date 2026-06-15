@@ -8,6 +8,7 @@ import { useLogin, useGoogleAuth } from "@/hooks/use-auth";
 import { getErrorMessage } from "@/lib/api";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000";
+const GOOGLE_CLIENT_ID = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
 
 const GoogleIcon = () => (
   <svg width="16" height="16" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
@@ -98,6 +99,7 @@ function LoginForm() {
           )}
 
           <div className="social-row">
+            {GOOGLE_CLIENT_ID && (
             <button
               type="button"
               onClick={() => handleGoogleLogin()}
@@ -107,6 +109,7 @@ function LoginForm() {
             >
               <GoogleIcon />{googleAuth.isPending ? "Signing in…" : "Google"}
             </button>
+            )}
             <button
               type="button"
               onClick={() => { window.location.href = `${API_URL}/api/auth/meta/init`; }}
