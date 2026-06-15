@@ -7,8 +7,17 @@ import { authApi } from "@/lib/auth";
 export const AUTH_QUERY_KEY = ["auth", "me"] as const;
 export const AUTH_SESSIONS_QUERY_KEY = ["auth", "sessions"] as const;
 
+const safeNextPath = () => {
+  if (typeof window === "undefined") return null;
+  const next = new URLSearchParams(window.location.search).get("next");
+  if (!next || !next.startsWith("/") || next.startsWith("//")) return null;
+  if (next.startsWith("/login") || next.startsWith("/signup")) return null;
+  return next;
+};
+
 const authDestination = (data: { user: { internalRole: string } }) =>
-  data.user.internalRole === "SUPER_ADMIN" ? "/admin" : "/dashboard";
+  safeNextPath() ??
+  (data.user.internalRole === "SUPER_ADMIN" ? "/admin" : "/dashboard");
 
 const navigateAfterAuth = (href: string, fallback: (href: string) => void) => {
   if (typeof window !== "undefined") {
@@ -87,8 +96,11 @@ export function useLogout() {
   const finishLogout = () => {
     queryClient.setQueryData(AUTH_QUERY_KEY, null);
     queryClient.clear();
+    if (typeof window !== "undefined") {
+      window.location.assign("/");
+      return;
+    }
     router.replace("/");
-    router.refresh();
   };
 
   return useMutation({

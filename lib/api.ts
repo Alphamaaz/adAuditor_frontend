@@ -7,6 +7,8 @@ const api = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
+let authRedirectInProgress = false;
+
 api.interceptors.response.use(
   (response) => response,
   (error) => {
@@ -14,9 +16,11 @@ api.interceptors.response.use(
       error instanceof AxiosError &&
       error.response?.status === 401 &&
       typeof window !== "undefined" &&
+      !authRedirectInProgress &&
       (window.location.pathname.startsWith("/dashboard") ||
         window.location.pathname.startsWith("/admin"))
     ) {
+      authRedirectInProgress = true;
       const next = encodeURIComponent(window.location.pathname + window.location.search);
       window.location.replace(`/login?next=${next}`);
     }
