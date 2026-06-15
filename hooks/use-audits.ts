@@ -14,18 +14,20 @@ export const AUDITS_QUERY_KEY = ["audits"] as const;
 export const AD_ACCOUNTS_QUERY_KEY = ["ad-accounts"] as const;
 export const AUDIT_HISTORY_QUERY_KEY = ["audits", "history"] as const;
 
-export function useAudits() {
+export function useAudits(enabled = true) {
   return useQuery({
     queryKey: AUDITS_QUERY_KEY,
     queryFn: auditsApi.list,
+    enabled,
     retry: false,
   });
 }
 
-export function useAdAccounts() {
+export function useAdAccounts(enabled = true) {
   return useQuery({
     queryKey: AD_ACCOUNTS_QUERY_KEY,
     queryFn: auditsApi.listAdAccounts,
+    enabled,
     retry: false,
   });
 }
@@ -193,10 +195,11 @@ export function useAuditHistory(params?: {
   adAccountId?: string;
   platform?: "META" | "GOOGLE" | "TIKTOK";
   limit?: number;
-}) {
+}, enabled = true) {
   return useQuery({
     queryKey: [...AUDIT_HISTORY_QUERY_KEY, params || {}],
     queryFn: () => auditsApi.history(params),
+    enabled,
     retry: false,
     staleTime: 30 * 1000,
   });

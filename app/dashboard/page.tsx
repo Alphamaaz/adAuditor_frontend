@@ -113,10 +113,11 @@ const activityLabel = (audit: Audit) => {
 export default function DashboardPage() {
   const router = useRouter();
   const { data, isLoading } = useCurrentUser();
-  const { data: audits = [] } = useAudits();
-  const { data: history = [] } = useAuditHistory({ limit: 10 });
-  const { data: planData } = useMyPlanAndUsage();
-  const { data: adAccounts = [] } = useAdAccounts();
+  const isAuthenticated = Boolean(data);
+  const { data: audits = [] } = useAudits(isAuthenticated);
+  const { data: history = [] } = useAuditHistory({ limit: 10 }, isAuthenticated);
+  const { data: planData } = useMyPlanAndUsage(isAuthenticated);
+  const { data: adAccounts = [] } = useAdAccounts(isAuthenticated);
   const logout = useLogout();
 
   const completedAudits = useMemo(
@@ -140,7 +141,7 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (!isLoading && !data) {
-      router.replace("/login");
+      router.replace(`/login?next=${encodeURIComponent(window.location.pathname)}`);
     }
   }, [isLoading, data, router]);
 

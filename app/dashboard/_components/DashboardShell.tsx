@@ -24,13 +24,14 @@ interface DashboardShellProps {
 export function DashboardShell({ active, section, children }: DashboardShellProps) {
   const router = useRouter();
   const { data, isLoading } = useCurrentUser();
-  const { data: audits = [] } = useAudits();
-  const { data: planData } = useMyPlanAndUsage();
+  const isAuthenticated = Boolean(data);
+  const { data: audits = [] } = useAudits(isAuthenticated);
+  const { data: planData } = useMyPlanAndUsage(isAuthenticated);
   const logout = useLogout();
 
   useEffect(() => {
     if (!isLoading && !data) {
-      router.replace("/login");
+      router.replace(`/login?next=${encodeURIComponent(window.location.pathname)}`);
     }
   }, [isLoading, data, router]);
 

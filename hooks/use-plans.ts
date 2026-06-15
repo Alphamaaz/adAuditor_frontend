@@ -18,10 +18,11 @@ export function usePlans() {
  * Returns the authenticated org's effective plan + current-period usage.
  * Use this to show "X of Y audits used" badges and gate upgrade CTAs.
  */
-export function useMyPlanAndUsage() {
+export function useMyPlanAndUsage(enabled = true) {
   return useQuery({
     queryKey: MY_PLAN_QUERY_KEY,
     queryFn: plansApi.myPlanAndUsage,
+    enabled,
     retry: false,
     // Usage updates after each audit run — keep relatively fresh.
     staleTime: 30 * 1000,
