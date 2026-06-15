@@ -7,6 +7,17 @@ import { authApi } from "@/lib/auth";
 export const AUTH_QUERY_KEY = ["auth", "me"] as const;
 export const AUTH_SESSIONS_QUERY_KEY = ["auth", "sessions"] as const;
 
+const authDestination = (data: { user: { internalRole: string } }) =>
+  data.user.internalRole === "SUPER_ADMIN" ? "/admin" : "/dashboard";
+
+const navigateAfterAuth = (href: string, fallback: (href: string) => void) => {
+  if (typeof window !== "undefined") {
+    window.location.assign(href);
+    return;
+  }
+  fallback(href);
+};
+
 // ── current user ─────────────────────────────────────────────────────────────
 
 export function useCurrentUser() {
@@ -41,14 +52,7 @@ export function useVerifyEmail() {
     mutationFn: authApi.verifyEmail,
     onSuccess: (data) => {
       queryClient.setQueryData(AUTH_QUERY_KEY, data);
-
-      if (data.user.internalRole === "SUPER_ADMIN") {
-        router.push("/admin");
-      } else {
-        // Launch flow: no forced onboarding. Land on the dashboard; audit
-        // context is collected inside the new-audit flow instead.
-        router.push("/dashboard");
-      }
+      navigateAfterAuth(authDestination(data), router.push);
     },
   });
 }
@@ -69,14 +73,7 @@ export function useLogin() {
     mutationFn: authApi.login,
     onSuccess: (data) => {
       queryClient.setQueryData(AUTH_QUERY_KEY, data);
-
-      if (data.user.internalRole === "SUPER_ADMIN") {
-        router.push("/admin");
-      } else {
-        // Launch flow: no forced onboarding. Land on the dashboard; audit
-        // context is collected inside the new-audit flow instead.
-        router.push("/dashboard");
-      }
+      navigateAfterAuth(authDestination(data), router.push);
     },
   });
 }
@@ -175,13 +172,7 @@ export function useGoogleAuth() {
     mutationFn: (accessToken: string) => authApi.googleAuth({ accessToken }),
     onSuccess: (data) => {
       queryClient.setQueryData(AUTH_QUERY_KEY, data);
-      if (data.user.internalRole === "SUPER_ADMIN") {
-        router.push("/admin");
-      } else {
-        // Launch flow: no forced onboarding. Land on the dashboard; audit
-        // context is collected inside the new-audit flow instead.
-        router.push("/dashboard");
-      }
+      navigateAfterAuth(authDestination(data), router.push);
     },
   });
 }

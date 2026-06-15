@@ -7,6 +7,23 @@ const api = axios.create({
   headers: { "Content-Type": "application/json" },
 });
 
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (
+      error instanceof AxiosError &&
+      error.response?.status === 401 &&
+      typeof window !== "undefined" &&
+      (window.location.pathname.startsWith("/dashboard") ||
+        window.location.pathname.startsWith("/admin"))
+    ) {
+      const next = encodeURIComponent(window.location.pathname + window.location.search);
+      window.location.replace(`/login?next=${next}`);
+    }
+    return Promise.reject(error);
+  }
+);
+
 // Unwrap Axios errors into a plain message string so UI code stays simple.
 export const getErrorMessage = (err: unknown): string => {
   if (err instanceof AxiosError) {
