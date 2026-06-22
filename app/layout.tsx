@@ -2,6 +2,7 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import { Providers } from "./providers";
 import { ImpersonationBanner } from "@/components/impersonation-banner";
+import { themeInitScript } from "@/lib/theme";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -53,6 +54,9 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col">
+        {/* Set the saved theme before first paint to avoid a flash of the
+            wrong palette. Runs synchronously, ahead of hydration. */}
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
         <Providers>
           <ImpersonationBanner />
           {children}

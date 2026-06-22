@@ -16,6 +16,7 @@ import type { Platform } from "@/lib/audits";
 import { getErrorMessage } from "@/lib/api";
 import { DashboardShell } from "../_components/DashboardShell";
 import { AlertsSettings } from "./_components/AlertsSettings";
+import { ThemeTiles } from "./_components/ThemeTiles";
 
 type Tab = "profile" | "security" | "integrations" | "alerts" | "appearance";
 
@@ -405,13 +406,9 @@ export default function SettingsPage() {
           <div className="settings-section">
             <div className="settings-section-h">Theme</div>
             <div className="settings-section-s">
-              AdAdviser ships dark by default — it&rsquo;s how performance dashboards belong. More themes are on the way.
+              AdAdviser ships dark by default, but pick whatever you prefer — or match your system. Your choice is saved on this device.
             </div>
-            <div className="theme-grid">
-              <div className="theme-tile dark active"><div className="label">Dark · default</div></div>
-              <div className="theme-tile midnight"><div className="label">Midnight · soon</div></div>
-              <div className="theme-tile system"><div className="label">Match system · soon</div></div>
-            </div>
+            <ThemeTiles />
           </div>
 
           <div className="settings-section">

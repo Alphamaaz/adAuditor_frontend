@@ -16,6 +16,9 @@
   --violet-light: #a994ff;
   --lime: #eaff00;
   --lime-soft: #d6f25b;
+  /* Accent used as TEXT. Equals the neon lime on dark; the light theme remaps it
+     to a readable dark olive so accents stay legible on white surfaces. */
+  --accent-ink: #eaff00;
   --teal: #2ecfb3;
   --amber: #f5b942;
   --coral: #ff6b6b;
@@ -43,10 +46,43 @@
   -webkit-font-smoothing: antialiased;
 }
 
+/* ──────────────────────────────────────────────────────────────────────
+   LIGHT THEME
+   Set by the theme switcher via html[data-theme="light"]. Because the whole
+   dashboard reads its colours from the variables above, a light palette is just
+   a re-mapping of the neutral + accent-ink tokens — no per-component overrides.
+   Hues (violet/teal/coral/amber) are kept; only surfaces, ink, borders, and the
+   accent-as-ink token change so text/strokes stay legible on white.
+   ────────────────────────────────────────────────────────────────────── */
+html[data-theme="light"] .aa-dash {
+  --bg: #f5f2fb;
+  --deep: #efeaf8;
+  --surface: #ffffff;
+  --card: #ffffff;
+  --card-2: #f6f3fc;
+  --card-3: #ede8f8;
+
+  --violet-light: #6d4dff; /* darkened so it reads as text/borders on white */
+  --lime-soft: #6b7a00;
+  --accent-ink: #5a6800; /* lime → dark olive: legible accent text + strokes */
+
+  --text: #1b1430;
+  --text-dim: #4c4570;
+  --hint: #6e6790;
+  --border: rgba(27, 20, 48, 0.12);
+  --line: rgba(27, 20, 48, 0.07);
+}
+
+/* The ambient glow is tuned for a dark canvas; soften it on light so it doesn't
+   muddy the white surfaces. */
+html[data-theme="light"] .aa-dash .ambient {
+  opacity: 0.35;
+}
+
 .aa-dash .em {
   font-family: var(--font-display);
   font-style: italic;
-  color: var(--lime);
+  color: var(--accent-ink);
 }
 
 .aa-dash .mono {
@@ -199,7 +235,7 @@
 }
 
 .aa-dash .sb-link.active svg {
-  color: var(--lime);
+  color: var(--accent-ink);
   opacity: 1;
 }
 
@@ -331,7 +367,7 @@
   font-size: 11px;
   font-weight: 600;
   letter-spacing: 0.04em;
-  color: var(--lime-soft);
+  color: var(--accent-ink);
   background: rgba(234, 255, 0, 0.1);
   border: 1px solid rgba(234, 255, 0, 0.18);
   border-radius: 999px;
@@ -601,7 +637,7 @@
 
 .aa-dash .kpi-icon.lime {
   background: rgba(234, 255, 0, 0.12);
-  color: var(--lime);
+  color: var(--accent-ink);
 }
 
 .aa-dash .kpi-icon.violet {
@@ -921,7 +957,7 @@
 }
 
 .aa-dash .pri-rank.top {
-  color: var(--lime);
+  color: var(--accent-ink);
 }
 
 .aa-dash .pri-body {
@@ -1045,7 +1081,7 @@
   height: 30px;
   border-radius: 9px;
   background: rgba(234, 255, 0, 0.1);
-  color: var(--lime);
+  color: var(--accent-ink);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -1133,7 +1169,7 @@
 }
 
 .aa-dash .plan-card.current .plan-tier {
-  color: var(--lime);
+  color: var(--accent-ink);
 }
 
 .aa-dash .plan-name {
@@ -1283,7 +1319,7 @@
 }
 
 .aa-dash .download-btn:hover {
-  color: var(--lime);
+  color: var(--accent-ink);
   border-color: var(--violet-light);
 }
 
@@ -1315,7 +1351,7 @@
 
 .aa-dash .tab.active {
   color: var(--text);
-  border-bottom-color: var(--lime);
+  border-bottom-color: var(--accent-ink);
 }
 
 .aa-dash .settings-section {
@@ -1476,7 +1512,7 @@
 
 .aa-dash .switch.on {
   background: var(--lime);
-  border-color: var(--lime);
+  border-color: var(--accent-ink);
 }
 
 .aa-dash .switch.on::after {
@@ -1583,7 +1619,7 @@
 }
 
 .aa-dash .opt-card.selected {
-  border-color: var(--lime);
+  border-color: var(--accent-ink);
   background: var(--card-3);
 }
 
@@ -1600,7 +1636,7 @@
 
 .aa-dash .opt-card.selected .opt-check,
 .aa-dash .choice.selected .opt-check {
-  border-color: var(--lime);
+  border-color: var(--accent-ink);
 }
 
 .aa-dash .opt-card.selected .opt-check::after,
@@ -1633,6 +1669,7 @@
 
 .aa-dash .theme-tile {
   height: 96px;
+  width: 100%;
   border-radius: 12px;
   border: 1px solid var(--border);
   position: relative;
@@ -1641,10 +1678,30 @@
   display: flex;
   align-items: flex-end;
   padding: 10px;
+  font: inherit;
+  text-align: left;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
+}
+
+.aa-dash .theme-tile:hover {
+  border-color: var(--violet-light);
+}
+
+.aa-dash .theme-tile:active {
+  transform: translateY(1px);
 }
 
 .aa-dash .theme-tile.dark {
   background: linear-gradient(135deg, #16102a, #0b0712);
+}
+
+.aa-dash .theme-tile.light {
+  background: linear-gradient(135deg, #ffffff, #ece7f8);
+}
+
+.aa-dash .theme-tile.light .label {
+  color: #1b1430;
+  background: rgba(255, 255, 255, 0.7);
 }
 
 .aa-dash .theme-tile.midnight {
@@ -1656,7 +1713,7 @@
 }
 
 .aa-dash .theme-tile.active {
-  border-color: var(--lime);
+  border-color: var(--accent-ink);
   box-shadow: 0 0 0 2px rgba(234, 255, 0, 0.25);
 }
 
@@ -1703,7 +1760,7 @@
 }
 
 .aa-dash .choice.selected {
-  border-color: var(--lime);
+  border-color: var(--accent-ink);
   background: var(--card-3);
 }
 
@@ -1843,7 +1900,7 @@
 
 /* ── Card link (clickable) ────────────────────────────────────────── */
 .aa-dash .link-lime {
-  color: var(--lime);
+  color: var(--accent-ink);
   text-decoration: none;
 }
 
