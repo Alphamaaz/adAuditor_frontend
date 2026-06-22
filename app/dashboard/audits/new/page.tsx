@@ -59,6 +59,26 @@ const DATA_SOURCE_OPTIONS: Array<{
 
 const BUSINESS_TYPES = ["eCommerce", "Lead Gen", "App Install", "Local", "B2B SaaS", "Other"];
 
+const CURRENCIES = [
+  { code: "USD", label: "USD – US Dollar" },
+  { code: "EUR", label: "EUR – Euro" },
+  { code: "GBP", label: "GBP – British Pound" },
+  { code: "PKR", label: "PKR – Pakistani Rupee" },
+  { code: "INR", label: "INR – Indian Rupee" },
+  { code: "AED", label: "AED – UAE Dirham" },
+  { code: "SAR", label: "SAR – Saudi Riyal" },
+  { code: "CAD", label: "CAD – Canadian Dollar" },
+  { code: "AUD", label: "AUD – Australian Dollar" },
+  { code: "SGD", label: "SGD – Singapore Dollar" },
+  { code: "MYR", label: "MYR – Malaysian Ringgit" },
+  { code: "EGP", label: "EGP – Egyptian Pound" },
+  { code: "NGN", label: "NGN – Nigerian Naira" },
+  { code: "BRL", label: "BRL – Brazilian Real" },
+  { code: "MXN", label: "MXN – Mexican Peso" },
+  { code: "TRY", label: "TRY – Turkish Lira" },
+  { code: "ZAR", label: "ZAR – South African Rand" },
+];
+
 const AUDIT_FOCUS_OPTIONS: Array<{
   id: NonNullable<AuditContextInput["auditFocus"]>;
   label: string;
@@ -83,8 +103,11 @@ export default function NewAuditPage() {
   const [accountName, setAccountName] = useState("");
   const [selectedPlatforms, setSelectedPlatforms] = useState<Platform[]>([]);
   const [dataSource, setDataSource] = useState<DataSource>("OAUTH");
+  const [lookbackDays, setLookbackDays] = useState<number>(30);
+  const [customDays, setCustomDays] = useState("");
 
   const [businessType, setBusinessType] = useState("");
+  const [currency, setCurrency] = useState("USD");
   const [monthlyBudget, setMonthlyBudget] = useState("");
   const [targetCpa, setTargetCpa] = useState("");
   const [targetRoas, setTargetRoas] = useState("");
@@ -131,12 +154,14 @@ export default function NewAuditPage() {
 
     const context: AuditContextInput = {
       businessType,
+      currency,
       monthlyBudget: parseNum(monthlyBudget),
       targetCpa: parseNum(targetCpa),
       targetRoas: parseNum(targetRoas),
       brandTerms: brandTerms.trim() || null,
       auditFocus,
       auditFocusOther: auditFocus === "other" ? auditFocusOther.trim() || null : null,
+      lookbackDays,
     };
 
     try {
@@ -236,13 +261,12 @@ export default function NewAuditPage() {
             </div>
             <div className="field">
               <label className="field-label">Monthly ad budget <span style={{ color: "var(--hint)", fontWeight: 400 }}>(optional)</span></label>
-              <input
-                className="field-input"
-                type="number"
-                min="0"
-                placeholder="e.g. 5000"
+              <AmountField
                 value={monthlyBudget}
-                onChange={(e) => setMonthlyBudget(e.target.value)}
+                onChange={setMonthlyBudget}
+                currency={currency}
+                onCurrencyChange={setCurrency}
+                placeholder="e.g. 5000"
               />
             </div>
           </div>
@@ -286,13 +310,12 @@ export default function NewAuditPage() {
           <div className="field-grid">
             <div className="field">
               <label className="field-label">Target CPA <span style={{ color: "var(--hint)", fontWeight: 400 }}>(optional)</span></label>
-              <input
-                className="field-input"
-                type="number"
-                min="0"
-                placeholder="e.g. 25"
+              <AmountField
                 value={targetCpa}
-                onChange={(e) => setTargetCpa(e.target.value)}
+                onChange={setTargetCpa}
+                currency={currency}
+                onCurrencyChange={setCurrency}
+                placeholder="e.g. 25"
               />
             </div>
             <div className="field">
@@ -306,6 +329,7 @@ export default function NewAuditPage() {
                 value={targetRoas}
                 onChange={(e) => setTargetRoas(e.target.value)}
               />
+              <p style={{ fontSize: 11.5, color: "var(--hint)", marginTop: 6 }}>Dimensionless ratio — no currency needed.</p>
             </div>
           </div>
 
@@ -324,6 +348,59 @@ export default function NewAuditPage() {
               separate cheap brand search from real non-brand demand.
             </p>
           </div>
+        </div>
+
+        {/* Date range */}
+        <div className="form-section">
+          <div className="form-section-h">Date range</div>
+          <div className="form-section-s">
+            How far back should the audit look? More days give a fuller picture; 30–60 days is best for actionable findings.
+          </div>
+          <div className="choice-grid cols-4" style={{ gap: 10, marginBottom: 12 }}>
+            {([30, 60, 90] as const).map((d) => (
+              <button
+                key={d}
+                type="button"
+                onClick={() => { setLookbackDays(d); setCustomDays(""); }}
+                className={`choice ${lookbackDays === d && !customDays ? "selected" : ""}`}
+                style={{ padding: "11px 14px" }}
+              >
+                <div className="choice-body">
+                  <div className="choice-title" style={{ fontSize: 13 }}>Last {d} days</div>
+                </div>
+              </button>
+            ))}
+            <button
+              type="button"
+              onClick={() => { if (!customDays) setCustomDays(""); }}
+              className={`choice ${customDays ? "selected" : ""}`}
+              style={{ padding: "11px 14px" }}
+            >
+              <div className="choice-body">
+                <div className="choice-title" style={{ fontSize: 13 }}>Custom</div>
+              </div>
+            </button>
+          </div>
+          {(customDays !== "" || ![30, 60, 90].includes(lookbackDays)) && (
+            <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+              <input
+                className="field-input"
+                type="number"
+                min="7"
+                max="365"
+                style={{ maxWidth: 120 }}
+                placeholder="Days (7–365)"
+                value={customDays}
+                onChange={(e) => {
+                  const v = e.target.value;
+                  setCustomDays(v);
+                  const n = parseInt(v, 10);
+                  if (!isNaN(n) && n >= 7 && n <= 365) setLookbackDays(n);
+                }}
+              />
+              <span style={{ fontSize: 13, color: "var(--hint)" }}>calendar days back from today</span>
+            </div>
+          )}
         </div>
 
         {/* Data source */}
@@ -364,5 +441,51 @@ export default function NewAuditPage() {
         </div>
       </form>
     </DashboardShell>
+  );
+}
+
+function AmountField({
+  value,
+  onChange,
+  currency,
+  onCurrencyChange,
+  placeholder,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  currency: string;
+  onCurrencyChange: (c: string) => void;
+  placeholder?: string;
+}) {
+  return (
+    <div style={{ display: "flex", gap: 0 }}>
+      <div className="select-wrap" style={{ flexShrink: 0, minWidth: 90 }}>
+        <select
+          className="field-select"
+          value={currency}
+          onChange={(e) => onCurrencyChange(e.target.value)}
+          style={{
+            borderTopRightRadius: 0,
+            borderBottomRightRadius: 0,
+            borderRight: "none",
+            paddingRight: 28,
+          }}
+          aria-label="Currency"
+        >
+          {CURRENCIES.map((c) => (
+            <option key={c.code} value={c.code}>{c.code}</option>
+          ))}
+        </select>
+      </div>
+      <input
+        className="field-input"
+        type="number"
+        min="0"
+        placeholder={placeholder}
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0, flex: 1 }}
+      />
+    </div>
   );
 }

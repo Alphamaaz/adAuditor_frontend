@@ -36,6 +36,7 @@ export default function AuditConnectPage() {
   const oauthConnected = searchParams.get("connected"); // "true" from TikTok callback
 
   const getInitialStep = (): Step => {
+    if (oauthError) return "connect"; // always reset to connect on error so user can retry
     if (oauthStatus === "success" && oauthPlatform === "GOOGLE") return "google_select";
     if (oauthStatus === "success" && oauthPlatform === "META") return "meta_select";
     if (oauthConnected === "true" && oauthPlatform === "META") return "meta_select";
@@ -174,7 +175,7 @@ export default function AuditConnectPage() {
         <div className="rounded-lg border border-[#e5ddd0] bg-white p-8">
 
           {/* ── OAuth Error Banner ──────────────────────────────────── */}
-          {oauthError && step === "connect" && (
+          {oauthError && (
             <div className="mb-6 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
               Connection failed: {decodeURIComponent(oauthError)}. Please try again.
             </div>

@@ -15,15 +15,40 @@ import { connectionsApi } from "@/lib/connections";
 import type { Platform } from "@/lib/audits";
 import { getErrorMessage } from "@/lib/api";
 import { DashboardShell } from "../_components/DashboardShell";
+import { AlertsSettings } from "./_components/AlertsSettings";
 
-type Tab = "profile" | "security" | "integrations" | "appearance";
+type Tab = "profile" | "security" | "integrations" | "alerts" | "appearance";
 
 const TABS: { key: Tab; label: string }[] = [
   { key: "profile", label: "Profile" },
   { key: "security", label: "Security" },
   { key: "integrations", label: "Integrations" },
+  { key: "alerts", label: "Alerts" },
   { key: "appearance", label: "Appearance" },
 ];
+
+// ── Branding card ──────────────────────────────────────────────────────────────
+function BrandingCard() {
+  return (
+    <Link
+      href="/dashboard/settings/branding"
+      className="flex items-center gap-4 rounded-lg border border-[#e5ddd0] bg-[#f7f4ef] px-5 py-4 hover:border-[#d1cac0] hover:shadow-sm transition-all"
+    >
+      <span className="flex h-10 w-10 flex-shrink-0 items-center justify-center rounded-lg border border-[#e5ddd0] bg-white text-[#374151]">
+        <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="1.8" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+      </span>
+      <div className="min-w-0">
+        <p className="text-sm font-semibold text-[#171717]">Report branding</p>
+        <p className="text-xs text-[#6b7280]">Logo, company name, and accent color on exported PDF reports</p>
+      </div>
+      <svg className="ml-auto h-4 w-4 flex-shrink-0 text-[#9ca3af]" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+      </svg>
+    </Link>
+  );
+}
 
 const PLATFORMS: { platform: Platform; label: string; mark: string; cls: string }[] = [
   { platform: "META", label: "Meta Ads", mark: "Mt", cls: "meta" },
@@ -371,19 +396,32 @@ export default function SettingsPage() {
         </div>
       )}
 
+      {/* ── Alerts ──────────────────────────────────────────────── */}
+      {tab === "alerts" && <AlertsSettings />}
+
       {/* ── Appearance ──────────────────────────────────────────── */}
       {tab === "appearance" && (
-        <div className="settings-section">
-          <div className="settings-section-h">Theme</div>
-          <div className="settings-section-s">
-            AdAdviser ships dark by default — it&rsquo;s how performance dashboards belong. More themes are on the way.
+        <>
+          <div className="settings-section">
+            <div className="settings-section-h">Theme</div>
+            <div className="settings-section-s">
+              AdAdviser ships dark by default — it&rsquo;s how performance dashboards belong. More themes are on the way.
+            </div>
+            <div className="theme-grid">
+              <div className="theme-tile dark active"><div className="label">Dark · default</div></div>
+              <div className="theme-tile midnight"><div className="label">Midnight · soon</div></div>
+              <div className="theme-tile system"><div className="label">Match system · soon</div></div>
+            </div>
           </div>
-          <div className="theme-grid">
-            <div className="theme-tile dark active"><div className="label">Dark · default</div></div>
-            <div className="theme-tile midnight"><div className="label">Midnight · soon</div></div>
-            <div className="theme-tile system"><div className="label">Match system · soon</div></div>
+
+          <div className="settings-section">
+            <div className="settings-section-h">PDF report branding</div>
+            <div className="settings-section-s">
+              White-label your exported audit reports with your own logo, company name, and brand color.
+            </div>
+            <BrandingCard />
           </div>
-        </div>
+        </>
       )}
     </DashboardShell>
   );

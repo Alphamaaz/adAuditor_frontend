@@ -340,6 +340,8 @@ export interface AuditContextInput {
   targetCpa?: number | null;
   targetRoas?: number | null;
   brandTerms?: string | null;
+  currency?: string | null;
+  lookbackDays?: number | null;
 }
 
 export interface CreateAuditSetupInput {

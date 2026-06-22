@@ -589,8 +589,8 @@ export default function DashboardPage() {
               </div>
             ) : (
               <div className="grid-3" style={{ marginBottom: 18 }}>
-                {quickWins.map((win) => (
-                  <div className="qw-card" key={win.ruleId}>
+                {quickWins.map((win, idx) => (
+                  <div className="qw-card" key={`${win.ruleId}-${idx}`}>
                     <div className="qw-h">
                       <div className="qw-mark">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
