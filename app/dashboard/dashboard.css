@@ -30,6 +30,12 @@
   --border: rgba(255, 255, 255, 0.08);
   --line: rgba(255, 255, 255, 0.06);
 
+  /* Translucent sticky topbar + the accent "plan" pill — tokenised so they
+     re-theme in light mode instead of staying dark. */
+  --topbar-bg: rgba(11, 7, 18, 0.6);
+  --pill-accent-bg: rgba(234, 255, 0, 0.1);
+  --pill-accent-border: rgba(234, 255, 0, 0.18);
+
   --sidebar-w: 248px;
   --sidebar-w-collapsed: 72px;
   --topbar-h: 64px;
@@ -71,6 +77,12 @@ html[data-theme="light"] .aa-dash {
   --hint: #6e6790;
   --border: rgba(27, 20, 48, 0.12);
   --line: rgba(27, 20, 48, 0.07);
+
+  /* Light, translucent topbar instead of the dark slab; a stronger olive pill so
+     the plan tag reads on white. */
+  --topbar-bg: rgba(255, 255, 255, 0.72);
+  --pill-accent-bg: rgba(90, 104, 0, 0.12);
+  --pill-accent-border: rgba(90, 104, 0, 0.3);
 }
 
 /* The ambient glow is tuned for a dark canvas; soften it on light so it doesn't
@@ -338,7 +350,7 @@ html[data-theme="light"] .aa-dash .ambient {
   gap: 16px;
   padding: 0 28px;
   border-bottom: 1px solid var(--border);
-  background: rgba(11, 7, 18, 0.6);
+  background: var(--topbar-bg);
   backdrop-filter: blur(10px);
   position: sticky;
   top: 0;
@@ -368,8 +380,8 @@ html[data-theme="light"] .aa-dash .ambient {
   font-weight: 600;
   letter-spacing: 0.04em;
   color: var(--accent-ink);
-  background: rgba(234, 255, 0, 0.1);
-  border: 1px solid rgba(234, 255, 0, 0.18);
+  background: var(--pill-accent-bg);
+  border: 1px solid var(--pill-accent-border);
   border-radius: 999px;
   padding: 5px 12px;
   white-space: nowrap;
