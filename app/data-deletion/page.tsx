@@ -9,18 +9,41 @@ export default function DataDeletion() {
         
         <div className="prose prose-slate mt-8 max-w-none space-y-6 text-[#374151]">
           <p>
-            According to Meta policy for User Data Deletion, we must provide instructions on how users can delete their data when it is no longer needed or if they wish to remove our access.
+            In line with the data-deletion requirements of the platforms we integrate with — including Meta, Google, and TikTok — we provide the instructions below so you can delete your data or remove our access at any time.
           </p>
 
           <section>
             <h2 className="text-xl font-semibold text-[#171717]">1. Deleting via Ad Adviser</h2>
             <p>
-              Log in to your account, go to <strong>Settings</strong>, and click <strong>Delete Account</strong>. This will immediately and permanently remove your user profile, all connected platform tokens, and all stored audit reports from our servers.
+              Log in to your account, go to <strong>Settings</strong>, and click <strong>Delete Account</strong>. This will immediately and permanently remove your user profile, all connected platform tokens (Meta, Google, and TikTok), and all stored audit reports from our servers.
             </p>
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-[#171717]">2. Removing App via Facebook</h2>
+            <h2 className="text-xl font-semibold text-[#171717]">2. Removing App via Google</h2>
+            <p>
+              You can revoke Ad Adviser&apos;s access to your Google account at any time. This also deletes the OAuth tokens we hold for you:
+            </p>
+            <ol className="list-decimal pl-5 space-y-2">
+              <li>
+                Go to your{" "}
+                <a
+                  href="https://myaccount.google.com/permissions"
+                  className="text-[#1f4d3a] underline"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  Google Account permissions
+                </a>{" "}
+                page.
+              </li>
+              <li>Under &quot;Third-party apps with account access&quot;, find <strong>Ad Adviser</strong>.</li>
+              <li>Click it, then choose <strong>Remove Access</strong>.</li>
+            </ol>
+          </section>
+
+          <section>
+            <h2 className="text-xl font-semibold text-[#171717]">3. Removing App via Facebook</h2>
             <p>
               You can also remove our access directly via Facebook:
             </p>
@@ -33,7 +56,7 @@ export default function DataDeletion() {
           </section>
 
           <section>
-            <h2 className="text-xl font-semibold text-[#171717]">3. Direct Request</h2>
+            <h2 className="text-xl font-semibold text-[#171717]">4. Direct Request</h2>
             <p>
               If you are unable to access the dashboard, you can email us at <strong>support@adadviser.uk</strong> with the subject &quot;Data Deletion Request&quot; from your registered email address.
             </p>
