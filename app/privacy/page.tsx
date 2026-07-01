@@ -56,14 +56,22 @@ export default function PrivacyPolicy() {
               >
                 Google API Services User Data Policy
               </a>
-              , including the Limited Use requirements. Data obtained from the Google Ads API is used solely to provide and improve the audit features you request, is not used for advertising, is not sold, and is not transferred to others except as necessary to provide or improve the service, to comply with applicable law, or as part of a merger or acquisition. We do not use Google user data to train generalized artificial-intelligence or machine-learning models.
+              , including the Limited Use requirements. Data obtained from the Google Ads API is used solely to provide and improve the audit features you request. We specifically do <strong>not</strong>:
+            </p>
+            <ul className="ml-6 list-disc space-y-1">
+              <li>use Google user data for serving advertisements, including targeted or personalized advertising;</li>
+              <li>sell or transfer Google user data to data brokers, information resellers, or any other third party for those purposes;</li>
+              <li>use Google user data to train, develop, or improve generalized or standalone artificial-intelligence or machine-learning models.</li>
+            </ul>
+            <p>
+              We transfer Google user data only where necessary to provide or improve the service, to comply with applicable law, or as part of a merger or acquisition (in which case we require the recipient to honor this policy).
             </p>
           </section>
 
           <section>
             <h2 className="text-xl font-semibold text-[#171717]">6. Data Retention and Deletion</h2>
             <p>
-              We retain your data for as long as your account is active. You may request deletion of your account and all associated data at any time by visiting our <Link href="/data-deletion" className="text-[#1f4d3a] underline">Data Deletion Instructions</Link> page. You may also revoke our access to your Google account at any time through your{" "}
+              We retain Google user data only for as long as your account is active or as needed to provide the audit services you requested. You may request deletion of your account and all associated data at any time by following our <Link href="/data-deletion" className="text-[#1f4d3a] underline">Data Deletion Instructions</Link>. Once we process your request, we permanently remove the associated Google user data and stored OAuth tokens from our systems within 30 days. You may also revoke our access to your Google account at any time through your{" "}
               <a
                 href="https://myaccount.google.com/permissions"
                 className="text-[#1f4d3a] underline"

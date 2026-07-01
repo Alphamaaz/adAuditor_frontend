@@ -13,9 +13,9 @@ export default function DataDeletion() {
           </p>
 
           <section>
-            <h2 className="text-xl font-semibold text-[#171717]">1. Deleting via Ad Adviser</h2>
+            <h2 className="text-xl font-semibold text-[#171717]">1. Requesting Account Deletion</h2>
             <p>
-              Log in to your account, go to <strong>Settings</strong>, and click <strong>Delete Account</strong>. This will immediately and permanently remove your user profile, all connected platform tokens (Meta, Google, and TikTok), and all stored audit reports from our servers.
+              You can have your account and all associated data permanently deleted at any time. Send us a deletion request as described in section 4 below. Once we confirm the request comes from the registered account holder, we permanently remove your user profile, all connected platform tokens (Meta, Google, and TikTok), your business profile, and all stored audit reports from our servers <strong>within 30 days</strong>. This is a hard deletion and cannot be undone.
             </p>
           </section>
 
