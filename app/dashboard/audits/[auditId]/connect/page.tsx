@@ -140,8 +140,9 @@ export default function AuditConnectPage() {
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-[#f7f4ef]">
-        <div className="text-sm text-[#6b7280]">Loading...</div>
+      <div className="aa-dash flex min-h-screen items-center justify-center">
+        <div className="ambient" />
+        <div className="flow-hint relative z-10 text-sm">Loading...</div>
       </div>
     );
   }
@@ -156,27 +157,28 @@ export default function AuditConnectPage() {
   const apiBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000";
 
   return (
-    <div className="min-h-screen bg-[#f7f4ef]">
-      <nav className="border-b border-[#e5ddd0] bg-white">
+    <div className="aa-dash min-h-screen">
+      <div className="ambient" />
+      <nav className="flow-nav">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-          <Link href="/dashboard" className="text-lg font-semibold text-[#171717]">
-            Ad Adviser
+          <Link href="/dashboard" className="flow-brand">
+            Ad<span className="em">Adviser</span>
           </Link>
           <Link
             href="/dashboard"
-            className="rounded-md border border-[#d1cac0] px-3 py-1.5 text-sm font-medium text-[#374151] hover:bg-[#f7f4ef]"
+            className="flow-back"
           >
             Back to dashboard
           </Link>
         </div>
       </nav>
 
-      <main className="mx-auto max-w-2xl px-6 py-10">
-        <div className="rounded-lg border border-[#e5ddd0] bg-white p-8">
+      <main className="flow-main mx-auto max-w-2xl px-6 py-10">
+        <div className="flow-card p-8">
 
           {/* ── OAuth Error Banner ──────────────────────────────────── */}
           {oauthError && (
-            <div className="mb-6 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+            <div className="flow-error mb-6 rounded-md px-4 py-3 text-sm">
               Connection failed: {decodeURIComponent(oauthError)}. Please try again.
             </div>
           )}
@@ -184,13 +186,13 @@ export default function AuditConnectPage() {
           {/* ── Step: Connect (OAuth buttons) ──────────────────────── */}
           {step === "connect" && (
             <>
-              <p className="text-xs font-medium uppercase tracking-wide text-[#6b7280]">
+              <p className="flow-eyebrow text-xs font-medium uppercase tracking-wide">
                 Step 1 of 2
               </p>
-              <h1 className="mt-2 text-2xl font-semibold text-[#171717]">
+              <h1 className="flow-h1 mt-2 text-2xl font-semibold">
                 Connect your ad account
               </h1>
-              <p className="mt-2 text-sm leading-6 text-[#6b7280]">
+              <p className="flow-body mt-2 text-sm leading-6">
                 Authorize access so we can pull your campaigns, ad groups, and performance data.
               </p>
 
@@ -198,7 +200,7 @@ export default function AuditConnectPage() {
                 {hasGoogle && (
                   <a
                     href={`${apiBase}/api/platform-connections/google/connect?auditId=${params.auditId}`}
-                    className="flex items-center justify-center gap-3 rounded-xl border border-[#e5ddd0] bg-white px-6 py-4 text-base font-semibold text-[#171717] shadow-sm transition-all hover:border-[#d1cac0] hover:shadow-md"
+                    className="flow-white-btn flex items-center justify-center gap-3 rounded-xl px-6 py-4 text-base font-semibold shadow-sm transition-all hover:shadow-md"
                   >
                     <GoogleLogo />
                     Connect Google Ads
@@ -218,7 +220,7 @@ export default function AuditConnectPage() {
                 {hasTikTok && (
                   <a
                     href={`${apiBase}/api/platform-connections/tiktok/connect?auditId=${params.auditId}`}
-                    className="flex items-center justify-center gap-3 rounded-xl bg-black px-6 py-4 text-base font-semibold text-white shadow-sm transition-all hover:shadow-md"
+                    className="flex items-center justify-center gap-3 rounded-xl border border-[rgba(255,255,255,0.22)] bg-black px-6 py-4 text-base font-semibold text-white shadow-sm transition-all hover:shadow-md"
                   >
                     <TikTokLogo />
                     Connect TikTok Ads
@@ -232,35 +234,35 @@ export default function AuditConnectPage() {
           {step === "google_select" && (
             <>
               <div className="flex items-center gap-2">
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-green-100 text-xs text-green-700">✓</span>
-                <span className="text-sm font-medium text-green-700">Google account authorized</span>
+                <span className="flow-ok-badge flex h-6 w-6 items-center justify-center rounded-full text-xs">✓</span>
+                <span className="flow-ok-text text-sm font-medium">Google account authorized</span>
               </div>
-              <p className="mt-1 text-xs font-medium uppercase tracking-wide text-[#6b7280]">
+              <p className="flow-eyebrow mt-1 text-xs font-medium uppercase tracking-wide">
                 Step 2 of 2
               </p>
-              <h1 className="mt-2 text-2xl font-semibold text-[#171717]">
+              <h1 className="flow-h1 mt-2 text-2xl font-semibold">
                 Select Google Ads account
               </h1>
-              <p className="mt-2 text-sm leading-6 text-[#6b7280]">
+              <p className="flow-body mt-2 text-sm leading-6">
                 Choose the ad account to pull data from for this audit.
               </p>
 
               {fetchError && (
-                <div className="mt-6 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                <div className="flow-error mt-6 rounded-md px-4 py-3 text-sm">
                   <p className="font-medium">Data fetch failed</p>
                   <p className="mt-1 font-mono text-xs break-all">{fetchError}</p>
                 </div>
               )}
 
               {googleAccounts.isLoading && (
-                <div className="mt-8 flex items-center gap-3 text-sm text-[#6b7280]">
+                <div className="flow-hint mt-8 flex items-center gap-3 text-sm">
                   <Spinner />
                   Loading your Google Ads accounts...
                 </div>
               )}
 
               {googleAccounts.isError && (
-                <div className="mt-6 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                <div className="flow-error mt-6 rounded-md px-4 py-3 text-sm">
                   <p className="font-medium">Failed to load Google Ads accounts</p>
                   <p className="mt-1 font-mono text-xs break-all">
                     {getErrorMessage(googleAccounts.error)}
@@ -269,7 +271,7 @@ export default function AuditConnectPage() {
               )}
 
               {googleAccounts.data && googleAccounts.data.length === 0 && (
-                <div className="mt-6 rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+                <div className="flow-warn mt-6 rounded-md px-4 py-3 text-sm">
                   No Google Ads accounts found for this Google account. Make sure you have access to at least one account.
                 </div>
               )}
@@ -279,11 +281,7 @@ export default function AuditConnectPage() {
                   {googleAccounts.data.map((account) => (
                     <label
                       key={account.customerId}
-                      className={`flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition-all ${
-                        effectiveCustomerId === account.customerId
-                          ? "border-[#171717] bg-[#f7f4ef]"
-                          : "border-[#e5ddd0] hover:border-[#d1cac0]"
-                      }`}
+                      className={`flow-option flex cursor-pointer items-start gap-3 p-4 ${effectiveCustomerId === account.customerId ? "selected" : ""}`}
                     >
                       <input
                         type="radio"
@@ -294,8 +292,8 @@ export default function AuditConnectPage() {
                         className="mt-0.5"
                       />
                       <div>
-                        <p className="text-sm font-semibold text-[#171717]">{account.name}</p>
-                        <p className="text-xs text-[#6b7280]">
+                        <p className="flow-option-title text-sm font-semibold">{account.name}</p>
+                        <p className="flow-hint text-xs">
                           ID: {account.customerId}
                           {account.currencyCode ? ` · ${account.currencyCode}` : ""}
                           {account.isManager ? " · Manager account" : ""}
@@ -305,7 +303,7 @@ export default function AuditConnectPage() {
                   ))}
 
                   {selectedGoogleAccount?.currencyCode && (
-                    <div className="rounded-md border border-[#b8d9c3] bg-[#eff7f1] px-4 py-3 text-sm text-[#1f4d3a]">
+                    <div className="flow-note-teal rounded-md px-4 py-3 text-sm">
                       Currency detected: <span className="font-semibold">{selectedGoogleAccount.currencyCode}</span>. Spend, benchmarks, and recommendations will use this account currency.
                     </div>
                   )}
@@ -313,7 +311,7 @@ export default function AuditConnectPage() {
                   <button
                     onClick={handleFetchGoogle}
                     disabled={!effectiveCustomerId}
-                    className="mt-4 w-full rounded-xl bg-[#171717] px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-[#2d2d2d] disabled:cursor-not-allowed disabled:opacity-40"
+                    className="flow-cta mt-4 w-full px-6 py-3 text-sm"
                   >
                     Pull Google Ads data
                   </button>
@@ -326,28 +324,28 @@ export default function AuditConnectPage() {
           {step === "meta_select" && (
             <>
               <div className="flex items-center gap-2">
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-green-100 text-xs text-green-700">✓</span>
-                <span className="text-sm font-medium text-green-700">Meta account authorized</span>
+                <span className="flow-ok-badge flex h-6 w-6 items-center justify-center rounded-full text-xs">✓</span>
+                <span className="flow-ok-text text-sm font-medium">Meta account authorized</span>
               </div>
-              <p className="mt-1 text-xs font-medium uppercase tracking-wide text-[#6b7280]">
+              <p className="flow-eyebrow mt-1 text-xs font-medium uppercase tracking-wide">
                 Step 2 of 2
               </p>
-              <h1 className="mt-2 text-2xl font-semibold text-[#171717]">
+              <h1 className="flow-h1 mt-2 text-2xl font-semibold">
                 Select Meta ad account
               </h1>
-              <p className="mt-2 text-sm leading-6 text-[#6b7280]">
+              <p className="flow-body mt-2 text-sm leading-6">
                 Choose the ad account to pull data from for this audit.
               </p>
 
               {metaAccounts.isLoading && (
-                <div className="mt-8 flex items-center gap-3 text-sm text-[#6b7280]">
+                <div className="flow-hint mt-8 flex items-center gap-3 text-sm">
                   <Spinner />
                   Loading your Meta ad accounts...
                 </div>
               )}
 
               {metaAccounts.isError && (
-                <div className="mt-6 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                <div className="flow-error mt-6 rounded-md px-4 py-3 text-sm">
                   <p className="font-medium">Failed to load Meta ad accounts</p>
                   <p className="mt-1 font-mono text-xs break-all">
                     {getErrorMessage(metaAccounts.error)}
@@ -356,14 +354,14 @@ export default function AuditConnectPage() {
               )}
 
               {fetchError && (
-                <div className="mt-6 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                <div className="flow-error mt-6 rounded-md px-4 py-3 text-sm">
                   <p className="font-medium">Data fetch failed</p>
                   <p className="mt-1 font-mono text-xs break-all">{fetchError}</p>
                 </div>
               )}
 
               {metaAccounts.data && metaAccounts.data.length === 0 && (
-                <div className="mt-6 rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+                <div className="flow-warn mt-6 rounded-md px-4 py-3 text-sm">
                   No Meta ad accounts found. Make sure this Facebook user has access to at least one ad account in Business Manager.
                 </div>
               )}
@@ -373,11 +371,7 @@ export default function AuditConnectPage() {
                   {metaAccounts.data.map((account) => (
                     <label
                       key={account.id}
-                      className={`flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition-all ${
-                        effectiveMetaAccountId === account.id
-                          ? "border-[#171717] bg-[#f7f4ef]"
-                          : "border-[#e5ddd0] hover:border-[#d1cac0]"
-                      }`}
+                      className={`flow-option flex cursor-pointer items-start gap-3 p-4 ${effectiveMetaAccountId === account.id ? "selected" : ""}`}
                     >
                       <input
                         type="radio"
@@ -388,8 +382,8 @@ export default function AuditConnectPage() {
                         className="mt-0.5"
                       />
                       <div>
-                        <p className="text-sm font-semibold text-[#171717]">{account.name}</p>
-                        <p className="text-xs text-[#6b7280]">
+                        <p className="flow-option-title text-sm font-semibold">{account.name}</p>
+                        <p className="flow-hint text-xs">
                           ID: {account.accountId}
                           {account.currency ? ` · ${account.currency}` : ""}
                           {account.businessName ? ` · ${account.businessName}` : ""}
@@ -399,7 +393,7 @@ export default function AuditConnectPage() {
                   ))}
 
                   {selectedMetaAccount?.currency && (
-                    <div className="rounded-md border border-[#b8d9c3] bg-[#eff7f1] px-4 py-3 text-sm text-[#1f4d3a]">
+                    <div className="flow-note-teal rounded-md px-4 py-3 text-sm">
                       Currency detected: <span className="font-semibold">{selectedMetaAccount.currency}</span>. Spend, benchmarks, and recommendations will use this account currency.
                     </div>
                   )}
@@ -407,7 +401,7 @@ export default function AuditConnectPage() {
                   <button
                     onClick={handleFetchMeta}
                     disabled={!effectiveMetaAccountId}
-                    className="mt-4 w-full rounded-xl bg-[#1877F2] px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-[#1660d0] disabled:cursor-not-allowed disabled:opacity-40"
+                    className="flow-cta mt-4 w-full px-6 py-3 text-sm"
                   >
                     Pull Meta Ads data
                   </button>
@@ -420,35 +414,35 @@ export default function AuditConnectPage() {
           {step === "tiktok_select" && (
             <>
               <div className="flex items-center gap-2">
-                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-green-100 text-xs text-green-700">✓</span>
-                <span className="text-sm font-medium text-green-700">TikTok account authorized</span>
+                <span className="flow-ok-badge flex h-6 w-6 items-center justify-center rounded-full text-xs">✓</span>
+                <span className="flow-ok-text text-sm font-medium">TikTok account authorized</span>
               </div>
-              <p className="mt-1 text-xs font-medium uppercase tracking-wide text-[#6b7280]">
+              <p className="flow-eyebrow mt-1 text-xs font-medium uppercase tracking-wide">
                 Step 2 of 2
               </p>
-              <h1 className="mt-2 text-2xl font-semibold text-[#171717]">
+              <h1 className="flow-h1 mt-2 text-2xl font-semibold">
                 Select TikTok Ads account
               </h1>
-              <p className="mt-2 text-sm leading-6 text-[#6b7280]">
+              <p className="flow-body mt-2 text-sm leading-6">
                 Choose the advertiser account to pull data from for this audit.
               </p>
 
               {fetchError && (
-                <div className="mt-6 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                <div className="flow-error mt-6 rounded-md px-4 py-3 text-sm">
                   <p className="font-medium">Data fetch failed</p>
                   <p className="mt-1 font-mono text-xs break-all">{fetchError}</p>
                 </div>
               )}
 
               {tiktokAccounts.isLoading && (
-                <div className="mt-8 flex items-center gap-3 text-sm text-[#6b7280]">
+                <div className="flow-hint mt-8 flex items-center gap-3 text-sm">
                   <Spinner />
                   Loading your TikTok advertiser accounts...
                 </div>
               )}
 
               {tiktokAccounts.isError && (
-                <div className="mt-6 rounded-md border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                <div className="flow-error mt-6 rounded-md px-4 py-3 text-sm">
                   <p className="font-medium">Failed to load TikTok advertiser accounts</p>
                   <p className="mt-1 font-mono text-xs break-all">
                     {getErrorMessage(tiktokAccounts.error)}
@@ -457,7 +451,7 @@ export default function AuditConnectPage() {
               )}
 
               {tiktokAccounts.data && tiktokAccounts.data.length === 0 && (
-                <div className="mt-6 rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-700">
+                <div className="flow-warn mt-6 rounded-md px-4 py-3 text-sm">
                   No TikTok advertiser accounts found. Make sure you have access to at least one account.
                 </div>
               )}
@@ -467,11 +461,7 @@ export default function AuditConnectPage() {
                   {tiktokAccounts.data.map((account) => (
                     <label
                       key={account.advertiserId}
-                      className={`flex cursor-pointer items-start gap-3 rounded-lg border p-4 transition-all ${
-                        effectiveAdvertiserId === account.advertiserId
-                          ? "border-[#171717] bg-[#f7f4ef]"
-                          : "border-[#e5ddd0] hover:border-[#d1cac0]"
-                      }`}
+                      className={`flow-option flex cursor-pointer items-start gap-3 p-4 ${effectiveAdvertiserId === account.advertiserId ? "selected" : ""}`}
                     >
                       <input
                         type="radio"
@@ -482,8 +472,8 @@ export default function AuditConnectPage() {
                         className="mt-0.5"
                       />
                       <div>
-                        <p className="text-sm font-semibold text-[#171717]">{account.name}</p>
-                        <p className="text-xs text-[#6b7280]">
+                        <p className="flow-option-title text-sm font-semibold">{account.name}</p>
+                        <p className="flow-hint text-xs">
                           ID: {account.advertiserId}
                           {account.currency ? ` · ${account.currency}` : ""}
                           {account.timezone ? ` · ${account.timezone}` : ""}
@@ -493,7 +483,7 @@ export default function AuditConnectPage() {
                   ))}
 
                   {selectedTikTokAccount?.currency && (
-                    <div className="rounded-md border border-[#b8d9c3] bg-[#eff7f1] px-4 py-3 text-sm text-[#1f4d3a]">
+                    <div className="flow-note-teal rounded-md px-4 py-3 text-sm">
                       Currency detected: <span className="font-semibold">{selectedTikTokAccount.currency}</span>. Spend, benchmarks, and recommendations will use this account currency.
                     </div>
                   )}
@@ -501,7 +491,7 @@ export default function AuditConnectPage() {
                   <button
                     onClick={handleFetchTikTok}
                     disabled={!effectiveAdvertiserId}
-                    className="mt-4 w-full rounded-xl bg-black px-6 py-3 text-sm font-semibold text-white transition-all hover:bg-[#1a1a1a] disabled:cursor-not-allowed disabled:opacity-40"
+                    className="flow-cta mt-4 w-full px-6 py-3 text-sm"
                   >
                     Pull TikTok Ads data
                   </button>
@@ -513,9 +503,9 @@ export default function AuditConnectPage() {
           {/* ── Step: Fetching ──────────────────────────────────────── */}
           {step === "fetching" && (
             <div className="flex flex-col items-center py-12 text-center">
-              <div className="flex h-14 w-14 items-center justify-center rounded-full border-4 border-[#e5ddd0] border-t-[#171717] animate-spin" />
-              <h2 className="mt-6 text-lg font-semibold text-[#171717]">Pulling your ad data…</h2>
-              <p className="mt-2 text-sm text-[#6b7280]">
+              <div className="flow-spinner-lg h-14 w-14 animate-spin rounded-full" />
+              <h2 className="flow-h1 mt-6 text-lg font-semibold">Pulling your ad data…</h2>
+              <p className="flow-body mt-2 text-sm">
                 Fetching campaigns, ad groups, and ads. This may take 10–30 seconds.
               </p>
             </div>
@@ -525,16 +515,16 @@ export default function AuditConnectPage() {
           {step === "done" && fetchResult && (
             <>
               <div className="flex flex-col items-center py-6 text-center">
-                <div className="flex h-14 w-14 items-center justify-center rounded-full bg-green-100 text-2xl text-green-600">
+                <div className="flow-ok-badge flex h-14 w-14 items-center justify-center rounded-full text-2xl">
                   ✓
                 </div>
-                <h2 className="mt-4 text-xl font-semibold text-[#171717]">Data pulled successfully</h2>
-                <p className="mt-2 text-sm text-[#6b7280]">
+                <h2 className="flow-h1 mt-4 text-xl font-semibold">Data pulled successfully</h2>
+                <p className="flow-body mt-2 text-sm">
                   Your ad account data has been imported and is ready for audit.
                 </p>
               </div>
 
-              <div className="mt-4 grid grid-cols-2 gap-3 rounded-lg border border-[#e5ddd0] bg-[#f7f4ef] p-4 sm:grid-cols-4">
+              <div className="flow-stats mt-4 grid grid-cols-2 gap-3 p-4 sm:grid-cols-4">
                 <Stat label="Spend" value={formatAccountMoney(fetchResult.spend)} />
                 <Stat label="Impressions" value={fetchResult.impressions.toLocaleString()} />
                 <Stat label="Clicks" value={fetchResult.clicks.toLocaleString()} />
@@ -544,13 +534,13 @@ export default function AuditConnectPage() {
               <div className="mt-6">
                 <Link
                   href={`/dashboard/audits/${params.auditId}/auditing`}
-                  className="block w-full rounded-xl bg-[#171717] px-6 py-3 text-center text-sm font-semibold text-white transition-all hover:bg-[#2d2d2d]"
+                  className="flow-cta block w-full px-6 py-3 text-center text-sm"
                 >
                   ✦ Start Audit →
                 </Link>
                 <Link
                   href="/dashboard"
-                  className="mt-3 block text-center text-sm text-[#6b7280] hover:text-[#374151]"
+                  className="flow-hint mt-3 block text-center text-sm hover:underline"
                 >
                   Save and return to dashboard
                 </Link>
@@ -568,15 +558,15 @@ export default function AuditConnectPage() {
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="text-center">
-      <p className="text-xs font-medium text-[#6b7280]">{label}</p>
-      <p className="mt-1 text-base font-semibold text-[#171717]">{value}</p>
+      <p className="flow-hint text-xs font-medium">{label}</p>
+      <p className="flow-option-title mt-1 text-base font-semibold">{value}</p>
     </div>
   );
 }
 
 function Spinner() {
   return (
-    <div className="h-4 w-4 flex-shrink-0 animate-spin rounded-full border-2 border-[#e5ddd0] border-t-[#171717]" />
+    <div className="flow-spinner h-4 w-4 flex-shrink-0 animate-spin rounded-full" />
   );
 }
 

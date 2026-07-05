@@ -392,27 +392,27 @@ export default function AuditResultsPage() {
 
   if (audit && audit.status === "COMPLETED") {
     return (
-      <div className="min-h-screen overflow-x-hidden bg-[#f7f4ef]">
-        <nav className="sticky top-0 z-20 border-b border-[#e5ddd0] bg-white/95 backdrop-blur">
+      <div className="aa-dash min-h-screen overflow-x-hidden">
+        <nav className="sticky top-0 z-20 border-b border-[color:var(--border)] bg-[var(--card)]/95 backdrop-blur">
           <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
             <div className="flex min-w-0 items-center gap-3">
-              <Link href="/dashboard" className="text-lg font-semibold text-[#171717]">
+              <Link href="/dashboard" className="text-lg font-semibold text-[color:var(--text)]">
                 Ad Adviser
               </Link>
-              <span className="hidden truncate text-sm text-[#6b7280] sm:inline">
+              <span className="hidden truncate text-sm text-[color:var(--text-dim)] sm:inline">
                 Audit report
               </span>
             </div>
             <div className="flex flex-wrap items-center justify-end gap-2">
               <Link
                 href={`/dashboard/audits/compare?right=${auditId}`}
-                className="rounded-md border border-[#d1cac0] px-3 py-1.5 text-sm font-medium text-[#374151] hover:bg-[#f7f4ef]"
+                className="rounded-md border border-[color:var(--border)] px-3 py-1.5 text-sm font-medium text-[color:var(--text-dim)] hover:bg-[var(--card-2)]"
               >
                 Compare with...
               </Link>
               <Link
                 href={`/dashboard/audits/${auditId}/upload`}
-                className="rounded-md border border-[#d1cac0] px-3 py-1.5 text-sm font-medium text-[#374151] hover:bg-[#f7f4ef]"
+                className="rounded-md border border-[color:var(--border)] px-3 py-1.5 text-sm font-medium text-[color:var(--text-dim)] hover:bg-[var(--card-2)]"
               >
                 Back to uploads
               </Link>
@@ -421,7 +421,7 @@ export default function AuditResultsPage() {
                   type="button"
                   onClick={onDownloadLatestPdf}
                   disabled={downloadPdfReport.isPending}
-                  className="rounded-md border border-[#d1cac0] px-3 py-1.5 text-sm font-semibold text-[#374151] hover:bg-[#f7f4ef] disabled:cursor-not-allowed disabled:opacity-50"
+                  className="rounded-md border border-[color:var(--border)] px-3 py-1.5 text-sm font-semibold text-[color:var(--text-dim)] hover:bg-[var(--card-2)] disabled:cursor-not-allowed disabled:opacity-50"
                 >
                   {downloadPdfReport.isPending ? "Downloading..." : "Download PDF"}
                 </button>
@@ -430,7 +430,7 @@ export default function AuditResultsPage() {
                 type="button"
                 onClick={onGeneratePdfReport}
                 disabled={generatePdfReport.isPending || pdfPolling}
-                className="rounded-md bg-[#1f4d3a] px-3 py-1.5 text-sm font-semibold text-white hover:bg-[#173b2c] disabled:cursor-not-allowed disabled:opacity-60"
+                className="rounded-md bg-[var(--violet)] px-3 py-1.5 text-sm font-semibold text-white hover:bg-[var(--violet-light)] disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {generatePdfReport.isPending || pdfPolling
                   ? "Generating..."
@@ -440,7 +440,7 @@ export default function AuditResultsPage() {
           </div>
         </nav>
 
-        <main className="w-full overflow-x-hidden bg-[#f7f4ef] pb-10">
+        <main className="w-full overflow-x-hidden bg-[var(--card-2)] pb-10">
           {(pdfError || pdfMessage) && (
             <div className="mx-auto mt-4 max-w-7xl px-6">
               {pdfError && (
@@ -449,7 +449,7 @@ export default function AuditResultsPage() {
                 </p>
               )}
               {pdfMessage && (
-                <p className="rounded-md border border-[#b8d9c3] bg-[#eff7f1] px-4 py-3 text-sm text-[#1f4d3a]">
+                <p className="rounded-md border border-[color:rgba(46,207,179,0.3)] bg-[rgba(46,207,179,0.08)] px-4 py-3 text-sm text-[color:var(--teal)]">
                   {pdfMessage}
                 </p>
               )}
@@ -457,7 +457,7 @@ export default function AuditResultsPage() {
           )}
 
           {premiumReport.isLoading && (
-            <div className="mx-auto mt-6 max-w-7xl rounded-lg border border-[#e5ddd0] bg-white p-6 text-sm text-[#6b7280]">
+            <div className="mx-auto mt-6 max-w-7xl rounded-lg border border-[color:var(--border)] bg-[var(--card)] p-6 text-sm text-[color:var(--text-dim)]">
               Loading premium report...
             </div>
           )}
@@ -476,7 +476,7 @@ export default function AuditResultsPage() {
               scrolling="no"
               onLoad={onReportFrameLoad}
               style={{ height: `${reportFrameHeight}px` }}
-              className="block w-full border-0 bg-[#f7f4ef]"
+              className="block w-full border-0 bg-[var(--card-2)]"
             />
           )}
         </main>
@@ -485,22 +485,22 @@ export default function AuditResultsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#f7f4ef]">
-      <nav className="border-b border-[#e5ddd0] bg-white">
+    <div className="aa-dash min-h-screen">
+      <nav className="border-b border-[color:var(--border)] bg-[var(--card)]">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-          <Link href="/dashboard" className="text-lg font-semibold text-[#171717]">
+          <Link href="/dashboard" className="text-lg font-semibold text-[color:var(--text)]">
             Ad Adviser
           </Link>
           <div className="flex items-center gap-2">
             <Link
               href={`/dashboard/audits/compare?right=${auditId}`}
-              className="rounded-md border border-[#d1cac0] px-3 py-1.5 text-sm font-medium text-[#374151] hover:bg-[#f7f4ef]"
+              className="rounded-md border border-[color:var(--border)] px-3 py-1.5 text-sm font-medium text-[color:var(--text-dim)] hover:bg-[var(--card-2)]"
             >
               Compare with...
             </Link>
             <Link
               href={`/dashboard/audits/${auditId}/upload`}
-              className="rounded-md border border-[#d1cac0] px-3 py-1.5 text-sm font-medium text-[#374151] hover:bg-[#f7f4ef]"
+              className="rounded-md border border-[color:var(--border)] px-3 py-1.5 text-sm font-medium text-[color:var(--text-dim)] hover:bg-[var(--card-2)]"
             >
               Back to uploads
             </Link>
@@ -510,7 +510,7 @@ export default function AuditResultsPage() {
 
       <main className="mx-auto max-w-7xl px-6 py-10">
         {isLoading && (
-          <div className="rounded-lg border border-[#e5ddd0] bg-white p-6 text-sm text-[#6b7280]">
+          <div className="rounded-lg border border-[color:var(--border)] bg-[var(--card)] p-6 text-sm text-[color:var(--text-dim)]">
             Loading audit results...
           </div>
         )}
@@ -535,32 +535,32 @@ export default function AuditResultsPage() {
 
         {audit && audit.status === "COMPLETED" && (
           <div className="space-y-6">
-            <section className="rounded-lg border border-[#e5ddd0] bg-white p-6">
+            <section className="rounded-lg border border-[color:var(--border)] bg-[var(--card)] p-6">
               <div className="flex flex-col justify-between gap-5 lg:flex-row lg:items-start">
                 <div>
-                  <p className="text-sm font-medium text-[#6b7280]">
+                  <p className="text-sm font-medium text-[color:var(--text-dim)]">
                     {aiGenerated ? "AI-enhanced audit" : "Deterministic audit"}
                   </p>
-                  <h1 className="mt-1 text-3xl font-semibold text-[#171717]">
+                  <h1 className="mt-1 text-3xl font-semibold text-[color:var(--text)]">
                     Health score: {healthScore}/100
                   </h1>
-                  <p className="mt-2 max-w-3xl text-sm leading-6 text-[#6b7280]">
+                  <p className="mt-2 max-w-3xl text-sm leading-6 text-[color:var(--text-dim)]">
                     The rule engine computes the facts and score. The strategist
                     report turns those facts into a deeper diagnosis without
                     changing the scoring math.
                   </p>
                   {/* Trust signals — subtle, factual. */}
-                  <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-[#6b7280]">
-                    <span className="rounded-full border border-[#d1cac0] bg-[#faf9f7] px-2.5 py-1">
+                  <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-[color:var(--text-dim)]">
+                    <span className="rounded-full border border-[color:var(--border)] bg-[var(--card-2)] px-2.5 py-1">
                       Every figure computed by the rule engine
                     </span>
                     {dataConfidenceSummary && (
-                      <span className="rounded-full border border-[#b8d9c3] bg-[#eff7f1] px-2.5 py-1 text-[#1f4d3a]">
+                      <span className="rounded-full border border-[color:rgba(46,207,179,0.3)] bg-[rgba(46,207,179,0.08)] px-2.5 py-1 text-[color:var(--teal)]">
                         {dataConfidenceSummary}
                       </span>
                     )}
                     {narrativeVersion && (
-                      <span className="rounded-full border border-[#d1cac0] bg-[#faf9f7] px-2.5 py-1">
+                      <span className="rounded-full border border-[color:var(--border)] bg-[var(--card-2)] px-2.5 py-1">
                         Report {narrativeVersion}
                       </span>
                     )}
@@ -581,19 +581,19 @@ export default function AuditResultsPage() {
               </div>
             </section>
 
-            <section className="rounded-lg border border-[#e5ddd0] bg-white p-6">
+            <section className="rounded-lg border border-[color:var(--border)] bg-[var(--card)] p-6">
               <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
                 <div>
-                  <h2 className="text-lg font-semibold text-[#171717]">
+                  <h2 className="text-lg font-semibold text-[color:var(--text)]">
                     PDF report
                   </h2>
-                  <p className="mt-2 max-w-3xl text-sm leading-6 text-[#6b7280]">
+                  <p className="mt-2 max-w-3xl text-sm leading-6 text-[color:var(--text-dim)]">
                     Generate a client-ready PDF from the saved audit snapshot,
                     including score, AI narrative, priorities, quick wins, and
                     the full issue list.
                   </p>
                   {latestPdfReport && (
-                    <p className="mt-2 text-xs font-medium text-[#6b7280]">
+                    <p className="mt-2 text-xs font-medium text-[color:var(--text-dim)]">
                       Latest PDF: v{latestPdfReport.version} generated on{" "}
                       {new Date(latestPdfReport.createdAt).toLocaleDateString()}
                     </p>
@@ -605,7 +605,7 @@ export default function AuditResultsPage() {
                       type="button"
                       onClick={onDownloadLatestPdf}
                       disabled={downloadPdfReport.isPending}
-                      className="rounded-md border border-[#d1cac0] px-4 py-2 text-sm font-semibold text-[#374151] hover:bg-[#f7f4ef] disabled:cursor-not-allowed disabled:opacity-50"
+                      className="rounded-md border border-[color:var(--border)] px-4 py-2 text-sm font-semibold text-[color:var(--text-dim)] hover:bg-[var(--card-2)] disabled:cursor-not-allowed disabled:opacity-50"
                     >
                       {downloadPdfReport.isPending
                         ? "Downloading..."
@@ -621,7 +621,7 @@ export default function AuditResultsPage() {
                       downloadPdfReport.isPending ||
                       audit.status !== "COMPLETED"
                     }
-                    className="rounded-md bg-[#1f4d3a] px-4 py-2 text-sm font-semibold text-white hover:bg-[#183c2d] disabled:cursor-not-allowed disabled:opacity-50"
+                    className="rounded-md bg-[var(--violet)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--violet-light)] disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {generatePdfReport.isPending || pdfPolling
                       ? "Generating..."
@@ -632,7 +632,7 @@ export default function AuditResultsPage() {
                 </div>
               </div>
               {pdfMessage && (
-                <div className="mt-4 rounded-md border border-[#b8d9c3] bg-[#eff7f1] px-4 py-3 text-sm text-[#1f4d3a]">
+                <div className="mt-4 rounded-md border border-[color:rgba(46,207,179,0.3)] bg-[rgba(46,207,179,0.08)] px-4 py-3 text-sm text-[color:var(--teal)]">
                   {pdfMessage}
                 </div>
               )}
@@ -643,38 +643,38 @@ export default function AuditResultsPage() {
               )}
             </section>
 
-            <section className="rounded-lg border border-[#e5ddd0] bg-white p-6">
+            <section className="rounded-lg border border-[color:var(--border)] bg-[var(--card)] p-6">
               <div className="flex flex-col justify-between gap-4 lg:flex-row lg:items-center">
                 <div>
-                  <h2 className="text-lg font-semibold text-[#171717]">
+                  <h2 className="text-lg font-semibold text-[color:var(--text)]">
                     Strategist report
                     {aiNarrativeMode !== false && (
-                      <span className="ml-2 rounded bg-[#eff7f1] px-2 py-0.5 text-xs font-semibold text-[#1f4d3a]">
+                      <span className="ml-2 rounded bg-[rgba(46,207,179,0.08)] px-2 py-0.5 text-xs font-semibold text-[color:var(--teal)]">
                         Deep audit default
                       </span>
                     )}
                   </h2>
                   {/* Description varies by plan mode so users know what to expect. */}
                   {aiNarrativeMode === "automatic" ? (
-                    <p className="mt-2 max-w-3xl text-sm leading-6 text-[#6b7280]">
+                    <p className="mt-2 max-w-3xl text-sm leading-6 text-[color:var(--text-dim)]">
                       The strategist report runs automatically after every
                       audit. It uses the deterministic findings, comparisons,
                       and hypothesis checks to produce the client-facing diagnosis.
                     </p>
                   ) : aiNarrativeMode === "manual" ? (
-                    <p className="mt-2 max-w-3xl text-sm leading-6 text-[#6b7280]">
+                    <p className="mt-2 max-w-3xl text-sm leading-6 text-[color:var(--text-dim)]">
                       The strategist report is now generated automatically after
                       the audit. Use regenerate only when you want a fresh version.
                     </p>
                   ) : (
-                    <p className="mt-2 max-w-3xl text-sm leading-6 text-[#6b7280]">
+                    <p className="mt-2 max-w-3xl text-sm leading-6 text-[color:var(--text-dim)]">
                       The strategist report writes the executive summary,
                       hypothesis analysis, benchmarks, and client-ready
                       recommendations. Available on Starter and higher.
                     </p>
                   )}
                   {audit.aiReport && (
-                    <p className="mt-2 text-xs font-medium text-[#6b7280]">
+                    <p className="mt-2 text-xs font-medium text-[color:var(--text-dim)]">
                       Current report provider: {audit.aiReport.provider} /{" "}
                       {audit.aiReport.model}
                     </p>
@@ -683,7 +683,7 @@ export default function AuditResultsPage() {
                 {aiNarrativeMode === false ? (
                   <Link
                     href="/pricing"
-                    className="rounded-md bg-[#1f4d3a] px-4 py-2 text-sm font-semibold text-white hover:bg-[#183c2d]"
+                    className="rounded-md bg-[var(--violet)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--violet-light)]"
                   >
                     Upgrade for strategist report
                   </Link>
@@ -696,7 +696,7 @@ export default function AuditResultsPage() {
                       aiPolling ||
                       audit.status !== "COMPLETED"
                     }
-                    className="rounded-md bg-[#1f4d3a] px-4 py-2 text-sm font-semibold text-white hover:bg-[#183c2d] disabled:cursor-not-allowed disabled:opacity-50"
+                    className="rounded-md bg-[var(--violet)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--violet-light)] disabled:cursor-not-allowed disabled:opacity-50"
                   >
                     {generateAiReport.isPending || aiPolling
                       ? "Generating..."
@@ -707,19 +707,19 @@ export default function AuditResultsPage() {
                 )}
               </div>
               {audit.aiReport && aiGenerated && (
-                <div className="mt-5 rounded-md border border-[#b8d9c3] bg-[#eff7f1] px-4 py-3">
+                <div className="mt-5 rounded-md border border-[color:rgba(46,207,179,0.3)] bg-[rgba(46,207,179,0.08)] px-4 py-3">
                   <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
                     <div>
-                      <p className="text-sm font-semibold text-[#1f4d3a]">
+                      <p className="text-sm font-semibold text-[color:var(--teal)]">
                         Strategist report is ready
                       </p>
-                      <p className="mt-1 text-sm leading-6 text-[#3d6a50]">
+                      <p className="mt-1 text-sm leading-6 text-[color:var(--teal)]">
                         Saved with {audit.aiReport.provider} /{" "}
                         {audit.aiReport.model}. The sections below are now using
                         the AI narrative where available.
                       </p>
                     </div>
-                    <div className="grid grid-cols-2 gap-2 text-xs font-semibold text-[#1f4d3a] sm:grid-cols-4">
+                    <div className="grid grid-cols-2 gap-2 text-xs font-semibold text-[color:var(--teal)] sm:grid-cols-4">
                       <span>{executiveSummary.length} summaries</span>
                       <span>{topPriorities.length} priorities</span>
                       <span>{quickWins.length} quick wins</span>
@@ -730,14 +730,14 @@ export default function AuditResultsPage() {
               )}
               {/* Auto-mode hint while we wait for the worker to land the AI report. */}
               {aiNarrativeMode !== false && !aiGenerated && (
-                <div className="mt-5 rounded-md border border-[#eee7dc] bg-[#faf9f7] px-4 py-3 text-sm leading-6 text-[#374151]">
+                <div className="mt-5 rounded-md border border-[color:var(--border)] bg-[var(--card-2)] px-4 py-3 text-sm leading-6 text-[color:var(--text-dim)]">
                   <span className="font-semibold">Heads up:</span> Strategist report
                   is queued automatically. While we wait, the sections below
                   show the deterministic report.
                 </div>
               )}
               {aiMessage && (
-                <div className="mt-4 rounded-md border border-[#b8d9c3] bg-[#eff7f1] px-4 py-3 text-sm text-[#1f4d3a]">
+                <div className="mt-4 rounded-md border border-[color:rgba(46,207,179,0.3)] bg-[rgba(46,207,179,0.08)] px-4 py-3 text-sm text-[color:var(--teal)]">
                   {aiMessage}
                 </div>
               )}
@@ -760,13 +760,13 @@ export default function AuditResultsPage() {
             </section>
 
             {executiveSummary.length ? (
-              <section className="rounded-lg border border-[#e5ddd0] bg-white p-6">
-                <h2 className="text-lg font-semibold text-[#171717]">
+              <section className="rounded-lg border border-[color:var(--border)] bg-[var(--card)] p-6">
+                <h2 className="text-lg font-semibold text-[color:var(--text)]">
                   Executive summary
                 </h2>
                 <div className="mt-4 space-y-3">
                   {executiveSummary.map((paragraph) => (
-                    <p key={paragraph} className="text-sm leading-6 text-[#374151]">
+                    <p key={paragraph} className="text-sm leading-6 text-[color:var(--text-dim)]">
                       {paragraph}
                     </p>
                   ))}
@@ -775,7 +775,7 @@ export default function AuditResultsPage() {
             ) : null}
 
             {opportunitySummary && (
-              <section className="rounded-lg border border-[#b8d9c3] bg-[#eff7f1] p-6">
+              <section className="rounded-lg border border-[color:rgba(46,207,179,0.3)] bg-[rgba(46,207,179,0.08)] p-6">
                 <div className="grid gap-4 lg:grid-cols-3">
                   <SummaryCallout
                     label="Biggest money leak"
@@ -790,15 +790,15 @@ export default function AuditResultsPage() {
                     value={opportunitySummary.estimatedUpside || "Directional"}
                   />
                 </div>
-                <p className="mt-4 text-sm leading-6 text-[#1f4d3a]">
+                <p className="mt-4 text-sm leading-6 text-[color:var(--teal)]">
                   {opportunitySummary.rankingBasis}
                 </p>
               </section>
             )}
 
             {hypothesisAnalyses.length ? (
-              <section className="rounded-lg border border-[#e5ddd0] bg-white p-6">
-                <h2 className="text-lg font-semibold text-[#171717]">
+              <section className="rounded-lg border border-[color:var(--border)] bg-[var(--card)] p-6">
+                <h2 className="text-lg font-semibold text-[color:var(--text)]">
                   Hypothesis-driven diagnosis
                 </h2>
                 <div className="mt-5 grid gap-4 lg:grid-cols-2">
@@ -810,13 +810,13 @@ export default function AuditResultsPage() {
             ) : null}
 
             {findingAnalyses.length ? (
-              <section className="rounded-lg border border-[#e5ddd0] bg-white p-6">
+              <section className="rounded-lg border border-[color:var(--border)] bg-[var(--card)] p-6">
                 <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
                   <div>
-                    <h2 className="text-lg font-semibold text-[#171717]">
+                    <h2 className="text-lg font-semibold text-[color:var(--text)]">
                       Major finding analysis
                     </h2>
-                    <p className="mt-1 text-sm text-[#6b7280]">
+                    <p className="mt-1 text-sm text-[color:var(--text-dim)]">
                       Ranked by recoverable money, confidence, and ease of implementation.
                     </p>
                   </div>
@@ -834,8 +834,8 @@ export default function AuditResultsPage() {
             ) : null}
 
             {benchmarkComparisons.length ? (
-              <section className="rounded-lg border border-[#e5ddd0] bg-white p-6">
-                <h2 className="text-lg font-semibold text-[#171717]">
+              <section className="rounded-lg border border-[color:var(--border)] bg-[var(--card)] p-6">
+                <h2 className="text-lg font-semibold text-[color:var(--text)]">
                   Benchmark comparisons
                 </h2>
                 <div className="mt-4 grid gap-3 lg:grid-cols-3">
@@ -847,11 +847,11 @@ export default function AuditResultsPage() {
             ) : null}
 
             {confidenceNotes.length ? (
-              <section className="rounded-lg border border-[#e5ddd0] bg-white p-6">
-                <h2 className="text-lg font-semibold text-[#171717]">
+              <section className="rounded-lg border border-[color:var(--border)] bg-[var(--card)] p-6">
+                <h2 className="text-lg font-semibold text-[color:var(--text)]">
                   Confidence notes
                 </h2>
-                <ul className="mt-4 space-y-2 text-sm leading-6 text-[#374151]">
+                <ul className="mt-4 space-y-2 text-sm leading-6 text-[color:var(--text-dim)]">
                   {confidenceNotes.map((note) => (
                     <li key={note}>{note}</li>
                   ))}
@@ -860,11 +860,11 @@ export default function AuditResultsPage() {
             ) : null}
 
             {hasDeeperInsights ? (
-              <section className="rounded-lg border border-[#e5ddd0] bg-white p-6">
-                <h2 className="text-lg font-semibold text-[#171717]">
+              <section className="rounded-lg border border-[color:var(--border)] bg-[var(--card)] p-6">
+                <h2 className="text-lg font-semibold text-[color:var(--text)]">
                   Deeper insights
                 </h2>
-                <p className="mt-1 text-sm text-[#6b7280]">
+                <p className="mt-1 text-sm text-[color:var(--text-dim)]">
                   Segment, peer, and trend analysis computed from your data.
                 </p>
                 <div className="mt-4 grid gap-5 lg:grid-cols-3">
@@ -888,11 +888,11 @@ export default function AuditResultsPage() {
             ) : null}
 
             {risksAndAssumptions.length ? (
-              <section className="rounded-lg border border-[#eee7dc] bg-[#faf9f7] p-6">
-                <h2 className="text-base font-semibold text-[#171717]">
+              <section className="rounded-lg border border-[color:var(--border)] bg-[var(--card-2)] p-6">
+                <h2 className="text-base font-semibold text-[color:var(--text)]">
                   Risks &amp; assumptions
                 </h2>
-                <ul className="mt-3 space-y-1.5 text-sm leading-6 text-[#6b7280]">
+                <ul className="mt-3 space-y-1.5 text-sm leading-6 text-[color:var(--text-dim)]">
                   {risksAndAssumptions.map((note) => (
                     <li key={note}>• {note}</li>
                   ))}
@@ -901,13 +901,13 @@ export default function AuditResultsPage() {
             ) : null}
 
             <div className="grid gap-6 lg:grid-cols-2">
-              <section className="rounded-lg border border-[#e5ddd0] bg-white p-6">
-                <h2 className="text-lg font-semibold text-[#171717]">
+              <section className="rounded-lg border border-[color:var(--border)] bg-[var(--card)] p-6">
+                <h2 className="text-lg font-semibold text-[color:var(--text)]">
                   Top 5 priorities
                 </h2>
                 <div className="mt-4 space-y-3">
                   {topPriorities.length === 0 ? (
-                    <p className="text-sm text-[#6b7280]">
+                    <p className="text-sm text-[color:var(--text-dim)]">
                       No top priorities were generated.
                     </p>
                   ) : (
@@ -926,13 +926,13 @@ export default function AuditResultsPage() {
                 </div>
               </section>
 
-              <section className="rounded-lg border border-[#e5ddd0] bg-white p-6">
-                <h2 className="text-lg font-semibold text-[#171717]">
+              <section className="rounded-lg border border-[color:var(--border)] bg-[var(--card)] p-6">
+                <h2 className="text-lg font-semibold text-[color:var(--text)]">
                   Quick wins
                 </h2>
                 <div className="mt-4 space-y-3">
                   {quickWins.length === 0 ? (
-                    <p className="text-sm text-[#6b7280]">
+                    <p className="text-sm text-[color:var(--text-dim)]">
                       No quick wins were generated.
                     </p>
                   ) : (
@@ -953,8 +953,8 @@ export default function AuditResultsPage() {
 
             <div className="grid gap-6 lg:grid-cols-[1fr_1.4fr]">
               {clientReadyRecommendations.length ? (
-                <section className="rounded-lg border border-[#e5ddd0] bg-white p-6 lg:col-span-2">
-                  <h2 className="text-lg font-semibold text-[#171717]">
+                <section className="rounded-lg border border-[color:var(--border)] bg-[var(--card)] p-6 lg:col-span-2">
+                  <h2 className="text-lg font-semibold text-[color:var(--text)]">
                     Client-ready recommendations
                   </h2>
                   <div className="mt-4 grid gap-4 lg:grid-cols-2">
@@ -962,20 +962,20 @@ export default function AuditResultsPage() {
                       (recommendation) => (
                         <div
                           key={recommendation.headline}
-                          className="rounded-md border border-[#eee7dc] bg-[#faf9f7] p-4"
+                          className="rounded-md border border-[color:var(--border)] bg-[var(--card-2)] p-4"
                         >
-                          <h3 className="text-sm font-semibold text-[#171717]">
+                          <h3 className="text-sm font-semibold text-[color:var(--text)]">
                             {recommendation.headline}
                           </h3>
-                          <p className="mt-2 text-sm leading-6 text-[#374151]">
+                          <p className="mt-2 text-sm leading-6 text-[color:var(--text-dim)]">
                             {recommendation.explanation}
                           </p>
-                          <ol className="mt-3 list-decimal space-y-1 pl-5 text-sm leading-6 text-[#374151]">
+                          <ol className="mt-3 list-decimal space-y-1 pl-5 text-sm leading-6 text-[color:var(--text-dim)]">
                             {(recommendation.nextSteps || []).map((step) => (
                               <li key={step}>{step}</li>
                             ))}
                           </ol>
-                          <p className="mt-3 text-xs font-medium text-[#6b7280]">
+                          <p className="mt-3 text-xs font-medium text-[color:var(--text-dim)]">
                             Source rules: {(recommendation.sourceRuleIds || []).join(", ")}
                           </p>
                         </div>
@@ -985,8 +985,8 @@ export default function AuditResultsPage() {
                 </section>
               ) : null}
 
-              <section className="rounded-lg border border-[#e5ddd0] bg-white p-6">
-                <h2 className="text-lg font-semibold text-[#171717]">
+              <section className="rounded-lg border border-[color:var(--border)] bg-[var(--card)] p-6">
+                <h2 className="text-lg font-semibold text-[color:var(--text)]">
                   Platform scores
                 </h2>
                 <div className="mt-4 space-y-4">
@@ -996,13 +996,13 @@ export default function AuditResultsPage() {
                     return (
                       <div
                         key={platform}
-                        className="rounded-md border border-[#eee7dc] bg-[#faf9f7] p-4"
+                        className="rounded-md border border-[color:var(--border)] bg-[var(--card-2)] p-4"
                       >
                         <div className="flex items-center justify-between">
-                          <p className="font-semibold text-[#171717]">
+                          <p className="font-semibold text-[color:var(--text)]">
                             {PLATFORM_LABELS[platform]}
                           </p>
-                          <p className="text-sm font-semibold text-[#1f4d3a]">
+                          <p className="text-sm font-semibold text-[color:var(--teal)]">
                             {platformScore?.score ?? 0}/100
                           </p>
                         </div>
@@ -1010,13 +1010,13 @@ export default function AuditResultsPage() {
                           {Object.entries(platformScore?.categories || {}).map(
                             ([category, score]) => (
                               <div key={category}>
-                                <div className="flex justify-between gap-3 text-xs text-[#6b7280]">
+                                <div className="flex justify-between gap-3 text-xs text-[color:var(--text-dim)]">
                                   <span>{category}</span>
                                   <span>{score}/100</span>
                                 </div>
-                                <div className="mt-1 h-2 rounded bg-[#e5ddd0]">
+                                <div className="mt-1 h-2 rounded bg-[var(--card-3)]">
                                   <div
-                                    className="h-2 rounded bg-[#1f4d3a]"
+                                    className="h-2 rounded bg-[var(--violet)]"
                                     style={{ width: `${score}%` }}
                                   />
                                 </div>
@@ -1030,15 +1030,15 @@ export default function AuditResultsPage() {
                 </div>
               </section>
 
-              <section className="rounded-lg border border-[#e5ddd0] bg-white p-6">
+              <section className="rounded-lg border border-[color:var(--border)] bg-[var(--card)] p-6">
                 <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
-                  <h2 className="text-lg font-semibold text-[#171717]">
+                  <h2 className="text-lg font-semibold text-[color:var(--text)]">
                     Full issue list
                   </h2>
                   <select
                     value={sortMode}
                     onChange={(event) => setSortMode(event.target.value as SortMode)}
-                    className="rounded-md border border-[#d1cac0] bg-[#faf9f7] px-3 py-2 text-sm text-[#171717]"
+                    className="rounded-md border border-[color:var(--border)] bg-[var(--card-2)] px-3 py-2 text-sm text-[color:var(--text)]"
                   >
                     <option value="severity">Sort by severity</option>
                     <option value="platform">Sort by platform</option>
@@ -1048,7 +1048,7 @@ export default function AuditResultsPage() {
 
                 <div className="mt-4 space-y-4">
                   {findings.length === 0 ? (
-                    <p className="text-sm text-[#6b7280]">
+                    <p className="text-sm text-[color:var(--text-dim)]">
                       No rule findings were generated.
                     </p>
                   ) : (
@@ -1072,21 +1072,21 @@ function ProcessingBanner({ audit }: { audit: Audit }) {
     .join(", ");
 
   return (
-    <section className="rounded-lg border border-[#b8d9c3] bg-[#eff7f1] p-6">
+    <section className="rounded-lg border border-[color:rgba(46,207,179,0.3)] bg-[rgba(46,207,179,0.08)] p-6">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start">
         <div className="flex h-10 w-10 shrink-0 items-center justify-center">
-          <span className="block h-6 w-6 animate-spin rounded-full border-2 border-[#1f4d3a] border-t-transparent" />
+          <span className="block h-6 w-6 animate-spin rounded-full border-2 border-[color:var(--violet)] border-t-transparent" />
         </div>
         <div className="flex-1">
-          <h2 className="text-lg font-semibold text-[#1f4d3a]">
+          <h2 className="text-lg font-semibold text-[color:var(--teal)]">
             Running your audit...
           </h2>
-          <p className="mt-1 text-sm leading-6 text-[#3d6a50]">
+          <p className="mt-1 text-sm leading-6 text-[color:var(--teal)]">
             We&rsquo;re analyzing your {platforms || "selected"} data with the
             deterministic rule engine. This page will refresh automatically the
             moment results are ready — no need to reload.
           </p>
-          <ul className="mt-3 space-y-1 text-xs text-[#3d6a50]">
+          <ul className="mt-3 space-y-1 text-xs text-[color:var(--teal)]">
             <li>• Validating uploads and intake answers</li>
             <li>• Running rule engine across all platforms</li>
             <li>• Computing platform and category scores</li>
@@ -1152,16 +1152,16 @@ function InsightColumn({
   emptyHint: string;
 }) {
   return (
-    <div className="rounded-md border border-[#eee7dc] bg-[#faf9f7] p-4">
-      <h3 className="text-sm font-semibold text-[#171717]">{title}</h3>
+    <div className="rounded-md border border-[color:var(--border)] bg-[var(--card-2)] p-4">
+      <h3 className="text-sm font-semibold text-[color:var(--text)]">{title}</h3>
       {items.length ? (
-        <ul className="mt-2 space-y-2 text-sm leading-6 text-[#374151]">
+        <ul className="mt-2 space-y-2 text-sm leading-6 text-[color:var(--text-dim)]">
           {items.map((item) => (
             <li key={item}>• {item}</li>
           ))}
         </ul>
       ) : (
-        <p className="mt-2 text-xs leading-5 text-[#9ca3af]">{emptyHint}</p>
+        <p className="mt-2 text-xs leading-5 text-[color:var(--hint)]">{emptyHint}</p>
       )}
     </div>
   );
@@ -1169,9 +1169,9 @@ function InsightColumn({
 
 function SummaryTile({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-md border border-[#eee7dc] bg-[#faf9f7] p-4">
-      <p className="text-xs font-medium text-[#6b7280]">{label}</p>
-      <p className="mt-1 text-base font-semibold text-[#171717]">{value}</p>
+    <div className="rounded-md border border-[color:var(--border)] bg-[var(--card-2)] p-4">
+      <p className="text-xs font-medium text-[color:var(--text-dim)]">{label}</p>
+      <p className="mt-1 text-base font-semibold text-[color:var(--text)]">{value}</p>
     </div>
   );
 }
@@ -1184,7 +1184,7 @@ function SeverityTile({
   count: number;
 }) {
   return (
-    <div className={`rounded-lg border bg-white p-4 ${severityStyles[severity]}`}>
+    <div className={`rounded-lg border bg-[var(--card)] p-4 ${severityStyles[severity]}`}>
       <p className="text-xs font-semibold">{severity}</p>
       <p className="mt-1 text-2xl font-semibold">{count}</p>
     </div>
@@ -1197,21 +1197,21 @@ function ReadinessWarning({ readiness }: { readiness: UploadReadiness }) {
   return (
     <section
       className={`rounded-lg border p-6 ${
-        isFull ? "border-[#b8d9c3] bg-[#eff7f1]" : "border-yellow-200 bg-yellow-50"
+        isFull ? "border-[color:rgba(46,207,179,0.3)] bg-[rgba(46,207,179,0.08)]" : "border-yellow-200 bg-yellow-50"
       }`}
     >
       <div className="flex flex-col justify-between gap-4 lg:flex-row">
         <div>
-          <h2 className="text-lg font-semibold text-[#171717]">
+          <h2 className="text-lg font-semibold text-[color:var(--text)]">
             {isFull ? "Full audit ready" : "Limited audit disclosure"}
           </h2>
-          <p className="mt-2 max-w-3xl text-sm leading-6 text-[#374151]">
+          <p className="mt-2 max-w-3xl text-sm leading-6 text-[color:var(--text-dim)]">
             {isFull
               ? "All required reports for the selected platforms were validated before the audit ran."
               : "This audit ran with partial data. Scores and recommendations are useful for direction, but confidence improves after uploading the missing reports."}
           </p>
         </div>
-        <div className="text-sm font-semibold text-[#374151]">
+        <div className="text-sm font-semibold text-[color:var(--text-dim)]">
           {readiness.completedRequiredCount}/{readiness.requiredCount} required
           reports
         </div>
@@ -1227,18 +1227,18 @@ function ReadinessWarning({ readiness }: { readiness: UploadReadiness }) {
             return (
               <div
                 key={platform}
-                className="rounded-md border border-yellow-200 bg-white/70 p-4"
+                className="rounded-md border border-yellow-200 bg-[var(--card)]/70 p-4"
               >
-                <h3 className="text-sm font-semibold text-[#171717]">
+                <h3 className="text-sm font-semibold text-[color:var(--text)]">
                   Missing {PLATFORM_LABELS[platform as Platform]}
                 </h3>
-                <ul className="mt-2 space-y-1 text-xs leading-5 text-[#374151]">
+                <ul className="mt-2 space-y-1 text-xs leading-5 text-[color:var(--text-dim)]">
                   {platformReadiness.missingReports.slice(0, 4).map((report) => (
                     <li key={report.id}>{report.label}</li>
                   ))}
                 </ul>
                 {platformReadiness.missingReports.length > 4 && (
-                  <p className="mt-2 text-xs text-[#6b7280]">
+                  <p className="mt-2 text-xs text-[color:var(--text-dim)]">
                     +{platformReadiness.missingReports.length - 4} more
                   </p>
                 )}
@@ -1254,10 +1254,10 @@ function ReadinessWarning({ readiness }: { readiness: UploadReadiness }) {
 function SummaryCallout({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <p className="text-xs font-semibold uppercase tracking-wide text-[#3d6a50]">
+      <p className="text-xs font-semibold uppercase tracking-wide text-[color:var(--teal)]">
         {label}
       </p>
-      <p className="mt-1 text-base font-semibold leading-6 text-[#171717]">
+      <p className="mt-1 text-base font-semibold leading-6 text-[color:var(--text)]">
         {value}
       </p>
     </div>
@@ -1270,26 +1270,26 @@ function HypothesisCard({
   item: NonNullable<AiReport["output"]["hypothesisAnalyses"]>[number];
 }) {
   return (
-    <article className="border-l-2 border-[#1f4d3a] pl-4">
+    <article className="border-l-2 border-[color:var(--violet)] pl-4">
       <div className="flex flex-wrap items-center gap-2">
-        <span className="rounded border border-[#b8d9c3] bg-[#eff7f1] px-2 py-0.5 text-xs font-semibold capitalize text-[#1f4d3a]">
+        <span className="rounded border border-[color:rgba(46,207,179,0.3)] bg-[rgba(46,207,179,0.08)] px-2 py-0.5 text-xs font-semibold capitalize text-[color:var(--teal)]">
           {item.confidence} confidence
         </span>
         {(item.sourceRuleIds || []).map((ruleId) => (
-          <span key={ruleId} className="text-xs font-semibold text-[#6b7280]">
+          <span key={ruleId} className="text-xs font-semibold text-[color:var(--text-dim)]">
             {ruleId}
           </span>
         ))}
       </div>
-      <h3 className="mt-2 text-sm font-semibold text-[#171717]">
+      <h3 className="mt-2 text-sm font-semibold text-[color:var(--text)]">
         {item.hypothesis}
       </h3>
-      <ul className="mt-2 space-y-1 text-sm leading-6 text-[#6b7280]">
+      <ul className="mt-2 space-y-1 text-sm leading-6 text-[color:var(--text-dim)]">
         {(item.testsRun || []).map((test) => (
           <li key={test}>{test}</li>
         ))}
       </ul>
-      <p className="mt-2 text-sm leading-6 text-[#374151]">{item.conclusion}</p>
+      <p className="mt-2 text-sm leading-6 text-[color:var(--text-dim)]">{item.conclusion}</p>
     </article>
   );
 }
@@ -1302,84 +1302,84 @@ function FindingAnalysisCard({
   index: number;
 }) {
   return (
-    <article className="border-t border-[#eee7dc] pt-5 first:border-t-0 first:pt-0">
+    <article className="border-t border-[color:var(--border)] pt-5 first:border-t-0 first:pt-0">
       <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
         <div>
           <div className="flex flex-wrap gap-2">
-            <span className="rounded bg-[#171717] px-2 py-1 text-xs font-semibold text-white">
+            <span className="rounded bg-[var(--violet)] px-2 py-1 text-xs font-semibold text-white">
               {index}
             </span>
-            <span className="rounded border border-[#d1cac0] px-2 py-1 text-xs font-semibold text-[#374151]">
+            <span className="rounded border border-[color:var(--border)] px-2 py-1 text-xs font-semibold text-[color:var(--text-dim)]">
               {item.ruleId}
             </span>
             {item.platform && (
-              <span className="rounded border border-[#d1cac0] px-2 py-1 text-xs font-semibold text-[#374151]">
+              <span className="rounded border border-[color:var(--border)] px-2 py-1 text-xs font-semibold text-[color:var(--text-dim)]">
                 {PLATFORM_LABELS[item.platform]}
               </span>
             )}
-            <span className="rounded border border-[#b8d9c3] bg-[#eff7f1] px-2 py-1 text-xs font-semibold capitalize text-[#1f4d3a]">
+            <span className="rounded border border-[color:rgba(46,207,179,0.3)] bg-[rgba(46,207,179,0.08)] px-2 py-1 text-xs font-semibold capitalize text-[color:var(--teal)]">
               {item.confidence}
             </span>
-            <span className="rounded border border-[#eee7dc] bg-[#faf9f7] px-2 py-1 text-xs font-semibold capitalize text-[#6b7280]">
+            <span className="rounded border border-[color:var(--border)] bg-[var(--card-2)] px-2 py-1 text-xs font-semibold capitalize text-[color:var(--text-dim)]">
               {item.easeOfImplementation} fix
             </span>
           </div>
-          <h3 className="mt-3 text-base font-semibold text-[#171717]">
+          <h3 className="mt-3 text-base font-semibold text-[color:var(--text)]">
             {item.title}
           </h3>
         </div>
-        <p className="text-sm font-semibold text-[#1f4d3a] lg:max-w-xs lg:text-right">
+        <p className="text-sm font-semibold text-[color:var(--teal)] lg:max-w-xs lg:text-right">
           {item.estimatedBusinessImpact}
         </p>
       </div>
 
       <div className="mt-4 grid gap-5 lg:grid-cols-2">
         <div>
-          <p className="text-xs font-semibold uppercase text-[#6b7280]">
+          <p className="text-xs font-semibold uppercase text-[color:var(--text-dim)]">
             What is happening
           </p>
-          <p className="mt-1 text-sm leading-6 text-[#374151]">
+          <p className="mt-1 text-sm leading-6 text-[color:var(--text-dim)]">
             {item.whatIsHappening}
           </p>
         </div>
         <div>
-          <p className="text-xs font-semibold uppercase text-[#6b7280]">
+          <p className="text-xs font-semibold uppercase text-[color:var(--text-dim)]">
             Why it is happening
           </p>
-          <p className="mt-1 text-sm leading-6 text-[#374151]">
+          <p className="mt-1 text-sm leading-6 text-[color:var(--text-dim)]">
             {item.whyItIsHappening}
           </p>
         </div>
       </div>
 
-      <details className="mt-4 rounded-md border border-[#eee7dc] bg-[#faf9f7] p-4">
-        <summary className="cursor-pointer text-sm font-semibold text-[#374151]">
+      <details className="mt-4 rounded-md border border-[color:var(--border)] bg-[var(--card-2)] p-4">
+        <summary className="cursor-pointer text-sm font-semibold text-[color:var(--text-dim)]">
           Evidence and actions
         </summary>
         <div className="mt-3 grid gap-5 lg:grid-cols-3">
           <div>
-            <p className="text-xs font-semibold uppercase text-[#6b7280]">Evidence</p>
-            <ul className="mt-2 space-y-1 text-sm leading-6 text-[#374151]">
+            <p className="text-xs font-semibold uppercase text-[color:var(--text-dim)]">Evidence</p>
+            <ul className="mt-2 space-y-1 text-sm leading-6 text-[color:var(--text-dim)]">
               {(item.evidence || []).map((fact) => (
                 <li key={fact}>{fact}</li>
               ))}
             </ul>
           </div>
           <div>
-            <p className="text-xs font-semibold uppercase text-[#6b7280]">
+            <p className="text-xs font-semibold uppercase text-[color:var(--text-dim)]">
               Recommended actions
             </p>
-            <ol className="mt-2 list-decimal space-y-1 pl-4 text-sm leading-6 text-[#374151]">
+            <ol className="mt-2 list-decimal space-y-1 pl-4 text-sm leading-6 text-[color:var(--text-dim)]">
               {(item.recommendedActions || []).map((action) => (
                 <li key={action}>{action}</li>
               ))}
             </ol>
           </div>
           <div>
-            <p className="text-xs font-semibold uppercase text-[#6b7280]">
+            <p className="text-xs font-semibold uppercase text-[color:var(--text-dim)]">
               Expected outcome
             </p>
-            <p className="mt-2 text-sm leading-6 text-[#374151]">
+            <p className="mt-2 text-sm leading-6 text-[color:var(--text-dim)]">
               {item.expectedOutcome}
             </p>
           </div>
@@ -1395,17 +1395,17 @@ function BenchmarkCard({
   item: NonNullable<AiReport["output"]["benchmarkComparisons"]>[number];
 }) {
   return (
-    <article className="border-l-2 border-[#d1cac0] pl-4">
+    <article className="border-l-2 border-[color:var(--border)] pl-4">
       <div className="flex flex-wrap gap-2">
-        <span className="rounded border border-[#d1cac0] px-2 py-0.5 text-xs font-semibold capitalize text-[#374151]">
+        <span className="rounded border border-[color:var(--border)] px-2 py-0.5 text-xs font-semibold capitalize text-[color:var(--text-dim)]">
           {item.comparisonType}
         </span>
-        <span className="rounded border border-[#b8d9c3] bg-[#eff7f1] px-2 py-0.5 text-xs font-semibold capitalize text-[#1f4d3a]">
+        <span className="rounded border border-[color:rgba(46,207,179,0.3)] bg-[rgba(46,207,179,0.08)] px-2 py-0.5 text-xs font-semibold capitalize text-[color:var(--teal)]">
           {item.confidence}
         </span>
       </div>
-      <h3 className="mt-2 text-sm font-semibold text-[#171717]">{item.label}</h3>
-      <p className="mt-2 text-sm leading-6 text-[#6b7280]">{item.finding}</p>
+      <h3 className="mt-2 text-sm font-semibold text-[color:var(--text)]">{item.label}</h3>
+      <p className="mt-2 text-sm leading-6 text-[color:var(--text-dim)]">{item.finding}</p>
     </article>
   );
 }
@@ -1426,14 +1426,14 @@ function PriorityRow({
   detail?: string;
 }) {
   return (
-    <div className="rounded-md border border-[#eee7dc] bg-[#faf9f7] p-4">
+    <div className="rounded-md border border-[color:var(--border)] bg-[var(--card-2)] p-4">
       <div className="flex items-start gap-3">
-        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded bg-[#171717] text-sm font-semibold text-white">
+        <div className="flex h-7 w-7 shrink-0 items-center justify-center rounded bg-[var(--violet)] text-sm font-semibold text-white">
           {index}
         </div>
         <div>
           <div className="flex flex-wrap gap-2">
-            <span className="rounded border border-[#d1cac0] px-2 py-1 text-xs font-semibold text-[#374151]">
+            <span className="rounded border border-[color:var(--border)] px-2 py-1 text-xs font-semibold text-[color:var(--text-dim)]">
               {ruleId}
             </span>
             {severity && (
@@ -1446,13 +1446,13 @@ function PriorityRow({
               </span>
             )}
             {platform && (
-              <span className="rounded border border-[#d1cac0] px-2 py-1 text-xs font-semibold text-[#374151]">
+              <span className="rounded border border-[color:var(--border)] px-2 py-1 text-xs font-semibold text-[color:var(--text-dim)]">
                 {PLATFORM_LABELS[platform]}
               </span>
             )}
           </div>
-          <p className="mt-2 text-sm font-semibold text-[#171717]">{title}</p>
-          {detail && <p className="mt-1 text-sm leading-5 text-[#6b7280]">{detail}</p>}
+          <p className="mt-2 text-sm font-semibold text-[color:var(--text)]">{title}</p>
+          {detail && <p className="mt-1 text-sm leading-5 text-[color:var(--text-dim)]">{detail}</p>}
         </div>
       </div>
     </div>
@@ -1464,7 +1464,7 @@ function FindingCard({ finding }: { finding: RuleFinding }) {
   const highlights = evidenceHighlights(finding.evidence);
 
   return (
-    <article className="rounded-md border border-[#eee7dc] bg-[#faf9f7] p-4">
+    <article className="rounded-md border border-[color:var(--border)] bg-[var(--card-2)] p-4">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <div className="flex flex-wrap gap-2">
@@ -1475,19 +1475,19 @@ function FindingCard({ finding }: { finding: RuleFinding }) {
             >
               {finding.severity}
             </span>
-            <span className="rounded border border-[#d1cac0] px-2 py-1 text-xs font-semibold text-[#374151]">
+            <span className="rounded border border-[color:var(--border)] px-2 py-1 text-xs font-semibold text-[color:var(--text-dim)]">
               {finding.ruleId}
             </span>
             {finding.platform && (
-              <span className="rounded border border-[#d1cac0] px-2 py-1 text-xs font-semibold text-[#374151]">
+              <span className="rounded border border-[color:var(--border)] px-2 py-1 text-xs font-semibold text-[color:var(--text-dim)]">
                 {PLATFORM_LABELS[finding.platform]}
               </span>
             )}
           </div>
-          <h3 className="mt-3 text-base font-semibold text-[#171717]">
+          <h3 className="mt-3 text-base font-semibold text-[color:var(--text)]">
             {finding.title}
           </h3>
-          <p className="mt-1 text-sm text-[#6b7280]">{finding.category}</p>
+          <p className="mt-1 text-sm text-[color:var(--text-dim)]">{finding.category}</p>
         </div>
       </div>
 
@@ -1496,9 +1496,9 @@ function FindingCard({ finding }: { finding: RuleFinding }) {
           {highlights.map((h) => (
             <span
               key={h.label}
-              className="rounded-md border border-[#d1cac0] bg-white px-2.5 py-1 text-xs text-[#374151]"
+              className="rounded-md border border-[color:var(--border)] bg-[var(--card)] px-2.5 py-1 text-xs text-[color:var(--text-dim)]"
             >
-              <span className="font-semibold text-[#6b7280]">{h.label}:</span>{" "}
+              <span className="font-semibold text-[color:var(--text-dim)]">{h.label}:</span>{" "}
               {h.value}
             </span>
           ))}
@@ -1506,11 +1506,11 @@ function FindingCard({ finding }: { finding: RuleFinding }) {
       )}
 
       {finding.detail && (
-        <p className="mt-3 text-sm leading-6 text-[#374151]">{finding.detail}</p>
+        <p className="mt-3 text-sm leading-6 text-[color:var(--text-dim)]">{finding.detail}</p>
       )}
 
       {finding.estimatedImpact && (
-        <p className="mt-3 text-sm leading-6 text-[#374151]">
+        <p className="mt-3 text-sm leading-6 text-[color:var(--text-dim)]">
           <span className="font-semibold">Impact:</span> {finding.estimatedImpact}
         </p>
       )}
@@ -1518,16 +1518,16 @@ function FindingCard({ finding }: { finding: RuleFinding }) {
       {entries.length > 0 && (
         <details
           open={finding.severity === "CRITICAL" || finding.severity === "HIGH"}
-          className="mt-3 rounded-md border border-[#eee7dc] bg-white p-3"
+          className="mt-3 rounded-md border border-[color:var(--border)] bg-[var(--card)] p-3"
         >
-          <summary className="cursor-pointer text-sm font-semibold text-[#374151]">
+          <summary className="cursor-pointer text-sm font-semibold text-[color:var(--text-dim)]">
             Evidence
           </summary>
           <dl className="mt-2 grid gap-2 text-xs sm:grid-cols-2">
             {entries.slice(0, 6).map(([key, value]) => (
               <div key={key}>
-                <dt className="font-semibold text-[#6b7280]">{key}</dt>
-                <dd className="mt-0.5 break-words text-[#374151]">
+                <dt className="font-semibold text-[color:var(--text-dim)]">{key}</dt>
+                <dd className="mt-0.5 break-words text-[color:var(--text-dim)]">
                   {formatEvidenceValue(value)}
                 </dd>
               </div>
@@ -1538,8 +1538,8 @@ function FindingCard({ finding }: { finding: RuleFinding }) {
 
       {finding.fixSteps?.length ? (
         <div className="mt-3">
-          <p className="text-sm font-semibold text-[#374151]">Fix steps</p>
-          <ol className="mt-2 list-decimal space-y-1 pl-5 text-sm leading-6 text-[#374151]">
+          <p className="text-sm font-semibold text-[color:var(--text-dim)]">Fix steps</p>
+          <ol className="mt-2 list-decimal space-y-1 pl-5 text-sm leading-6 text-[color:var(--text-dim)]">
             {finding.fixSteps.map((step) => (
               <li key={step}>{step}</li>
             ))}

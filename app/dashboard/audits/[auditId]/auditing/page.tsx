@@ -127,7 +127,7 @@ export default function AuditingPage() {
         .float-2    { animation: float-2 9s ease-in-out infinite; }
         .float-3    { animation: float-3 11s ease-in-out infinite; }
         .shimmer-text {
-          background: linear-gradient(90deg, #171717 30%, #7c5cfc 50%, #171717 70%);
+          background: linear-gradient(90deg, var(--text) 30%, var(--violet-light) 50%, var(--text) 70%);
           background-size: 200% auto;
           -webkit-background-clip: text;
           -webkit-text-fill-color: transparent;
@@ -141,7 +141,8 @@ export default function AuditingPage() {
         }
       `}</style>
 
-      <div className="min-h-screen bg-[#f7f4ef] relative overflow-hidden">
+      <div className="aa-dash min-h-screen relative overflow-hidden">
+        <div className="ambient" />
         {/* Floating background particles */}
         <div
           className="float-1 pointer-events-none absolute left-[12%] top-[20%] h-4 w-4 rounded-full bg-[#7c5cfc] opacity-30"
@@ -169,42 +170,42 @@ export default function AuditingPage() {
         />
 
         {/* Nav */}
-        <nav className="border-b border-[#e5ddd0] bg-white">
+        <nav className="flow-nav">
           <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
-            <Link href="/dashboard" className="text-lg font-semibold text-[#171717]">
-              Ad Adviser
+            <Link href="/dashboard" className="flow-brand">
+              Ad<span className="em">Adviser</span>
             </Link>
-            <span className="text-sm text-[#6b7280]">Audit in progress…</span>
+            <span className="flow-hint text-sm">Audit in progress…</span>
           </div>
         </nav>
 
         {/* Main */}
-        <main className="flex min-h-[calc(100vh-65px)] items-center justify-center px-6 py-12">
+        <main className="flow-main flex min-h-[calc(100vh-65px)] items-center justify-center px-6 py-12">
           <div className="w-full max-w-md">
 
             {error ? (
-              <div className="rounded-xl border border-red-200 bg-white p-8 text-center shadow-sm">
-                <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-red-100 text-2xl text-red-600">
+              <div className="flow-card p-8 text-center">
+                <div className="flow-error mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full text-2xl">
                   !
                 </div>
-                <h2 className="text-lg font-semibold text-[#171717]">Couldn&rsquo;t start audit</h2>
-                <p className="mt-2 text-sm text-[#6b7280]">{error}</p>
+                <h2 className="flow-h1 text-lg font-semibold">Couldn&rsquo;t start audit</h2>
+                <p className="flow-body mt-2 text-sm">{error}</p>
                 <Link
                   href={`/dashboard/audits/${params.auditId}/upload`}
-                  className="mt-6 inline-block rounded-xl bg-[#171717] px-6 py-3 text-sm font-semibold text-white hover:bg-[#2d2d2d]"
+                  className="flow-cta mt-6 inline-block px-6 py-3 text-sm"
                 >
                   Back to upload
                 </Link>
               </div>
             ) : (
-              <div className="rounded-2xl border border-[#e5ddd0] bg-white p-8 shadow-sm">
+              <div className="flow-card p-8">
 
                 {/* Orb */}
                 <div className="relative mx-auto mb-8 flex h-28 w-28 items-center justify-center">
                   {/* Outer ring */}
-                  <div className="orb-spin absolute inset-0 rounded-full border-4 border-dashed border-[#e5ddd0]" />
+                  <div className="orb-spin flow-ring absolute inset-0 rounded-full border-4 border-dashed" />
                   {/* Inner gradient orb */}
-                  <div className="orb-pulse absolute inset-4 rounded-full bg-gradient-to-br from-[#7c5cfc] via-[#06b6d4] to-[#10b981] blur-[2px]" />
+                  <div className="orb-pulse absolute inset-4 rounded-full bg-gradient-to-br from-[#7b5ef8] via-[#2ecfb3] to-[#4ade80] blur-[2px]" />
                   {/* Logo text */}
                   <div className="relative z-10 flex flex-col items-center">
                     <span className="text-2xl">✦</span>
@@ -214,7 +215,7 @@ export default function AuditingPage() {
                     className="orb-spin absolute inset-0 flex items-start justify-center pt-1"
                     style={{ animationDuration: "3s" }}
                   >
-                    <div className="h-3 w-3 rounded-full bg-white shadow-md ring-2 ring-[#7c5cfc]" />
+                    <div className="h-3 w-3 rounded-full bg-white shadow-md ring-2 ring-[#7b5ef8]" />
                   </div>
                 </div>
 
@@ -223,7 +224,7 @@ export default function AuditingPage() {
                   <h1 className="shimmer-text text-2xl font-bold">
                     AI Audit in Progress
                   </h1>
-                  <p className="mt-2 text-sm text-[#6b7280]">
+                  <p className="flow-body mt-2 text-sm">
                     Sit tight — we&rsquo;re crunching your ad data.
                   </p>
                 </div>
@@ -240,10 +241,10 @@ export default function AuditingPage() {
                         key={i}
                         className={`step-in flex items-center gap-3 rounded-lg px-4 py-3 transition-all duration-300 ${
                           isDone
-                            ? "bg-[#f0fdf4] border border-[#bbf7d0]"
+                            ? "flow-step-done"
                             : isActive
-                            ? "bg-[#faf5ff] border border-[#e9d5ff]"
-                            : "bg-[#fafaf9] border border-transparent opacity-50"
+                            ? "flow-step-active"
+                            : "flow-step-pending"
                         }`}
                         style={{ animationDelay: `${i * 0.08}s` }}
                       >
@@ -251,10 +252,10 @@ export default function AuditingPage() {
                         <div
                           className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
                             isDone
-                              ? "bg-[#22c55e] text-white tick-pop"
+                              ? "flow-ico-done tick-pop"
                               : isActive
-                              ? "bg-[#7c5cfc] text-white"
-                              : "bg-[#e5e7eb] text-[#9ca3af]"
+                              ? "flow-ico-active"
+                              : "flow-ico-pending"
                           }`}
                         >
                           {isDone ? "✓" : isActive ? (
@@ -268,10 +269,10 @@ export default function AuditingPage() {
                         <span
                           className={`text-sm ${
                             isDone
-                              ? "font-medium text-[#15803d]"
+                              ? "flow-lbl-done font-medium"
                               : isActive
-                              ? "font-medium text-[#6d28d9]"
-                              : "text-[#9ca3af]"
+                              ? "flow-lbl-active font-medium"
+                              : "flow-lbl-pending"
                           }`}
                         >
                           {step.label}
@@ -282,19 +283,19 @@ export default function AuditingPage() {
                 </div>
 
                 {/* Progress bar */}
-                <div className="mt-6 overflow-hidden rounded-full bg-[#f3f4f6] h-2">
+                <div className="flow-track mt-6 overflow-hidden rounded-full h-2">
                   <div
-                    className="h-full rounded-full bg-gradient-to-r from-[#7c5cfc] to-[#06b6d4] transition-all duration-[1500ms] ease-out"
+                    className="h-full rounded-full bg-gradient-to-r from-[#7b5ef8] to-[#2ecfb3] transition-all duration-[1500ms] ease-out"
                     style={{ width: `${progressPct}%` }}
                   />
                 </div>
 
                 {/* Footer */}
                 <div className="mt-4 flex items-center justify-between">
-                  <p className="text-xs text-[#9ca3af]">
+                  <p className="flow-hint text-xs">
                     Elapsed: {elapsed}s
                   </p>
-                  <p className="text-xs text-[#9ca3af]">
+                  <p className="flow-hint text-xs">
                     Typically 30–90 seconds
                   </p>
                 </div>
