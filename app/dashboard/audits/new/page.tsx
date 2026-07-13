@@ -124,6 +124,7 @@ export default function NewAuditPage() {
     const a = profile?.answers?.sectionA;
     if (!a) return;
     if (a.businessType) setBusinessType(a.businessType);
+    if (a.currency) setCurrency(a.currency);
     if (a.monthlyBudget != null) setMonthlyBudget(String(a.monthlyBudget));
     if (a.targetCpa != null) setTargetCpa(String(a.targetCpa));
     if (a.targetRoas != null) setTargetRoas(String(a.targetRoas));

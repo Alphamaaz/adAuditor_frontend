@@ -80,6 +80,7 @@ export default function AuditConnectPage() {
   };
 
   const [fetchError, setFetchError] = useState<string | null>(null);
+  const [showMetaPermissions, setShowMetaPermissions] = useState(false);
 
   const handleFetchGoogle = async () => {
     if (!effectiveCustomerId) return;
@@ -208,13 +209,14 @@ export default function AuditConnectPage() {
                 )}
 
                 {hasMeta && (
-                  <a
-                    href={`${apiBase}/api/platform-connections/meta/connect?auditId=${params.auditId}`}
+                  <button
+                    type="button"
+                    onClick={() => setShowMetaPermissions(true)}
                     className="flex items-center justify-center gap-3 rounded-xl bg-[#1877F2] px-6 py-4 text-base font-semibold text-white shadow-sm transition-all hover:shadow-md"
                   >
                     <MetaLogo />
                     Connect Meta Ads
-                  </a>
+                  </button>
                 )}
 
                 {hasTikTok && (
@@ -549,6 +551,13 @@ export default function AuditConnectPage() {
           )}
         </div>
       </main>
+
+      {showMetaPermissions && (
+        <MetaPermissionsModal
+          connectUrl={`${apiBase}/api/platform-connections/meta/connect?auditId=${params.auditId}`}
+          onCancel={() => setShowMetaPermissions(false)}
+        />
+      )}
     </div>
   );
 }
@@ -560,6 +569,64 @@ function Stat({ label, value }: { label: string; value: string }) {
     <div className="text-center">
       <p className="flow-hint text-xs font-medium">{label}</p>
       <p className="flow-option-title mt-1 text-base font-semibold">{value}</p>
+    </div>
+  );
+}
+
+function MetaPermissionsModal({ connectUrl, onCancel }: { connectUrl: string; onCancel: () => void }) {
+  return (
+    <div
+      className="flow-modal-backdrop fixed inset-0 z-50 flex items-center justify-center px-4"
+      onClick={onCancel}
+    >
+      <div
+        className="flow-modal w-full max-w-md rounded-2xl p-6"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center gap-3">
+          <MetaLogo />
+          <h2 className="flow-h1 text-lg font-semibold">Permissions we&apos;ll request</h2>
+        </div>
+        <p className="flow-body mt-3 text-sm leading-6">
+          Facebook will ask you to approve access for AdAdviser. Here&apos;s exactly what we ask for and why:
+        </p>
+
+        <ul className="mt-4 space-y-3">
+          <li className="flow-perm-item rounded-xl p-3">
+            <p className="flow-option-title text-sm font-semibold">ads_read</p>
+            <p className="flow-hint mt-1 text-xs leading-5">
+              Lets us view your campaigns, ad sets, ads, and performance metrics (spend, clicks,
+              conversions) so we can analyze them. We cannot create, edit, pause, or spend from your
+              account with this permission.
+            </p>
+          </li>
+          <li className="flow-perm-item rounded-xl p-3">
+            <p className="flow-option-title text-sm font-semibold">business_management</p>
+            <p className="flow-hint mt-1 text-xs leading-5">
+              Lets us see which ad accounts you have access to in Meta Business Manager, so you can
+              pick the right one on the next screen.
+            </p>
+          </li>
+        </ul>
+
+        <div className="flow-note-teal mt-4 rounded-md px-4 py-3 text-xs leading-5">
+          Read-only access. We never post, edit, or spend on your behalf, and you can revoke access
+          anytime from your Facebook Business Integrations settings.
+        </div>
+
+        <div className="mt-6 flex gap-3">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="flow-back flex-1 rounded-xl px-4 py-3 text-center text-sm"
+          >
+            Cancel
+          </button>
+          <a href={connectUrl} className="flow-cta flex-1 px-4 py-3 text-center text-sm">
+            Continue to Facebook
+          </a>
+        </div>
+      </div>
     </div>
   );
 }

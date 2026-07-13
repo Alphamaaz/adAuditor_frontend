@@ -2217,3 +2217,19 @@ html[data-theme="light"] .aa-dash .ambient {
 .aa-dash .flow-track {
   background: var(--card-3);
 }
+
+.aa-dash .flow-modal-backdrop {
+  background: rgba(5, 3, 12, 0.6);
+  backdrop-filter: blur(4px);
+}
+
+.aa-dash .flow-modal {
+  border: 1px solid var(--border);
+  background: var(--card);
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+}
+
+.aa-dash .flow-perm-item {
+  border: 1px solid var(--border);
+  background: var(--card-2);
+}
