@@ -3,6 +3,7 @@ import api from "./api";
 export interface BusinessProfileAnswers {
   sectionA: {
     businessType?: string | null;
+    currency?: string | null;
     monthlyBudget?: number | null;
     targetCpa?: number | null;
     targetRoas?: number | null;
