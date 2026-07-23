@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { useCurrentUser, useLogout } from "@/hooks/use-auth";
-import { useAudits } from "@/hooks/use-audits";
+import { useAudit, useAudits } from "@/hooks/use-audits";
 import { useMyPlanAndUsage } from "@/hooks/use-plans";
 import { getAuditResumePath } from "@/lib/audit-navigation";
 import { DashboardSidebar } from "./DashboardSidebar";
@@ -28,6 +28,21 @@ export function DashboardShell({ active, section, children }: DashboardShellProp
   const { data: audits = [] } = useAudits(isAuthenticated);
   const { data: planData } = useMyPlanAndUsage(isAuthenticated);
   const logout = useLogout();
+  const latestScored = [...audits]
+    .filter((audit) => audit.status === "COMPLETED" && typeof audit.healthScore === "number")
+    .sort(
+      (a, b) =>
+        new Date(b.completedAt || b.updatedAt).getTime() -
+        new Date(a.completedAt || a.updatedAt).getTime()
+    )[0];
+  const { data: latestAuditDetail } = useAudit(latestScored?.id || "");
+  const priorityCount = Math.min(5, latestAuditDetail?.ruleFindings?.length || 0);
+  const quickWinCount = Math.min(
+    9,
+    latestAuditDetail?.aiReport?.output?.quickWins?.length ||
+      latestAuditDetail?.ruleFindings?.filter((finding) => finding.fixSteps?.length).length ||
+      0
+  );
 
   useEffect(() => {
     if (!isLoading && !data) {
@@ -54,14 +69,6 @@ export function DashboardShell({ active, section, children }: DashboardShellProp
   const org = organizations[0];
   const planLabel = planData?.plan?.name || null;
 
-  const latestScored = [...audits]
-    .filter((audit) => audit.status === "COMPLETED" && typeof audit.healthScore === "number")
-    .sort(
-      (a, b) =>
-        new Date(b.completedAt || b.updatedAt).getTime() -
-        new Date(a.completedAt || a.updatedAt).getTime()
-    )[0];
-
   return (
     <div className="aa-dash">
       <div className="ambient" />
@@ -73,11 +80,20 @@ export function DashboardShell({ active, section, children }: DashboardShellProp
           orgName={org?.name}
           planLabel={planLabel}
           resultsHref={latestScored ? getAuditResumePath(latestScored) : null}
+          analysesCount={audits.length}
+          priorityCount={priorityCount}
+          quickWinCount={quickWinCount}
           onLogout={() => logout.mutate()}
           loggingOut={logout.isPending}
         />
         <div className="main">
-          <DashboardTopbar section={section} planLabel={planLabel} />
+          <DashboardTopbar
+            section={section}
+            planLabel={planLabel}
+            userName={user.name}
+            userEmail={user.email}
+            audits={audits}
+          />
           <div className="content">{children}</div>
         </div>
       </div>

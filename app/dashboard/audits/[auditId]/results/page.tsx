@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import Link from "next/link";
+import { BrandLogo } from "@/components/brand-logo";
 import { useParams } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
@@ -397,7 +398,7 @@ export default function AuditResultsPage() {
           <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
             <div className="flex min-w-0 items-center gap-3">
               <Link href="/dashboard" className="text-lg font-semibold text-[color:var(--text)]">
-                Ad Adviser
+                <BrandLogo size={32} />
               </Link>
               <span className="hidden truncate text-sm text-[color:var(--text-dim)] sm:inline">
                 Audit report
@@ -489,7 +490,7 @@ export default function AuditResultsPage() {
       <nav className="border-b border-[color:var(--border)] bg-[var(--card)]">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
           <Link href="/dashboard" className="text-lg font-semibold text-[color:var(--text)]">
-            Ad Adviser
+            <BrandLogo size={32} />
           </Link>
           <div className="flex items-center gap-2">
             <Link

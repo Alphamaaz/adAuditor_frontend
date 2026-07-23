@@ -137,6 +137,11 @@ export interface MyPlanAndUsage {
   };
 }
 
+export interface BillingRedirect {
+  url: string;
+  sessionId?: string;
+}
+
 export const plansApi = {
   list: async (): Promise<SubscriptionPlan[]> => {
     const res = await api.get<{ status: string; data: SubscriptionPlan[] }>(
@@ -149,5 +154,19 @@ export const plansApi = {
       "/api/billing/me"
     );
     return res.data.data;
+  },
+  createCheckout: async (input: {
+    planId: string;
+    successUrl: string;
+    cancelUrl: string;
+  }): Promise<BillingRedirect> => {
+    const res = await api.post<BillingRedirect>("/api/billing/checkout", input);
+    return res.data;
+  },
+  createPortal: async (returnUrl: string): Promise<BillingRedirect> => {
+    const res = await api.post<BillingRedirect>("/api/billing/portal", {
+      returnUrl,
+    });
+    return res.data;
   },
 };

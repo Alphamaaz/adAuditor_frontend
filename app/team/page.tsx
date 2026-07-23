@@ -1,18 +1,12 @@
 "use client";
 
 import Link from "next/link";
+import { BrandLogo } from "@/components/brand-logo";
 import "../landing.css";
 
 const LinkedInIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
     <path d="M20.45 20.45h-3.56v-5.57c0-1.33-.03-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.45v6.29zM5.34 7.43a2.07 2.07 0 1 1 0-4.14 2.07 2.07 0 0 1 0 4.14zM7.12 20.45H3.55V9h3.57v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.72v20.56C0 23.23.79 24 1.77 24h20.45C23.21 24 24 23.23 24 22.28V1.72C24 .77 23.21 0 22.22 0z"/>
-  </svg>
-);
-
-const LogoSvg = ({ width = 28, height = 18 }: { width?: number; height?: number }) => (
-  <svg width={width} height={height} viewBox="0 0 34 22" fill="none" aria-hidden="true">
-    <path d="M2 11 C 8 2, 14 20, 20 11 S 30 2, 32 11" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" fill="none" />
-    <circle cx="32" cy="11" r="2.6" fill="currentColor" />
   </svg>
 );
 
@@ -55,7 +49,7 @@ export default function TeamPage() {
       {/* Nav */}
       <nav className="lp-nav" id="lp-nav">
         <Link href="/" className="nav-logo">
-          <LogoSvg /><div className="logo-dot" />AdAdvisor
+          <BrandLogo size={30} priority />
         </Link>
         <div className="nav-cta">
           <Link href="/" className="btn-ghost">← Back to home</Link>
@@ -109,12 +103,12 @@ export default function TeamPage() {
 
       {/* Footer */}
       <footer className="lp-footer">
-        <Link href="/" className="footer-logo"><LogoSvg width={22} height={14} />AdAdvisor</Link>
+        <Link href="/" className="footer-logo"><BrandLogo size={30} /></Link>
         <ul className="footer-links">
           <li><Link href="/privacy">Privacy</Link></li>
           <li><Link href="/terms">Terms</Link></li>
           <li><Link href="/team">Team</Link></li>
-          <li><Link href="/pricing">Pricing</Link></li>
+          <li><Link href="/#pricing">Pricing</Link></li>
         </ul>
         <div className="footer-copy">© 2026 AdAdvisor. All rights reserved.</div>
       </footer>

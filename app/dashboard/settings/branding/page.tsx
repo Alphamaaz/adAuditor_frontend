@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { BrandLogo } from "@/components/brand-logo";
 import { useRef, useState } from "react";
 import { useBranding, useUpdateBranding, useUploadLogo, useDeleteLogo } from "@/hooks/use-branding";
 import { getErrorMessage } from "@/lib/api";
@@ -90,7 +91,7 @@ export default function BrandingSettingsPage() {
       <nav className="border-b border-[#e5ddd0] bg-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
           <Link href="/dashboard" className="text-lg font-semibold text-[#171717]">
-            Ad Adviser
+            <BrandLogo size={34} />
           </Link>
           <Link
             href="/dashboard"

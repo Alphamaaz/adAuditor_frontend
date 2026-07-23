@@ -2,6 +2,7 @@
 
 import { ChangeEvent, FormEvent, useMemo, useState } from "react";
 import Link from "next/link";
+import { BrandLogo } from "@/components/brand-logo";
 import { useParams } from "next/navigation";
 import { useAudit, useRunAudit, useUploadAuditFile } from "@/hooks/use-audits";
 import { getErrorMessage } from "@/lib/api";
@@ -95,7 +96,7 @@ export default function AuditUploadPage() {
       <nav className="border-b border-[#e5ddd0] bg-white">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
           <Link href="/dashboard" className="text-lg font-semibold text-[#171717]">
-            Ad Adviser
+            <BrandLogo size={32} />
           </Link>
           <Link
             href={`/dashboard/audits/${auditId}/intake`}

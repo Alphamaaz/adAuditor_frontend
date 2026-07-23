@@ -1,13 +1,7 @@
 import Link from "next/link";
 import { CASE_STUDIES } from "./data";
+import { BrandLogo } from "@/components/brand-logo";
 import "../landing.css";
-
-const LogoSvg = ({ width = 28, height = 18 }: { width?: number; height?: number }) => (
-  <svg width={width} height={height} viewBox="0 0 34 22" fill="none" aria-hidden="true">
-    <path d="M2 11 C 8 2, 14 20, 20 11 S 30 2, 32 11" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" fill="none" />
-    <circle cx="32" cy="11" r="2.6" fill="currentColor" />
-  </svg>
-);
 
 export const metadata = {
   title: "Case studies — AdAdvisor",
@@ -19,7 +13,7 @@ export default function CaseStudiesIndex() {
     <div className="landing-root">
       <nav className="lp-nav" id="lp-nav">
         <Link href="/" className="nav-logo">
-          <LogoSvg /><div className="logo-dot" />AdAdvisor
+          <BrandLogo size={30} priority />
         </Link>
         <div className="nav-cta">
           <Link href="/" className="btn-ghost">← Back to home</Link>
@@ -71,11 +65,11 @@ export default function CaseStudiesIndex() {
       </section>
 
       <footer className="lp-footer">
-        <Link href="/" className="footer-logo"><LogoSvg width={22} height={14} />AdAdvisor</Link>
+        <Link href="/" className="footer-logo"><BrandLogo size={30} /></Link>
         <ul className="footer-links">
           <li><Link href="/privacy">Privacy</Link></li>
           <li><Link href="/terms">Terms</Link></li>
-          <li><Link href="/pricing">Pricing</Link></li>
+          <li><Link href="/#pricing">Pricing</Link></li>
         </ul>
         <div className="footer-copy">© 2026 AdAdvisor. All rights reserved.</div>
       </footer>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { plansApi } from "@/lib/plans";
 
 export const PLANS_QUERY_KEY = ["plans"] as const;
@@ -26,5 +26,25 @@ export function useMyPlanAndUsage(enabled = true) {
     retry: false,
     // Usage updates after each audit run — keep relatively fresh.
     staleTime: 30 * 1000,
+  });
+}
+
+export function useCreateCheckout() {
+  return useMutation({
+    mutationFn: (planId: string) =>
+      plansApi.createCheckout({
+        planId,
+        successUrl: `${window.location.origin}/dashboard/billing?checkout=success`,
+        cancelUrl: `${window.location.origin}/dashboard/billing?checkout=cancelled`,
+      }),
+    onSuccess: ({ url }) => window.location.assign(url),
+  });
+}
+
+export function useCreateBillingPortal() {
+  return useMutation({
+    mutationFn: () =>
+      plansApi.createPortal(`${window.location.origin}/dashboard/billing`),
+    onSuccess: ({ url }) => window.location.assign(url),
   });
 }

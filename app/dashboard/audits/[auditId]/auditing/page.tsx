@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Link from "next/link";
+import { BrandLogo } from "@/components/brand-logo";
 import { useAudit } from "@/hooks/use-audits";
 import { auditsApi } from "@/lib/audits";
 import { getErrorMessage } from "@/lib/api";
@@ -173,7 +174,7 @@ export default function AuditingPage() {
         <nav className="flow-nav">
           <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
             <Link href="/dashboard" className="flow-brand">
-              Ad<span className="em">Adviser</span>
+              <BrandLogo size={34} />
             </Link>
             <span className="flow-hint text-sm">Audit in progress…</span>
           </div>
@@ -234,7 +235,6 @@ export default function AuditingPage() {
                   {STEPS.map((step, i) => {
                     const isDone = completedSteps.includes(i);
                     const isActive = activeStep === i && !isDone;
-                    const isPending = i > activeStep;
 
                     return (
                       <div

@@ -214,12 +214,21 @@ export default function DashboardPage() {
           orgName={org?.name}
           planLabel={planLabel}
           resultsHref={resultsHref}
+          analysesCount={audits.length}
+          priorityCount={Math.min(5, priorities.length)}
+          quickWinCount={quickWins.length}
           onLogout={() => logout.mutate()}
           loggingOut={logout.isPending}
         />
 
         <div className="main">
-          <DashboardTopbar section="Dashboard" planLabel={planLabel} />
+          <DashboardTopbar
+            section="Dashboard"
+            planLabel={planLabel}
+            userName={user.name}
+            userEmail={user.email}
+            audits={audits}
+          />
 
           <div className="content">
             <div className="page-head">

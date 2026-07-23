@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import Link from "next/link";
+import { BrandLogo } from "@/components/brand-logo";
 import { useParams, useSearchParams } from "next/navigation";
 import { useState } from "react";
 import { useAudit } from "@/hooks/use-audits";
@@ -163,7 +164,7 @@ export default function AuditConnectPage() {
       <nav className="flow-nav">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-4">
           <Link href="/dashboard" className="flow-brand">
-            Ad<span className="em">Adviser</span>
+            <BrandLogo size={34} />
           </Link>
           <Link
             href="/dashboard"

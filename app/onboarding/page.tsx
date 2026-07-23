@@ -7,6 +7,7 @@ import { useBusinessProfile, useUpsertBusinessProfile } from "@/hooks/use-busine
 import { getErrorMessage } from "@/lib/api";
 import type { BusinessProfileAnswers } from "@/lib/business-profile";
 import Link from "next/link";
+import { BrandLogo } from "@/components/brand-logo";
 
 // ── constants ─────────────────────────────────────────────────────────────────
 
@@ -588,7 +589,7 @@ function OnboardingPageInner() {
       <nav className="border-b border-[#e5ddd0] bg-white">
         <div className="mx-auto flex max-w-3xl items-center justify-between px-6 py-4">
           <Link href="/" className="text-lg font-semibold text-[#171717]">
-            Ad Adviser
+            <BrandLogo size={34} />
           </Link>
           <div className="flex items-center gap-4">
             {isEditMode && (

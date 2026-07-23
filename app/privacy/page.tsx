@@ -1,96 +1,81 @@
 import Link from "next/link";
+import { LegalPage, LegalSection } from "@/components/public-site";
 
-export default function PrivacyPolicy() {
+export default function PrivacyPolicyPage() {
   return (
-    <div className="min-h-screen bg-[#faf9f7] px-6 py-20">
-      <div className="mx-auto max-w-3xl rounded-xl border border-[#e5ddd0] bg-white p-8 shadow-sm lg:p-12">
-        <h1 className="text-3xl font-bold text-[#171717]">Privacy Policy</h1>
-        <p className="mt-2 text-sm text-[#6b7280]">Last Updated: July 1, 2026</p>
+    <LegalPage title="Privacy Policy" updatedAt="July 1, 2026">
+      <LegalSection title="1. Information We Collect">
+        <p>
+          We collect information you provide when creating an account, connecting
+          Meta, Google Ads, or TikTok, and using the audit service. This can include
+          your name, email address, and advertising performance data retrieved
+          through each platform&apos;s official API.
+        </p>
+      </LegalSection>
 
-        <div className="prose prose-slate mt-8 max-w-none space-y-6 text-[#374151]">
-          <section>
-            <h2 className="text-xl font-semibold text-[#171717]">1. Information We Collect</h2>
-            <p>
-              We collect information you provide directly to us when you create an account, connect your advertising platforms (Meta/Facebook, Google Ads, and TikTok), and use our auditing services. This includes your name, email address, and advertising performance data (campaign, ad group, keyword, and spend metrics) retrieved via each platform&apos;s official API.
-            </p>
-          </section>
+      <LegalSection title="2. How We Use Information">
+        <p>
+          We use this information to provide, maintain, and improve requested audit
+          services, including generating reports, identifying wasted spend, and
+          producing recommendations. We do not use platform data for resale or for
+          unrelated advertising.
+        </p>
+      </LegalSection>
 
-          <section>
-            <h2 className="text-xl font-semibold text-[#171717]">2. How We Use Information</h2>
-            <p>
-              We use the information we collect to provide, maintain, and improve our services, specifically to generate audit reports, identify wasted ad spend, and provide recommendations for your advertising campaigns. We do not use advertising data obtained through platform APIs for advertising, resale, or any purpose unrelated to producing the audit you request.
-            </p>
-          </section>
+      <LegalSection title="3. Data Sharing">
+        <p>
+          We do not sell personal data. Information is shared only where necessary
+          to operate the service, comply with law, complete a business transaction
+          subject to equivalent protections, or act with your consent.
+        </p>
+      </LegalSection>
 
-          <section>
-            <h2 className="text-xl font-semibold text-[#171717]">3. Data Sharing</h2>
-            <p>
-              We do not sell your personal data. We only share information with third-party advertising platforms (Meta, Google, and TikTok) as necessary to perform the requested audits through their official API integrations. We do not transfer platform data to third parties except as required to operate the service (e.g., our cloud hosting provider), to comply with the law, or with your consent.
-            </p>
-          </section>
+      <LegalSection title="4. Data Security">
+        <ul className="list-disc space-y-2 pl-5">
+          <li>Data in transit is protected with TLS.</li>
+          <li>OAuth tokens are encrypted at rest and decrypted only when needed.</li>
+          <li>Passwords and session secrets are stored as secure hashes.</li>
+          <li>Production access is restricted using least-privilege controls.</li>
+          <li>We request only the platform permissions required for the service.</li>
+        </ul>
+      </LegalSection>
 
-          <section>
-            <h2 className="text-xl font-semibold text-[#171717]">4. Data Security</h2>
-            <p>
-              We protect the sensitive data we access — including advertising performance data retrieved from platform APIs — using the following mechanisms:
-            </p>
-            <ul className="ml-6 list-disc space-y-1">
-              <li><strong>Encryption in transit:</strong> all data exchanged between your browser, our servers, and platform APIs is encrypted using TLS (HTTPS).</li>
-              <li><strong>Encrypted credentials:</strong> OAuth access and refresh tokens for Meta, Google, and TikTok are encrypted with AES-256-GCM before they are stored, and are decrypted only in memory when performing an audit you requested.</li>
-              <li><strong>Hashed secrets:</strong> account passwords are stored as salted scrypt hashes, and session and verification tokens are stored only as SHA-256 hashes — never in plaintext.</li>
-              <li><strong>Access controls:</strong> access to production data is restricted to authorized personnel on a least-privilege basis, and each customer&apos;s data is isolated to their own workspace.</li>
-              <li><strong>Minimal scope:</strong> we request only the read-only API scopes required to perform an audit and never request permission to create, edit, or pause your campaigns.</li>
-              <li><strong>Secure deletion:</strong> when you delete your account or revoke access, the associated advertising data and stored tokens are permanently removed from our systems.</li>
-            </ul>
-          </section>
+      <LegalSection title="5. Google API Services - Limited Use">
+        <p>
+          Ad Adviser&apos;s use and transfer of information received from Google APIs
+          adheres to the{" "}
+          <a
+            href="https://developers.google.com/terms/api-services-user-data-policy"
+            className="text-[#eaff00] underline"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Google API Services User Data Policy
+          </a>
+          , including its Limited Use requirements. Google user data is not sold,
+          used for targeted advertising, or used to train generalized AI models.
+        </p>
+      </LegalSection>
 
-          <section>
-            <h2 className="text-xl font-semibold text-[#171717]">5. Google API Services — Limited Use</h2>
-            <p>
-              AdAuditor Pro&apos;s use and transfer of information received from Google APIs adheres to the{" "}
-              <a
-                href="https://developers.google.com/terms/api-services-user-data-policy"
-                className="text-[#1f4d3a] underline"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Google API Services User Data Policy
-              </a>
-              , including the Limited Use requirements. Data obtained from the Google Ads API is used solely to provide and improve the audit features you request. We specifically do <strong>not</strong>:
-            </p>
-            <ul className="ml-6 list-disc space-y-1">
-              <li>use Google user data for serving advertisements, including targeted or personalized advertising;</li>
-              <li>sell or transfer Google user data to data brokers, information resellers, or any other third party for those purposes;</li>
-              <li>use Google user data to train, develop, or improve generalized or standalone artificial-intelligence or machine-learning models.</li>
-            </ul>
-            <p>
-              We transfer Google user data only where necessary to provide or improve the service, to comply with applicable law, or as part of a merger or acquisition (in which case we require the recipient to honor this policy).
-            </p>
-          </section>
-
-          <section>
-            <h2 className="text-xl font-semibold text-[#171717]">6. Data Retention and Deletion</h2>
-            <p>
-              We retain Google user data only for as long as your account is active or as needed to provide the audit services you requested. You may request deletion of your account and all associated data at any time by following our <Link href="/data-deletion" className="text-[#1f4d3a] underline">Data Deletion Instructions</Link>. Once we process your request, we permanently remove the associated Google user data and stored OAuth tokens from our systems within 30 days. You may also revoke our access to your Google account at any time through your{" "}
-              <a
-                href="https://myaccount.google.com/permissions"
-                className="text-[#1f4d3a] underline"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Google Account permissions
-              </a>{" "}
-              page.
-            </p>
-          </section>
-        </div>
-
-        <div className="mt-12 border-t border-[#e5ddd0] pt-8">
-          <Link href="/" className="text-sm font-medium text-[#1f4d3a] hover:underline">
-            ← Back to Home
-          </Link>
-        </div>
-      </div>
-    </div>
+      <LegalSection title="6. Data Retention and Deletion">
+        <p>
+          We retain user data only while the account is active or as needed to
+          provide the requested service and meet legal obligations. Follow our{" "}
+          <Link href="/data-deletion" className="text-[#eaff00] underline">
+            Data Deletion Instructions
+          </Link>{" "}
+          to request removal. You may also revoke Google access from your{" "}
+          <a
+            href="https://myaccount.google.com/permissions"
+            className="text-[#eaff00] underline"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Google Account permissions
+          </a>
+          .
+        </p>
+      </LegalSection>
+    </LegalPage>
   );
 }

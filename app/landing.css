@@ -49,6 +49,10 @@
   min-height: 100vh;
 }
 
+.landing-root section[id] {
+  scroll-margin-top: 88px;
+}
+
 @media (hover: none) {
   .landing-root { cursor: auto; }
   .cursor, .cursor-ring { display: none; }

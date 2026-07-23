@@ -4,6 +4,7 @@ import { ReactNode } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useCurrentUser, useLogout } from "@/hooks/use-auth";
+import { BrandLogo } from "@/components/brand-logo";
 import {
   Users,
   LayoutDashboard,
@@ -89,11 +90,12 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       <aside className="fixed inset-y-0 left-0 w-64 border-r border-[#e5ddd0] bg-white shadow-sm">
         <div className="flex h-16 items-center border-b border-[#e5ddd0] px-6">
           <Link href="/admin" className="flex items-center gap-2">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-[#1f4d3a] text-white">
-              <ShieldCheck size={20} />
-            </div>
-            <span className="text-lg font-bold tracking-tight text-[#171717]">
-              Admin Panel
+            <BrandLogo
+              size={34}
+              labelClassName="text-base font-bold tracking-tight text-[#171717]"
+            />
+            <span className="rounded bg-[#eff7f1] px-2 py-1 text-[10px] font-bold uppercase tracking-wider text-[#1f4d3a]">
+              Admin
             </span>
           </Link>
         </div>
